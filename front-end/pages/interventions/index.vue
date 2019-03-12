@@ -109,7 +109,7 @@ export default {
 //
   async mounted() {
     console.info("mounted", { interventions: this.interventions});
-    const url = process.env.API_URL + 'interventions'
+    const url = process.env.API_URL + '/interventions'
     await this.$axios.$get(url)
         .then(response => {
           this.$store.commit('set_interventionCourrantes', response.interventions)
