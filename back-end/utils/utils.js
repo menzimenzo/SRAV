@@ -1,0 +1,61 @@
+/**
+ * Format the url use in the redirection call
+ * to the France Connect Authorization and logout API endpoint.
+ * @see @link{ https://partenaires.franceconnect.gouv.fr/fcp/fournisseur-service# }
+ */
+
+var config = require('../config')
+var moment = require('moment');
+
+
+module.exports = {
+
+  // TODO hard code state et nonce because they normally generate from every request
+  getAuthorizationUrl : () => `${config.franceConnect.FC_URL}${config.franceConnect.AUTHORIZATION_FC_PATH}?`
+    + `response_type=code&client_id=${config.franceConnect.CLIENT_ID}&redirect_uri=${config.franceConnect.FS_URL}`
+    + `${config.franceConnect.CALLBACK_FS_PATH}&scope=${config.franceConnect.SCOPES}&state=customState11&nonce=customNonce11`
+  
+  
+  /**
+   * Format the url 's that is used in a redirect call to France Connect logout API endpoint
+   * @returns {string}
+   */
+   , getLogoutUrl : req => `${config.franceConnect.FC_URL}${config.franceConnect.LOGOUT_FC_PATH}?id_token_hint=`
+    + `${req.session.idToken}&state=customState11&post_logout_redirect_uri=${config.franceConnect.FS_URL}`
+    + `${config.franceConnect.LOGOUT_FS_PATH}`
+
+  , formatUtilisateur : (utilisateur, toClient = true) => {
+    let dateNaissance = moment(utilisateur.uti_datenaissance, "YYYY-MM-DD");
+
+    if(toClient){
+        dateNaissance = dateNaissance.format("YYYY-MM-DD");
+        return {
+            id: utilisateur.uti_id,
+            profilId: utilisateur.pro_id,
+            structureId: utilisateur.str_id,
+            statutId: utilisateur.stu_id,
+            mail: utilisateur.uti_mail,
+            nom: utilisateur.uti_nom,
+            prenom: utilisateur.uti_prenom,
+            dateNaissance: dateNaissance,
+            structureLocale: utilisateur.uti_structurelocale,
+            tokenFc: utilisateur.uti_tockenfranceconnect,
+            validated: utilisateur.validated
+        }
+    } else {
+        return {
+            uti_id : utilisateur.id ,
+            pro_id : utilisateur.profilId ,
+            str_id : utilisateur.structureId ,
+            stu_id : utilisateur.statutId ,
+            uti_mail : utilisateur.mail ,
+            uti_nom : utilisateur.nom ,
+            uti_prenom : utilisateur.prenom ,
+            uti_datenaissance: dateNaissance.toISOString(),
+            uti_structurelocale : utilisateur.structureLocale ,
+            uti_tockenfranceconnect : utilisateur.tokenFc ,
+            validated: utilisateur.validated
+        }
+    }
+}
+}
