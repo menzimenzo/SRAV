@@ -5,12 +5,13 @@ module.exports = {
     database: process.env.POSTGRES_DB || "srv_dev",
     password: process.env.POSTGRES_PWD ||"Sr4v3l0!",
     port: process.env.POSTGRES_PORT ||5432
-
-    //        user: 'io_integ',
-    //        host: 'ac000941',
-    //        database: 'postgres',
-    //        password: 'SIAO@paris75',
-    //        port: 52002
+    /* Config Laurent
+    user: process.env.POSTGRES_URL || "io_integ",
+    host: process.env.POSTGRES_HOST || "ac000941",
+    database: process.env.POSTGRES_DB || "postgres",
+    password: process.env.POSTGRES_PWD ||"SIAO@paris75",
+    port: process.env.POSTGRES_PORT ||52002
+    */
   },
   // les watchers ("normal" et nuxt) ne semblent pas fonctionner sous windows
   watch: true,
@@ -20,12 +21,11 @@ module.exports = {
     }
   },
   sessionSecret: "vB2P+i@/Uz>+yK%@LK@g9Vb93gZ^c<",
-  APP_URL: "http://localhost/",
   // FRANCE CONNECT
   franceConnect: {
     "FC_URL": process.env.FC_URL || "https://fcp.integ01.dev-franceconnect.fr",
     "FS_URL": process.env.FS_URL || "http://localhost",
-    "FRANCE_CONNECT_KIT_PATH":process.env.FRANCE_CONNECT_KIT_PATH ||  "/js/franceconnect.js",
+    //"FRANCE_CONNECT_KIT_PATH":process.env.FRANCE_CONNECT_KIT_PATH ||  "/js/franceconnect.js",
 
     "CLIENT_ID": process.env.CLIENT_ID || "14a5bbbc66fd6ea4a525e5faadb38afec6bd07375d12dba2a42ffb7cab9ef49d",
     "CLIENT_SECRET": process.env.CLIENT_SECRET || "9154ebbc9f9243cc34899ee7fecbf17f55a4d8208f51f0317df414586b010132",
@@ -38,7 +38,7 @@ module.exports = {
     "USERINFO_FC_PATH": process.env.USERINFO_FC_PATH || "/api/v1/userinfo",
     "LOGOUT_FC_PATH": process.env.LOGOUT_FC_PATH || "/api/v1/logout",
 
-    "SCOPES": "openid profile birth",
+    //"SCOPES": "openid profile birth",
     "state": "myTestServiceState",
     "nonce": "timestamp123"
     
