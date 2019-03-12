@@ -2,15 +2,21 @@
   <b-container class="mb-3 mt-3">
     <b-row>
         <b-col cols="12">
-
-            <b-img fluid :src="require('assets/Gouvernement_PiloteMS.jpg')" blank-color="rgba(0,0,0,0.5)" />
-            <b-img fluid :src="require('assets/header.png')" />
-          
+          <a href="/" >
+              <b-img fluid :src="require('assets/Gouvernement_PiloteMS.jpg')" blank-color="rgba(0,0,0,0.5)" />
+              <b-img fluid :src="require('assets/header.png')" />
+          </a>
         </b-col>
-
     </b-row>
     <div class="accountMenu">
-
+      <div v-if="utilisateurCourant" >
+        <nuxt-link to="/admin" >
+          <b-button variant="outline-primary" v-if="utilisateurCourant.profilId == 1" class=settingsBtn><i class="material-icons" >settings</i> Paramètres admin</b-button>
+        </nuxt-link>
+        <nuxt-link to="/partenaire" v-if="utilisateurCourant.profilId == 2">
+          <b-button variant="outline-primary" class=settingsBtn><i class="material-icons" >settings</i> Paramètres partenaire</b-button>
+        </nuxt-link>
+      </div>
       <b-dropdown v-if="utilisateurCourant" id="accountBtn" >
         <template slot="button-content">{{utilisateurCourant && utilisateurCourant.prenom}} {{utilisateurCourant && utilisateurCourant.nom}}</template>
         <b-dropdown-item href="#">Mon compte</b-dropdown-item>
@@ -54,6 +60,7 @@ export default {
   top: 10px;
   right: 15px;
   z-index: 10;
+  display: inline-flex;
 }
 
 #accountBtn button{
@@ -62,6 +69,15 @@ export default {
   border: 0px solid #FFBA35;
   border-bottom: 1px solid #FFBA35;
   border-radius: 0px;
+}
+
+.settingsBtn{
+  margin-right: 10px;
+}
+
+.settingsBtn i {
+  position: relative;
+  top: 4px;
 }
 
 </style>

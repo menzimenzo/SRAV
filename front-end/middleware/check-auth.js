@@ -1,5 +1,7 @@
 
 const logedOutRoutes = ['/']
+const adminRoutes = ['/admin']
+const partenaireRoutes = ['/partenaire']
 
 
 export default async function({ env, route, store, req, res, redirect, app, isServer }) {
@@ -21,7 +23,21 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
         }
 
         if(logedOutRoutes.indexOf(route.path) > -1){
+            
             return redirect('/interventions')
         }
+
+        if(adminRoutes.indexOf(route.path) > -1){
+            if(store.state.utilisateurCourant.profilId != 1){
+                return redirect('/interventions')
+            }
+        }
+
+        if(partenaireRoutes.indexOf(route.path) > -1){
+            if(store.state.utilisateurCourant.profilId != 2){
+                return redirect('/interventions')
+            }
+        }
+
     }
 }
