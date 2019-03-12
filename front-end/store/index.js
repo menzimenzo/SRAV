@@ -48,7 +48,7 @@ export const actions = {
     if (route.path.indexOf('/connexion/logout') === 0 ){
       return
   }
-    await this.$axios.$get('http://proxy/backend'+ '/connexion/user').then(utilisateur => {
+    await this.$axios.$get(process.env.API_SERVER_URL + '/connexion/user').then(utilisateur => {
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
         console.log(err)
@@ -56,7 +56,7 @@ export const actions = {
   },
   async get_interventions({ commit }) {
     console.info("get_interventions");
-    const url = "http://localhost/backend/interventions";
+    const url = process.env.API_URL + "/interventions";
     return await this.$axios
       .$get(url)
       .then(response => {
@@ -76,7 +76,7 @@ export const actions = {
   },
   async get_intervention({ commit }, idIntervention) {
     console.info("get_interventions");
-    const url = "http://localhost/backend/interventions/" + idIntervention;
+    const url = process.env.API_URL + "/interventions/" + idIntervention;
     return await this.$axios
       .$get(url)
       .then(response => {
@@ -94,14 +94,14 @@ export const actions = {
       });
   },
   async post_intervention({ commit }, intervention) {
-    const url = "http://localhost/backend/interventions";
+    const url = process.env.API_URL + "/interventions";
     return await this.$axios.$post(url, { intervention }).then(({ intervention }) => {
       console.info('post_intervention', { intervention });
       return commit('add_intervention', intervention)
     });
   },
   async put_intervention({ commit, state }, intervention) {
-    const url = "http://localhost/backend/interventions/" + intervention.id;
+    const url = process.env.API_URL + "/interventions/" + intervention.id;
     const index = state.interventions.findIndex(i => i.id === intervention.id )
     return await this.$axios.$put(url, { intervention }).then(({ intervention }) => {
       commit('put_intervention', { intervention, index })

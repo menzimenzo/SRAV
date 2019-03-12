@@ -86,7 +86,7 @@ export default {
 //  CHARGEMENT ASYNCHRONE DES 
 //
   async mounted() {
-    const url = 'http://localhost/backend/interventions'
+    const url = process.env.API_URL + '/interventions'
     await this.$axios.$get(url)
         .then(response => {
 

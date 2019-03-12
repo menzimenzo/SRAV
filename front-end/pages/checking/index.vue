@@ -50,7 +50,7 @@ export default {
   },
   async mounted() {
     console.info("mounted");
-    const url = 'http://localhost/backend/interventions'
+    const url = process.env.API_URL + '/interventions'
     await this.$axios.$get(url)
         .then(response => {
             this.interventions = response.interventions

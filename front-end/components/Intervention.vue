@@ -223,7 +223,7 @@ export default {
       console.info( 'showPDF' )
       const id = this.intervention.id
       this.$axios({
-        url: 'http://localhost/backend/pdf/'+id,
+        url: process.env.API_URL + '/pdf/'+id,
         method: 'GET',
         responseType: 'blob', // important
         }).then((response) => {
@@ -278,7 +278,7 @@ export default {
         return
       }
 
-      const url = 'http://localhost/backend/interventions'
+      const url = process.env.API_URL + '/interventions'
       const intervention = {
         id: this.formIntervention.id, 
         cp:this.formIntervention.cp,
@@ -316,7 +316,7 @@ export default {
       console.info("Recherche de la commune");
       if (this.formIntervention.cp.length===5) {
         // Le code postal fait bien 5 caractères
-        const url = 'http://localhost/backend/listecommune?codepostal=' + this.formIntervention.cp
+        const url = process.env.API_URL + '/listecommune?codepostal=' + this.formIntervention.cp
         console.info(url);
         this.$axios
           .$get(url)

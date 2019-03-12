@@ -21,7 +21,6 @@
         <template slot="button-content">{{utilisateurCourant && utilisateurCourant.prenom}} {{utilisateurCourant && utilisateurCourant.nom}}</template>
         <b-dropdown-item href="#">Mon compte</b-dropdown-item>
         <b-dropdown-item href="#" @click="logout()">Se déconnecter</b-dropdown-item>
-        <b-dropdown-item href="#" v-if="utilisateurCourant.profilId==1">Menu Admin</b-dropdown-item>
       </b-dropdown>
     </div>
   </b-container>

@@ -51,7 +51,9 @@ module.exports = {
     // proxyHeaders: false
   },
   env: {
-    API_URL: process.env.API_URL || 'http://localhost/backend'
+    API_URL: process.env.API_URL || 'http://localhost/backend',
+    API_SERVER_URL: process.env.API_SERVER_URL || 'http://proxy/backend'
+
   }
 }
 
