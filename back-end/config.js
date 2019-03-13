@@ -38,7 +38,7 @@ module.exports = {
     "USERINFO_FC_PATH": process.env.USERINFO_FC_PATH || "/api/v1/userinfo",
     "LOGOUT_FC_PATH": process.env.LOGOUT_FC_PATH || "/api/v1/logout",
 
-    //"SCOPES": "openid profile birth",
+    "SCOPES": "openid profile birth",
     "state": "myTestServiceState",
     "nonce": "timestamp123"
     

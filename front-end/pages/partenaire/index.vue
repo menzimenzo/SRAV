@@ -12,14 +12,21 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img fluid :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,0.5)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion1 variant="Dark link">
-                      Partenaire
+                      Liste des utilisateurs
                   </b-btn>
                 </b-col>
               </b-form-row>
             </b-card-header>
             <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
                 <b-card-body>
-
+                <p
+                  v-for="user in users"
+                  class="card-text"
+                  :key="user.id"
+                >
+                Nom :{{user.nom}} Prénom {{user.prenom}}
+                <!--<b-img v-on:click="editIntervention(intervention.id)" fluid :src="require('assets/loupe.png')" class="img-icon" blank-color="rgba(0,0,0,0.5)" />-->
+                </p>
                 </b-card-body>
             </b-collapse>
 
@@ -70,27 +77,25 @@
 import { mapState } from 'vuex'
 
 export default {
-  components: {
-    
-  },
-  // data() {
-  //   return {
-  //     interventions: [],
-  //   };
-  // },
+ 
+   data() {
+     return {
+       users: [],
+     };
+   },
   computed: mapState([]),
   methods: {
 
   },
 //
-//  CHARGEMENT ASYNCHRONE DES 
+//  CHARGEMENT ASYNCHRONE DES USERS
 //
   async mounted() {
-    const url = process.env.API_URL + '/interventions'
+    const url = process.env.API_URL + '/user'
     await this.$axios.$get(url)
         .then(response => {
 
-            // this.interventions = response.interventions
+          this.users = response.users
         })
         .catch(error => {
 
