@@ -56,6 +56,9 @@ module.exports = {
     // Utilisé par le serveur Nuxt, url locale ou publique
     API_SERVER_URL: process.env.API_SERVER_URL || 'http://proxy/backend'
 
-  }
+  },
+  plugins: [
+    { mode: 'all', src: '~/plugins/vee-validate' }
+  ]
 }
 
