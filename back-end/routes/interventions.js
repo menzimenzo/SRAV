@@ -125,7 +125,7 @@ router.put('/:id', async function (req, res) {
             
             // generation du pdf
             if (blocId == 3 ) {
-              myPdf.generate(id)  
+              myPdf.generate(id,nbEnfants)  
             }
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
 
@@ -162,7 +162,7 @@ router.post('/', function (req, res) {
 
             // generation du pdf
             if (blocId == 3) {
-              myPdf.generate(result.rows.map(formatIntervention)[0].id)
+              myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants)
             }
             //const idIntervention = result.rows.map(formatIntervention)[0].id;
             
