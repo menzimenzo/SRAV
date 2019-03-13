@@ -187,7 +187,7 @@ create table INTERVENTION (
    INT_NOMBREFILLE      INT                  null,
    INT_NOMBREGARCON     INT                  null,
    INT_DATEINTERVENTION DATE                 not null,
-   INT_DATECREATION    DATE                 not null,
+   INT_DATECREATION    timestamp                 not null,
    INT_DATEMAJ          DATE                 null,
    INT_COMMENTAIRE      TEXT                 null,
    INT_DEP_NUM          VARCHAR(3)           not null,
@@ -274,7 +274,7 @@ create table TRANCHEAGEINTER (
 create table UTILISATEUR (
    UTI_ID               SERIAL               not null,
    PRO_ID               BIGINT               not null,
-   STR_ID               BIGINT               not null,
+   STR_ID               BIGINT               null,
    STU_ID               BIGINT               not null,
    VALIDATED            BOOLEAN              not null,
    UTI_MAIL             VARCHAR(50)          not null,

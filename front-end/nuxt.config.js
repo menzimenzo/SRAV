@@ -45,9 +45,20 @@ module.exports = {
     }
   },
   modules: [
-    'bootstrap-vue/nuxt', '@nuxtjs/axios'
-  ],
-  axios: {
+    'bootstrap-vue/nuxt', '@nuxtjs/axios', '@nuxtjs/toast'
+  ], toast: {
+    duration: 10000,
+    iconPack: 'fontawesome',
+    action: [
+        {
+            onClick: (e, toastObject) => {
+                toastObject.goAway(0)
+            },
+            icon: 'check',
+            class: 'toasted__icon-close'
+        }
+    ]
+  }, axios: {
     // proxyHeaders: false
   },
   env: {
@@ -58,7 +69,9 @@ module.exports = {
 
   },
   plugins: [
-    { mode: 'all', src: '~/plugins/vee-validate' }
+    { mode: 'all', src: '~/plugins/vee-validate' },
+    { mode: 'all', src: '~/plugins/vue-js-modal' },
+    { mode: 'all', src: '~/plugins/filters' },
   ]
 }
 

@@ -7,8 +7,7 @@ moment().format();
 
 
 const formatIntervention = intervention => {
-    let dateIntervention = moment(intervention.int_dateintervention,"YYYY-MM-DD")
-    dateIntervention = dateIntervention.format("YYYY-MM-DD")
+
 
     let blocLib = 'TODO récupérer le lib';
 
@@ -29,8 +28,8 @@ const formatIntervention = intervention => {
         nbEnfants: intervention.int_nombreenfant,
         nbFilles: intervention.int_nombrefille,
         nbGarcons: intervention.int_nombregarcon,
-        dateIntervention: dateIntervention,
-        dateCreation: intervention.int_datecreation,
+        dateIntervention: new Date(intervention.int_dateintervention),
+        dateCreation: new Date(intervention.int_datecreation),
         dateMaj: intervention.int_datemaj,
         commentaire: intervention.int_commentaire,
         siteIntervention: intervention.int_siteintervention
@@ -84,7 +83,7 @@ router.put('/:id', async function (req, res) {
 
     const id = req.params.id
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp } = intervention
-    
+
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
 
@@ -149,7 +148,7 @@ router.post('/', function (req, res) {
     //insert dans la table intervention
     const requete = `insert into intervention 
                     (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_commentaire,int_dep_num,int_reg_num) 
-                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}', ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}', now(),'${commentaire}', '${commune.dep_num}', '${commune.reg_num}') RETURNING *`;
+                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}', ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}', '${new Date().toISOString()}','${commentaire}', '${commune.dep_num}', '${commune.reg_num}') RETURNING *`;
     
     console.log({ requete });
     pgPool.query(requete, (err, result) => {

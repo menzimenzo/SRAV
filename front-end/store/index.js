@@ -2,7 +2,7 @@ import Vue from 'vue'
 
 export const state = () => ({
   interventions: [],
-  interventionCourrante: null,
+  interventionCourrante: {},
   utilisateurCourant: null
 });
 
@@ -26,7 +26,7 @@ export const mutations = {
     state.interventions = [];
   },
   reset_interventions(state) {
-    state.interventionCourrante = null;
+    state.interventionCourrante = {};
   },
   select_intervention(state, index) {
     state.intervention = state.interventions[index];
@@ -45,12 +45,14 @@ export const mutations = {
 export const actions = {
   async nuxtServerInit({ commit }, { req, route }) {
     // Transition states
+    console.log('Loading user')
     if (route.path.indexOf('/connexion/logout') === 0 ){
       return
   }
     await this.$axios.$get(process.env.API_SERVER_URL + '/connexion/user').then(utilisateur => {
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
+        console.log("Error - nuxtServerInit")
         console.log(err)
     })
   },
@@ -60,6 +62,10 @@ export const actions = {
     return await this.$axios
       .$get(url)
       .then(response => {
+        response.interventions.forEach(intervention => {
+          intervention.dateCreation = new Date(intervention.dateCreation)
+          intervention.dateIntervention = new Date(intervention.dateIntervention)
+        })
         commit("set_interventionCourrantes", response.interventions);
         console.info("fetched interventions - done", {
           interventions: this.interventions
@@ -80,6 +86,8 @@ export const actions = {
     return await this.$axios
       .$get(url)
       .then(response => {
+        response.intervention.dateCreation = new Date(response.intervention.dateCreation)
+        response.intervention.dateIntervention = new Date(response.intervention.dateIntervention)
         commit("set_interventionCourrante", response.intervention);
         console.info("fetched intervention - done", {
           intervention: response.intervention
@@ -114,3 +122,8 @@ export const actions = {
     commit("set_utilisateurCourant", {})
   }
 };
+
+export const getters = {
+  primaryColor: () => "#4546A1"
+}
+
