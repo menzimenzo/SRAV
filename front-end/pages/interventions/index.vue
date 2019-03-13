@@ -41,14 +41,17 @@
             </b-card-header>
             <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                <p
-                  v-for="intervention in interventions"
-                  class="card-text"
-                  :key="intervention.uti_id"
-                >
-                Intervention n°{{intervention.id}} (Bloc {{intervention.blocId}}) du {{intervention.dateIntervention}} à {{intervention.commune && intervention.commune.com_libellemaj}}
-                <b-img v-on:click="editIntervention(intervention.id)" fluid :src="require('assets/loupe.png')" class="img-icon" blank-color="rgba(0,0,0,0.5)" />
-                </p>
+                <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
+                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                  <template slot-scope="props" slot="actions">
+                    <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
+                      <i class="material-icons" >edit</i>
+                    </b-btn>
+                    <b-btn @click="downloadPdf(props.data.id)" size="sm" class="ml-1" variant="primary">
+                      <i class="material-icons" >cloud_download</i>
+                    </b-btn>
+                  </template>
+                </editable>
               </b-card-body>
             </b-collapse>
           </b-card>   
@@ -82,16 +85,27 @@
 <script>
 import Intervention from '~/components/Intervention.vue'
 import { mapState } from 'vuex'
+import Editable from '~/components/editable/index.vue'
 
 export default {
   components: {
-    Intervention
+    Intervention, Editable
   },
-  // data() {
-  //   return {
-  //     interventions: [],
-  //   };
-  // },
+  data() {
+    return {
+      loading: true,
+      headers: [
+        
+        { path: 'blocId', title: 'N° d\'intervention', type: 'text', sortable:true},
+        { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true},
+        { path: 'dateCreation', title: 'Date de création', type: 'date', sortable:true},
+        { path: 'nbEnfants', title: 'Nombre d\'enfants', type: 'text', sortable:true},
+        { path: 'commune.com_libellemaj', title: 'Commune', type: 'text', sortable:true},
+        { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
+           
+      ]
+    };
+  },
   computed: mapState(['interventions', 'interventionCourrante']),
   methods: {
 //
@@ -102,6 +116,20 @@ export default {
         .catch(error => {
           console.error('Une erreur est survenue lors de la récupération du détail de l\'intervention', error)
         })
+    },
+    downloadPdf: function(id) {
+      this.$axios({
+        url: process.env.API_URL + '/pdf/'+id,
+        method: 'GET',
+        responseType: 'blob', // important
+        }).then((response) => {
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          const link = document.createElement('a');
+          link.href = url;
+          link.setAttribute('download', `${id}.pdf`); //or any other extension
+          document.body.appendChild(link);
+          link.click();
+      })
     }
   },
 //
@@ -111,8 +139,9 @@ export default {
     console.info("mounted", { interventions: this.interventions});
     const url = process.env.API_URL + '/interventions'
     await this.$axios.$get(url)
-        .then(response => {
-          this.$store.commit('set_interventionCourrantes', response.interventions)
+        .then(async response => {
+          await this.$store.commit('set_interventionCourrantes', response.interventions)
+          this.loading = false
           console.info("fetched interventions - done", { interventions: this.interventions});
             // this.interventions = response.interventions
         })
@@ -149,5 +178,10 @@ a:not(.collapsed) .accordion-chevron{
   transform:rotate(90deg);
   -moz-transform:rotate(90deg);
 
+}
+
+.btn .material-icons{
+ position: relative;
+ top: 2px;
 }
 </style>

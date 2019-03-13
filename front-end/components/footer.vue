@@ -2,7 +2,7 @@
 <div  class="appLabel mb-3 mt-5">
     <b-container>
       <b-row>
-          <b-col cols="12">
+          <b-col cols="12 text-center">
 
               Savoir Rouler A Vélo - Version 1.0.0 Beta
           </b-col>
