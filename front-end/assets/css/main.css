@@ -227,3 +227,7 @@ h1{
     border: 1px solid #252195;
     color: #252195;
 }
+
+.toastLink{
+    color: #FDB842 !important; 
+}

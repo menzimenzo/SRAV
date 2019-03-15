@@ -47,7 +47,7 @@ module.exports = {
   modules: [
     'bootstrap-vue/nuxt', '@nuxtjs/axios', '@nuxtjs/toast'
   ], toast: {
-    duration: 10000,
+    duration: 15000,
     iconPack: 'fontawesome',
     action: [
         {
@@ -55,7 +55,7 @@ module.exports = {
                 toastObject.goAway(0)
             },
             icon: 'check',
-            class: 'toasted__icon-close'
+            class: 'material-icons'
         }
     ]
   }, axios: {

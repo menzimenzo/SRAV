@@ -303,7 +303,17 @@ export default {
       return this.$store.dispatch(action, intervention) 
         .then(message => {
           console.info(message)
-          this.$toast.success('Intervention enregistrée')
+          var action = []
+          if(intervention.blocId == '3'){
+            action.push({
+              text : 'Télécharger l\'attestation',
+              onClick : (e, toastObject) => {
+                  this.showPDF()
+              },
+              class: 'toastLink'
+            })
+          }
+          this.$toast.success(`Intervention #${intervention.id} enregistrée`, {action})
           this.resetform()
           this.$modal.hide('editIntervention')
         })
