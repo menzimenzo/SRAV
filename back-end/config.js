@@ -21,6 +21,8 @@ module.exports = {
     }
   },
   sessionSecret: "vB2P+i@/Uz>+yK%@LK@g9Vb93gZ^c<",
+  pathAttestation: process.env.PATH_PDF_ATTESTATION || "../../tmp/",
+  
   // FRANCE CONNECT
   franceConnect: {
     "FC_URL": process.env.FC_URL || "https://fcp.integ01.dev-franceconnect.fr",
