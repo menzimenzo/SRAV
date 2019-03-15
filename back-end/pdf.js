@@ -19,7 +19,7 @@ function generate(id,nbenfants) {
 
     // Pipe its output somewhere, like to a file or HTTP response
     // See below for browser usage
-    doc.pipe(fs.createWriteStream("../temp/" + idformate + ".pdf"));
+    doc.pipe(fs.createWriteStream("../tmp/" + idformate + ".pdf"));
     
     var indexpage;
     for (indexpage = 1; indexpage <= nbenfants; indexpage++) {

@@ -35,13 +35,13 @@
                 <li>
                   Commune * :
                   <span class="liste-deroulante">
-                    <b-form-select v-model="formIntervention.commune">
+                    <b-form-select v-model="selectedCommune">
                       <option :value="null">-- Choix de la commune --</option>
                       <option
                         v-for="commune in listecommune"
-                        :key="commune.id"
-                        :value="commune"
-                        :selected="formIntervention.commune && formIntervention.commune.cpi_codeinsee === commune.cpi_codeinsee ? 'selected': ''"
+                        :key="commune.cpi_codeinsee"
+                        :value="commune.cpi_codeinsee"
+      
                       >{{ commune.com_libellemaj}}
                       </option>
                     </b-form-select>
@@ -220,7 +220,8 @@ export default {
         { text: 'Bloc 1 : Savoir pédaler', value: '1' },
         { text: 'Bloc 2 : Savoir circuler', value: '2' },
         { text: 'Bloc 3 : Savoir rouler', value: '3' }
-      ]
+      ],
+      selectedCommune: null
     };
   },
   methods: {
@@ -325,7 +326,7 @@ export default {
         // Le code postal fait bien 5 caractères
         const url = process.env.API_URL + '/listecommune?codepostal=' + this.formIntervention.cp
         console.info(url);
-        this.$axios
+        return this.$axios
           .$get(url)
           .then(response => {
             // this.listecommune = response.communes;
@@ -340,6 +341,7 @@ export default {
       } else {
         // On vide la liste car le code postal a changé
         this.listecommune = ["Veuillez saisir un code postal"];
+        return Promise.resolve(null)
       }
     }
   },
@@ -366,7 +368,21 @@ export default {
     },
     'formIntervention.cp'(cp) {
       this.recherchecommune()
+    },
+    selectedCommune(){
+      this.formIntervention.commune = this.listecommune.find(commune => {
+        return commune.cpi_codeinsee == this.selectedCommune
+      })
     }
+  },
+  mounted(){
+     this.recherchecommune().then(res => {
+
+       if(this.formIntervention && this.formIntervention.commune){
+         
+         this.selectedCommune = this.formIntervention.commune.cpi_codeinsee
+       }
+     })
   }
 };
 </script>
