@@ -5,8 +5,9 @@
       
       <img  
         border="0" 
-        alt="Connexion France Connect" 
-        src="~assets/savoirrouleravelo_p.png"
+        style="max-width: 20rem; cursor: pointer;"
+        alt="Logo Savoir rouler à vélo / Connexion France Connect"
+        src="~assets/LogoSavoirRoulerAVelo.png"
         v-on:click="connexionutilisateur">
       <div class="mb-3 mt-1">
       <a @click="connexionutilisateur()" class="fcBtn"><br>

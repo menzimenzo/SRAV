@@ -4,7 +4,10 @@
         <b-col cols="12">
           <a href="/" >
               <b-img fluid :src="require('assets/Gouvernement_PiloteMS.jpg')" blank-color="rgba(0,0,0,0.5)" />
-              <b-img fluid :src="require('assets/header.png')" />
+            <!-- <b-img fluid :src="require('assets/header.png')" /> -->
+            <!-- <b-img fluid :src="require('assets/header-20191403.png')" /> -->
+            <b-img fluid :src="require('assets/LogoSavoirRoulerAVelo.png')" style="max-width: 8,75rem;" />
+            <b-img fluid :src="require('assets/header_alpha.png')" style="border-left: 2px solid #121D45; padding-left: 10px;" />
           </a>
         </b-col>
     </b-row>
