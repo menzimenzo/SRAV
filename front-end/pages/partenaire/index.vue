@@ -107,7 +107,7 @@ export default {
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
   async mounted() {
-    const url = process.env.API_URL + '/user/'
+    const url = process.env.API_URL + '/user/' 
     await this.$axios.$get(url)
         .then(response => {
 
