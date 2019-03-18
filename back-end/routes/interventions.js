@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const pgPool = require('../pgpool').getPool();
+const stringify                                        = require('csv-stringify')
 const myPdf = require('../pdf')
 var moment = require('moment');
 moment().format();
@@ -35,6 +36,50 @@ const formatIntervention = intervention => {
         siteIntervention: intervention.int_siteintervention
     }
 }
+
+router.get('/csv/:utilisateurId', async function (req, res) {
+
+    const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
+
+    const requete =`SELECT * from intervention where uti_id=${utilisateurId} order by int_id asc`;
+    console.log(requete)
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            console.log(err.stack);
+            return res.status(400).json('erreur lors de la récupération de l\'intervention');
+        }
+        else {
+            var interventions = result.rows;
+            interventions = interventions.map(intervention => {
+                var newIntervention = formatIntervention(intervention)
+                delete newIntervention.commune
+                newIntervention.commune = intervention.int_com_libellemaj
+                newIntervention.codeinsee = intervention.int_com_codeinsee
+                newIntervention.dep_num = intervention.int_dep_num
+                newIntervention.reg_num = intervention.int_reg_num
+                return newIntervention
+            })
+            if (!interventions || !interventions.length) {
+                return res.status(400).json({ message: 'Interventions inexistante' });
+            }
+            stringify(interventions, {
+                quoted: '"',
+                header: true,
+                date: (value) => '' + new Date(value).toISOString()
+            }, (err, csvContent) => {
+                console.log("COUCOU")
+                if(err){
+                    console.log(err)
+                    return res.status(500)
+                } else {
+
+                    return res.send(csvContent)
+                }
+            })
+        }
+    })
+});
 
 router.get('/:id', async function (req, res) {
 

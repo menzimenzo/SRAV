@@ -41,19 +41,22 @@
                 <b-container >
                   <b-row>
                       <b-col cols="12">
-                        <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
-                          :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading" v-if="interventions.length > 0">
-                          <template slot-scope="props" slot="actions">
-                            <div style="min-width: 100px;">
-                              <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
-                                <i class="material-icons" >edit</i>
-                              </b-btn>
-                              <b-btn @click="downloadPdf(props.data.id)" v-if="props.data.blocId == '3'" size="sm" class="ml-1" variant="primary">
-                                <i class="material-icons" >cloud_download</i>
-                              </b-btn>
-                            </div>
-                          </template>
-                        </editable>
+                        <div v-if="interventions.length > 0">
+                          <b-btn @click="exportCsv()" class="mb-2" variant="primary"><i class="material-icons" style="font-size: 18px; top: 4px;" >import_export</i> Export CSV</b-btn>
+                          <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
+                            :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                            <template slot-scope="props" slot="actions">
+                              <div style="min-width: 100px;">
+                                <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
+                                  <i class="material-icons" >edit</i>
+                                </b-btn>
+                                <b-btn @click="downloadPdf(props.data.id)" v-if="props.data.blocId == '3'" size="sm" class="ml-1" variant="primary">
+                                  <i class="material-icons" >cloud_download</i>
+                                </b-btn>
+                              </div>
+                            </template>
+                          </editable>
+                        </div>
                         <h4 class="text-center" v-if="interventions.length == 0">
                           Aucune intervention n'a été crée pour le moment.
                         </h4>
@@ -127,7 +130,7 @@ export default {
       ]
     };
   },
-  computed: mapState(['interventions', 'interventionCourrante']),
+  computed: mapState(['interventions', 'interventionCourrante', 'utilisateurCourant']),
   methods: {
 //
 //  fonction de recupération des infos d'une intervention par id
@@ -157,6 +160,27 @@ export default {
     },
     clearIntervention(){
       this.$store.dispatch('reset_interventions')
+    },
+    exportCsv(){
+      this.$axios({
+          url: process.env.API_URL + '/interventions/csv/' + this.utilisateurCourant.id,
+          // url: apiUrl + '/droits/' + 17,
+          method: 'GET',
+          responseType: 'blob'
+      }).then((response) => {
+          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          const link = document.createElement('a')
+          link.href = url
+          const fileName = 'Savoir Rouler - Interventions.csv'
+          link.setAttribute('download', fileName)
+          link.click()
+          link.remove()
+          console.log('Done - Download', {fileName})
+      }).catch(err => {
+          console.log(JSON.stringify(err))
+          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
+      })
     }
   },
 //
