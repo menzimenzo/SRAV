@@ -12,19 +12,14 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img fluid :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,0.5)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion1 variant="Dark link">
-                    <h4 v-if='!interventionCourrante'>
-                      <i class="material-icons accordion-chevron" >chevron_right</i> Je saisis une intervention
+                    <h4 >
+                      <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-1" >create</i> Je saisis une intervention
                     </h4>
-                    <h4 v-if='interventionCourrante'> <i class="material-icons accordion-chevron" >chevron_right</i>
-                      Intervention n°{{interventionCourrante.id}} du {{interventionCourrante.dateIntervention}} à {{interventionCourrante.commune.com_libellemaj}}</h4>
                   </b-btn>
                 </b-col>
               </b-form-row>
             </b-card-header>
-            <b-collapse id="accordion1" v-if='interventionCourrante' visible accordion="my-accordion" role="tabpanel">
-                <Intervention :intervention="interventionCourrante"/>
-            </b-collapse>
-            <b-collapse id="accordion1" v-if='!interventionCourrante' accordion="my-accordion" role="tabpanel">
+            <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
                 <Intervention :intervention="interventionCourrante"/>
             </b-collapse>
           </b-card>
@@ -35,23 +30,34 @@
                 <b-col>
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
-                  <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion2 variant="Dark link"><h4><i class="material-icons accordion-chevron" >chevron_right</i> Mes interventions</h4></b-btn>
+                  <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion2 variant="Dark link"><h4>
+                    <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-1" >list</i> Mes interventions
+                  </h4></b-btn>
                 </b-col>
               </b-form-row>
             </b-card-header>
             <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
-                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
-                  <template slot-scope="props" slot="actions">
-                    <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
-                      <i class="material-icons" >edit</i>
-                    </b-btn>
-                    <b-btn @click="downloadPdf(props.data.id)" size="sm" class="ml-1" variant="primary">
-                      <i class="material-icons" >cloud_download</i>
-                    </b-btn>
-                  </template>
-                </editable>
+                <b-container >
+                  <b-row>
+                      <b-col cols="12">
+                        <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
+                          :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading" v-if="interventions.length > 0">
+                          <template slot-scope="props" slot="actions">
+                            <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
+                              <i class="material-icons" >edit</i>
+                            </b-btn>
+                            <b-btn @click="downloadPdf(props.data.id)" v-if="props.data.blocId == '3'" size="sm" class="ml-1" variant="primary">
+                              <i class="material-icons" >cloud_download</i>
+                            </b-btn>
+                          </template>
+                        </editable>
+                        <h2 v-if="interventions.length == 0">
+                          Aucune intervention n'a été crée pour le moment.
+                        </h2>
+                    </b-col>
+                  </b-row>
+                </b-container>
               </b-card-body>
             </b-collapse>
           </b-card>   
@@ -62,23 +68,35 @@
                 <b-col>
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
-                  <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion3 variant="Dark link"><h4><i class="material-icons accordion-chevron" >chevron_right</i>Documents</h4></b-btn>
+                  <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion3 variant="Dark link"><h4>
+                    <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >bookmarks</i>Documents
+                  </h4></b-btn>
                 </b-col>
               </b-form-row>
             </b-card-header>
             <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                <ul>
-                  <li>
-                    Livret savoir rouler
-                    <b-img class="img-icon" fluid :src="require('assets/pdf-240x240.png')" blank-color="rgba(0,0,0,0.5)" />
-                  </li>
-                </ul>
+                <b-container >
+                  <b-row>
+                      <b-col cols="12">
+                        <h5 class="mb-3">Documents disponibles: </h5>
+                        <ul>
+                          <li>
+                            Livret savoir rouler
+                            <b-img class="img-icon" fluid :src="require('assets/pdf-240x240.png')" blank-color="rgba(0,0,0,0.5)" />
+                          </li>
+                        </ul>
+                      </b-col>
+                  </b-row>
+                </b-container>
               </b-card-body>
             </b-collapse>
           </b-card>
         </b-col>
     </b-row>
+    <modal name="editIntervention" height="auto" width="900px" @close="clearIntervention()" :scrollabe="true">
+      <Intervention :intervention="interventionCourrante"/>
+    </modal>
   </b-container>
 </template>
 
@@ -96,12 +114,12 @@ export default {
       loading: true,
       headers: [
         
-        { path: 'blocId', title: 'N° d\'intervention', type: 'text', sortable:true},
-        { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true},
-        { path: 'dateCreation', title: 'Date de création', type: 'date', sortable:true},
+        { path: 'id', title: 'N° d\'intervention', type: 'text', sortable:true},
+        { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true, filter:"date"},
+        { path: 'dateCreation', title: 'Date de création', type: 'date', sortable:true, filter:"timestamp"},
         { path: 'nbEnfants', title: 'Nombre d\'enfants', type: 'text', sortable:true},
         { path: 'commune.com_libellemaj', title: 'Commune', type: 'text', sortable:true},
-        { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
+        { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false}
            
       ]
     };
@@ -113,6 +131,9 @@ export default {
 //
     editIntervention: function (idIntervention) {
       return this.$store.dispatch('get_intervention', idIntervention)
+        .then(() => {
+          this.$modal.show('editIntervention')
+        })
         .catch(error => {
           console.error('Une erreur est survenue lors de la récupération du détail de l\'intervention', error)
         })
@@ -130,6 +151,9 @@ export default {
           document.body.appendChild(link);
           link.click();
       })
+    },
+    clearIntervention(){
+      this.$store.dispatch('reset_interventions')
     }
   },
 //

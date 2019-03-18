@@ -3,7 +3,7 @@ module.exports = {
   ** Headers of the page
   */
   head: {
-    title: 'Savoir Rouler',
+    title: 'Savoir rouler à vélo',
     meta: [
       { charset: 'utf-8' },
       { name: 'viewport', content: 'width=device-width, initial-scale=1' },
@@ -45,9 +45,20 @@ module.exports = {
     }
   },
   modules: [
-    'bootstrap-vue/nuxt', '@nuxtjs/axios'
-  ],
-  axios: {
+    'bootstrap-vue/nuxt', '@nuxtjs/axios', '@nuxtjs/toast'
+  ], toast: {
+    duration: 15000,
+    iconPack: 'fontawesome',
+    action: [
+        {
+            onClick: (e, toastObject) => {
+                toastObject.goAway(0)
+            },
+            icon: 'check',
+            class: 'material-icons'
+        }
+    ]
+  }, axios: {
     // proxyHeaders: false
   },
   env: {
@@ -58,7 +69,9 @@ module.exports = {
 
   },
   plugins: [
-    { mode: 'all', src: '~/plugins/vee-validate' }
+    { mode: 'all', src: '~/plugins/vee-validate' },
+    { mode: 'all', src: '~/plugins/vue-js-modal' },
+    { mode: 'all', src: '~/plugins/filters' },
   ]
 }
 

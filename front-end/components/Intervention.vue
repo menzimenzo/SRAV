@@ -1,5 +1,10 @@
 <template>
-    <b-container class="mb-3 mt-3">
+    <b-container class="interventionModal">
+      <b-row>
+        <b-col cols="12" v-if="intervention && intervention.id" class="text-center">
+          <h2 class="mb-3 interventionTitle">Intervention n°{{intervention.id}} du {{intervention.dateIntervention | date}} à {{intervention.commune.com_libellemaj}}</h2>
+        </b-col>
+      </b-row>
       <b-row>
         <!-- PREMIER BLOC DE SAISIE INTERVENTION -->
         <b-col cols="6" style="border-right: 1px solid #252195;">
@@ -30,13 +35,13 @@
                 <li>
                   Commune * :
                   <span class="liste-deroulante">
-                    <b-form-select v-model="formIntervention.commune">
+                    <b-form-select v-model="selectedCommune">
                       <option :value="null">-- Choix de la commune --</option>
                       <option
                         v-for="commune in listecommune"
-                        :key="commune.id"
-                        :value="commune"
-                        :selected="formIntervention.commune && formIntervention.commune.cpi_codeinsee === commune.cpi_codeinsee ? 'selected': ''"
+                        :key="commune.cpi_codeinsee"
+                        :value="commune.cpi_codeinsee"
+      
                       >{{ commune.com_libellemaj}}
                       </option>
                     </b-form-select>
@@ -141,23 +146,15 @@
             </ul>
           </div>
         
-          <p class="text-right">
-            <b-button v-on:click="resetform" title="Réinitialiser le formulaire">Réinitialiser</b-button>
+          <p class="modal-btns">
+            <b-button v-on:click="resetform(); $modal.hide('editIntervention')" v-if="intervention.id" title="Réinitialiser le formulaire">Annuler</b-button>
+            <b-button v-on:click="resetform() " v-if="!intervention.id" title="Réinitialiser le formulaire">Réinitialiser le formulaire</b-button>
             <b-button variant="success" v-on:click="checkform">Enregistrer</b-button>
           </p>
 
-          <div class="div-attestation">
-            <b-button variant="primary" v-if="showAttestation" @click="showPDF">Télécharger l'attestation
-              <!-- <b-img
-                class="img-icon"
-                fluid
-                :src="require('assets/pdf-240x240.png')"
-                blank-color="rgba(0,0,0,0.5)"
-                @click="showPDF"
-              /> -->
-            </b-button>
-          </div>
+
         </b-col>
+
 
       </b-row>
     </b-container>
@@ -166,23 +163,10 @@
 </template>
 <script>
 import Vue from 'vue'
+import moment from 'moment'
 
-export default {
-  props: {
-    intervention: {
-      type: Object,
-      default: () => {
-        //return { nbEnfants: 12 }
-      }
-    }
-  },
-  computed: {
-    showAttestation() {
-      return this.intervention && this.intervention.id && this.intervention.blocId === '3'
-    }
-  },
-  data() {
-    let formIntervention = JSON.parse(JSON.stringify(Object.assign({
+var loadFormIntervention = function(intervention){
+  let formIntervention = JSON.parse(JSON.stringify(Object.assign({
        commune: null,
        cp: '',
        nbEnfants: '',
@@ -197,13 +181,34 @@ export default {
        blocId: null,
        cai: null,
        commentaire: ''
-    }, this.intervention)))
+    }, intervention)))
+  let dateIntervention = moment(intervention.dateIntervention);
+  formIntervention.dateIntervention = dateIntervention.format("YYYY-MM-DD")
 
+  return formIntervention
+}
+
+export default {
+  props: {
+    intervention: {
+      type: Object,
+      default: () => {
+        return {}
+        //return { nbEnfants: 12 }
+      }
+    }
+  },
+  computed: {
+    showAttestation() {
+      return this.intervention && this.intervention.id && this.intervention.blocId === '3'
+    }
+  },
+  data() {
     return {
       erreurformulaire:[],
       listecommune: [{ text: 'Veuillez saisir un code postal', value: null, insee: null, cp: null,codedep: null}],
 
-     formIntervention,
+     formIntervention: loadFormIntervention(this.intervention),
  
       listecadreintervention: [
         { text: "Scolaire", value: "3" },
@@ -215,7 +220,8 @@ export default {
         { text: 'Bloc 1 : Savoir pédaler', value: '1' },
         { text: 'Bloc 2 : Savoir circuler', value: '2' },
         { text: 'Bloc 3 : Savoir rouler', value: '3' }
-      ]
+      ],
+      selectedCommune: null
     };
   },
   methods: {
@@ -297,7 +303,19 @@ export default {
       return this.$store.dispatch(action, intervention) 
         .then(message => {
           console.info(message)
-          alert('Intervention enregistrée')
+          var action = []
+          if(intervention.blocId == '3'){
+            action.push({
+              text : 'Télécharger l\'attestation',
+              onClick : (e, toastObject) => {
+                  this.showPDF()
+              },
+              class: 'toastLink'
+            })
+          }
+          this.$toast.success(`Intervention #${intervention.id} enregistrée`, {action})
+          this.resetform()
+          this.$modal.hide('editIntervention')
         })
         .catch(error => {
           console.error('Une erreur est survenue lors de la sauvegarde de l\'intervention', error)
@@ -318,7 +336,7 @@ export default {
         // Le code postal fait bien 5 caractères
         const url = process.env.API_URL + '/listecommune?codepostal=' + this.formIntervention.cp
         console.info(url);
-        this.$axios
+        return this.$axios
           .$get(url)
           .then(response => {
             // this.listecommune = response.communes;
@@ -333,6 +351,7 @@ export default {
       } else {
         // On vide la liste car le code postal a changé
         this.listecommune = ["Veuillez saisir un code postal"];
+        return Promise.resolve(null)
       }
     }
   },
@@ -354,11 +373,40 @@ export default {
         cai: null,
         commentaire: ''
       }, intervention)))
-      Vue.set(this, 'formIntervention', formIntervention)
+      formIntervention.dateIntervention = new Date(formIntervention.dateIntervention)
+      Vue.set(this, 'formIntervention', loadFormIntervention(intervention))
     },
     'formIntervention.cp'(cp) {
       this.recherchecommune()
+    },
+    selectedCommune(){
+      this.formIntervention.commune = this.listecommune.find(commune => {
+        return commune.cpi_codeinsee == this.selectedCommune
+      })
     }
+  },
+  mounted(){
+     this.recherchecommune().then(res => {
+
+       if(this.formIntervention && this.formIntervention.commune){
+         
+         this.selectedCommune = this.formIntervention.commune.cpi_codeinsee
+       }
+     })
   }
 };
 </script>
+
+<style>
+.interventionModal{
+  padding: 30px;
+}
+.modal-btns{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+.interventionTitle{
+  color: #252195;
+}
+</style>

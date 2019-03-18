@@ -19,14 +19,17 @@
             </b-card-header>
             <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
                 <b-card-body>
-                <p
-                  v-for="user in users"
-                  class="card-text"
-                  :key="user.id"
-                >
-                Nom :{{user.nom}} Prénom {{user.prenom}}
-                <!--<b-img v-on:click="editIntervention(intervention.id)" fluid :src="require('assets/loupe.png')" class="img-icon" blank-color="rgba(0,0,0,0.5)" />-->
-                </p>
+                  <editable :columns="headers" :data="users" :removable="false" :creable="false" 
+                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                  <template slot-scope="props" slot="actions">
+                    <!--<b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
+                      <i class="material-icons" >edit</i>
+                    </b-btn>
+                    <b-btn @click="downloadPdf(props.data.id)" size="sm" class="ml-1" variant="primary">
+                      <i class="material-icons" >cloud_download</i>
+                    </b-btn>-->
+                  </template>
+                </editable> 
                 </b-card-body>
             </b-collapse>
 
@@ -75,12 +78,25 @@
 
 <script>
 import { mapState } from 'vuex'
+import Editable from '~/components/editable/index.vue'
 
 export default {
- 
+   components: {
+    Editable
+  },
    data() {
      return {
        users: [],
+       headers: [
+        
+        { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
+        { path: 'profil', title: 'Rôle', type: 'date', sortable:true},
+        { path: 'nom', title: 'Nom', type: 'date', sortable:true},
+        { path: 'prenom', title: 'Prénom', type: 'text', sortable:true},
+        { path: 'structure', title: 'structure', type: 'text', sortable:true},
+        { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
+           
+      ]
      };
    },
   computed: mapState([]),
@@ -91,7 +107,7 @@ export default {
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
   async mounted() {
-    const url = process.env.API_URL + '/user'
+    const url = process.env.API_URL + '/user/'
     await this.$axios.$get(url)
         .then(response => {
 

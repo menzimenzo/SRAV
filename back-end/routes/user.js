@@ -25,7 +25,7 @@ router.get('/:id', async function (req, res) {
 
     const id = req.params.id;
 
-    const requete =`SELECT * from utilisateur where uti_id=${id} order by uti_id asc`;
+    const requete =`SELECT * from utilisateur where str_id=${id} order by uti_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
