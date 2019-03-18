@@ -44,17 +44,19 @@
                         <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
                           :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading" v-if="interventions.length > 0">
                           <template slot-scope="props" slot="actions">
-                            <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
-                              <i class="material-icons" >edit</i>
-                            </b-btn>
-                            <b-btn @click="downloadPdf(props.data.id)" v-if="props.data.blocId == '3'" size="sm" class="ml-1" variant="primary">
-                              <i class="material-icons" >cloud_download</i>
-                            </b-btn>
+                            <div style="min-width: 100px;">
+                              <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
+                                <i class="material-icons" >edit</i>
+                              </b-btn>
+                              <b-btn @click="downloadPdf(props.data.id)" v-if="props.data.blocId == '3'" size="sm" class="ml-1" variant="primary">
+                                <i class="material-icons" >cloud_download</i>
+                              </b-btn>
+                            </div>
                           </template>
                         </editable>
-                        <h2 v-if="interventions.length == 0">
+                        <h4 class="text-center" v-if="interventions.length == 0">
                           Aucune intervention n'a été crée pour le moment.
-                        </h2>
+                        </h4>
                     </b-col>
                   </b-row>
                 </b-container>
@@ -115,10 +117,11 @@ export default {
       headers: [
         
         { path: 'id', title: 'N° d\'intervention', type: 'text', sortable:true},
-        { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true, filter:"date"},
-        { path: 'dateCreation', title: 'Date de création', type: 'date', sortable:true, filter:"timestamp"},
-        { path: 'nbEnfants', title: 'Nombre d\'enfants', type: 'text', sortable:true},
         { path: 'commune.com_libellemaj', title: 'Commune', type: 'text', sortable:true},
+        { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true, filter:"date"},
+        { path: 'dateCreation', title: 'Création', type: 'date', sortable:true, filter:"timestamp"},
+        { path: 'dateMaj', title: 'Modification', type: 'date', sortable:true, filter:"timestamp"},
+        { path: 'nbEnfants', title: 'Nombre d\'enfants', type: 'text', sortable:true},
         { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false}
            
       ]
@@ -160,19 +163,9 @@ export default {
 //  CHARGEMENT ASYNCHRONE DES INTERVENTIONS
 //
   async mounted() {
+    await this.$store.dispatch('get_interventions');
+    this.loading = false
     console.info("mounted", { interventions: this.interventions});
-    const url = process.env.API_URL + '/interventions'
-    await this.$axios.$get(url)
-        .then(async response => {
-          await this.$store.commit('set_interventionCourrantes', response.interventions)
-          this.loading = false
-          console.info("fetched interventions - done", { interventions: this.interventions});
-            // this.interventions = response.interventions
-        })
-        .catch(error => {
-          console.error('Une erreur est survenue lors de la récupération des interventions', error)
-          this.$store.commit('clean_interventions')
-        })
   }
 };
 </script>

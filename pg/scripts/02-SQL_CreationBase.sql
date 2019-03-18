@@ -188,7 +188,7 @@ create table INTERVENTION (
    INT_NOMBREGARCON     INT                  null,
    INT_DATEINTERVENTION DATE                 not null,
    INT_DATECREATION    timestamp                 not null,
-   INT_DATEMAJ          DATE                 null,
+   INT_DATEMAJ          timestamp                 null,
    INT_COMMENTAIRE      TEXT                 null,
    INT_DEP_NUM          VARCHAR(3)           not null,
    INT_REG_NUM          VARCHAR(3)           not null,

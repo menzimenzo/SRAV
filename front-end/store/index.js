@@ -56,9 +56,9 @@ export const actions = {
         console.log(err)
     })
   },
-  async get_interventions({ commit }) {
+  async get_interventions({ commit, state }) {
     console.info("get_interventions");
-    const url = process.env.API_URL + "/interventions";
+    const url = process.env.API_URL + "/interventions?utilisateurId=" + state.utilisateurCourant.id;
     return await this.$axios
       .$get(url)
       .then(response => {
@@ -80,9 +80,9 @@ export const actions = {
         this.$store.commit("clean_interventions");
       });
   },
-  async get_intervention({ commit }, idIntervention) {
+  async get_intervention({ commit, state }, idIntervention) {
     console.info("get_interventions");
-    const url = process.env.API_URL + "/interventions/" + idIntervention;
+    const url = process.env.API_URL + "/interventions/" + idIntervention + '?utilisateurId=' + state.utilisateurCourant.id;
     return await this.$axios
       .$get(url)
       .then(response => {
@@ -101,8 +101,9 @@ export const actions = {
         );
       });
   },
-  async post_intervention({ commit }, intervention) {
+  async post_intervention({ commit, state }, intervention) {
     const url = process.env.API_URL + "/interventions";
+    intervention.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$post(url, { intervention }).then(({ intervention }) => {
       console.info('post_intervention', { intervention });
       return commit('add_intervention', intervention)
@@ -111,6 +112,7 @@ export const actions = {
   async put_intervention({ commit, state }, intervention) {
     const url = process.env.API_URL + "/interventions/" + intervention.id;
     const index = state.interventions.findIndex(i => i.id === intervention.id )
+    intervention.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$put(url, { intervention }).then(({ intervention }) => {
       commit('put_intervention', { intervention, index })
     })

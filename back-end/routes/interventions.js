@@ -39,7 +39,7 @@ const formatIntervention = intervention => {
 router.get('/:id', async function (req, res) {
 
     const id = req.params.id;
-    const utilisateurId = 1; // TODO à récupérer via POST ?
+    const utilisateurId = req.query.utilisateurId; // TODO à récupérer via POST ?
 
     const requete =`SELECT * from intervention where int_id=${id} and uti_id=${utilisateurId} order by int_id asc`;
     console.log(requete)
@@ -61,7 +61,7 @@ router.get('/:id', async function (req, res) {
 
 router.get('/', async function (req, res) {
 
-    const utilisateurId = 1; // TODO à récupérer via GET ?
+    const utilisateurId = req.query.utilisateurId; // TODO à récupérer via GET ?
     const requete = `SELECT * from intervention where uti_id=${utilisateurId} order by int_id asc`;
     console.log(requete)
 
@@ -82,7 +82,7 @@ router.put('/:id', async function (req, res) {
     const intervention = req.body.intervention
 
     const id = req.params.id
-    let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp } = intervention
+    let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId } = intervention
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -91,7 +91,6 @@ router.put('/:id', async function (req, res) {
     console.log('Contenu de la commune :');
     console.log('%O', commune);
 
-    const utilisateurId = 1; // TODO à récupérer via POST ?
 
     //insert dans la table intervention
     const requete = `UPDATE intervention 
@@ -135,7 +134,7 @@ router.put('/:id', async function (req, res) {
 router.post('/', function (req, res) {
     const intervention = req.body.intervention
 
-    let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp } = intervention
+    let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -143,12 +142,10 @@ router.post('/', function (req, res) {
     console.log('Contenu de la commune :');
     console.log('%O', commune);
 
-    // TODO uti_id
-    const utilisateurId = 1; // TODO à récupérer via POST ?
     //insert dans la table intervention
     const requete = `insert into intervention 
-                    (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_commentaire,int_dep_num,int_reg_num) 
-                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}', ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}', '${new Date().toISOString()}','${commentaire}', '${commune.dep_num}', '${commune.reg_num}') RETURNING *`;
+                    (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_datemaj,int_commentaire,int_dep_num,int_reg_num) 
+                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}', ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}', '${new Date().toISOString()}', '${new Date().toISOString()}','${commentaire}', '${commune.dep_num}', '${commune.reg_num}') RETURNING *`;
     
     console.log({ requete });
     pgPool.query(requete, (err, result) => {

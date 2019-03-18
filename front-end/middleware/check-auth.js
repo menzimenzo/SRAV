@@ -11,6 +11,7 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
         route.path.indexOf('/connexion/logout') === 0 ){
         return
     }
+    
 
     console.log(JSON.stringify(store.state))
     if(!store.state.utilisateurCourant || !store.state.utilisateurCourant.id){

@@ -58,7 +58,7 @@ export default {
 //
   async mounted() {
     console.info("mounted home");
-    await this.$store.dispatch('get_interventions');
+    
   }
 };
 </script>
