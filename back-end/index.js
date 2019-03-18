@@ -5,6 +5,7 @@ const checking = require('./routes/checking');
 const interventions = require('./routes/interventions');
 const listecommune = require('./routes/listecommune');
 const attestations = require('./routes/attestations');
+const structures = require('./routes/structures');
 const pdf = require('./routes/pdf');
 const session = require('express-session');
 const sessionstore = require('sessionstore');
@@ -39,6 +40,8 @@ app.use('/interventions', interventions);
 app.use('/listecommune', listecommune);
 
 app.use('/attestations', attestations);
+
+app.use('/structures', structures);
 
 app.use('/pdf', pdf);
 

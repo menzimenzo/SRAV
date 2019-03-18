@@ -44,7 +44,7 @@
                 <b-form-select id="structNatSelect" :options="structures" required v-model="user.structureId" />
               </b-form-group>
 
-              <b-form-group id="structLocaleGroup" label="Structure Locale:" label-for="structLocaleInput">
+              <b-form-group id="structLocaleGroup" label="Structure Locale:" v-if="isFederation(user.structureId)" label-for="structLocaleInput">
                 <b-form-input
                   id="structLocaleInput"
                   type="text" v-model="user.structureLocale"
@@ -93,7 +93,23 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    isFederation(id){
+      return true
     }
+  },
+  mounted(){
+    const url = process.env.API_URL + '/structures'
+    this.$axios.get(url).then(response => {
+      this.structures = response.data.map(struct => {
+        return {
+          value: struct.str_id,
+          text: struct.str_libelle
+        }
+      })
+    }).catch(err => {
+      console.log(err)
+    })
   }
 
 };
