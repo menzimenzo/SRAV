@@ -1,0 +1,176 @@
+<template>
+    <b-container class="interventionModal">
+      <b-row>
+        <b-col cols="12" class="text-center">
+          <h2 class="mb-3 interventionTitle">Edition de l'utilisateur <b>{{formUser.mail}}</b></h2>
+        </b-col>
+      </b-row>
+      <b-row>
+          <div class="bv-example-row">
+            <p>Intéger ici le texte précisant ce qu'on entend par gérer un utilisateur</p>
+          </div>
+      </b-row>
+      <b-row>
+          <b-col> 
+              Nom :
+              <span class="">
+                <b-form-input
+                  aria-describedby="inputFormatterHelp"
+                  v-model="formUser.nom"
+                  type="text"
+                  ></b-form-input>
+              </span>
+          </b-col>
+          <b-col>
+              Prénom :
+              <span class="">
+                <b-form-input
+                  aria-describedby="inputFormatterHelp"
+                  v-model="formUser.prenom"
+                  type="text"
+                  ></b-form-input>
+              </span>
+          </b-col>
+      </b-row> 
+      <b-row>
+        <br>
+      </b-row>  
+      <b-row>
+          <b-col> 
+              mail :
+              <span class="">
+                <b-form-input
+                  aria-describedby="inputFormatterHelp"
+                  v-model="formUser.mail"
+                  type="text"
+                  ></b-form-input>
+              </span>
+          </b-col>
+          <b-col>
+            <span class="">
+               <b-form-checkbox switch v-model="formUser.validated" name="check-button">
+                Utiliseur validé <b></b>
+              </b-form-checkbox>
+            </span>
+          </b-col>
+      </b-row> 
+      <b-row>
+        <br>
+      </b-row>  
+      <b-row>
+          <b-col> 
+          Profil<b-form-select v-model="formUser.profil" :options="listeprofil"/>
+          </b-col>
+          <b-col> 
+          <br>
+          </b-col>
+      </b-row> 
+      <b-row>
+        <br>
+        <br>
+      </b-row>
+      <p class="modal-btns">
+        <b-button v-on:click="$modal.hide('editUser')">Annuler</b-button>
+        <b-button variant="success" v-on:click="checkform">Enregistrer</b-button>
+      </p>
+    </b-container>
+</template>
+<script>
+import Vue from 'vue'
+import moment from 'moment'
+
+var loadFormUser = function(utilisateur){
+  let formUser = JSON.parse(JSON.stringify(Object.assign({
+    nom: '',
+    prenom:'',
+    mail:'',
+    naissance:'',
+    profil: '',
+    structure: '',
+    statut: '',
+    validated: ''
+    }, utilisateur)))
+    return formUser
+}
+
+export default {
+  props: {
+    utilisateurSelectionne: {
+      type: Object,
+      default: () => {
+        return {}
+        //return { id: 5 }
+      }
+    }
+  },
+  data() {
+    return {
+       formUser: loadFormUser(this.$store.state.utilisateurSelectionne),
+       listeprofil: [
+        { text: 'Administrateur', value: '1' },
+        { text: 'Partenaire', value: '2' },
+        { text: 'Trou du cul', value: '3' }
+      ],
+    };
+  },
+  methods: {
+  checkform: function() {
+      console.info("Validation du formulaire");
+      this.erreurformulaire = [];
+      var formOK = true;
+
+      if (! this.formUser.nom) {
+        this.erreurformulaire.push("Le nom");
+        formOK = false;
+      } 
+      if (! this.formUser.prenom) {
+        this.erreurformulaire.push("Le prénom");
+        formOK = false;
+      }      
+      if (! this.formUser.mail) {
+        this.erreurformulaire.push("Le mail");
+        formOK = false;
+      }
+   
+      if (!formOK) {
+        console.info('Formulaire invalide', this.erreurformulaire)
+        return
+      }
+
+      const utilisateur = {
+        id: this.formUser.id, 
+        nom:this.formUser.nom,
+        prenom:this.formUser.prenom,
+        mail:this.formUser.mail,
+        profil:this.formUser.profil,
+        validated:this.formUser.validated,
+      }
+      
+      return this.$store.dispatch('put_user', utilisateur) 
+        .then(message => {
+          console.info(message)
+          this.$toast.success(`Utilisateur #${utilisateur.mail} mis à jour`, [])
+          this.$modal.hide('editUser')
+        })
+        .catch(error => {
+          console.error('Une erreur est survenue lors de la mise à jour de l\'utilisateur', error)
+        })
+    },
+  },
+
+};
+</script>
+
+<style>
+.interventionModal{
+  padding: 30px;
+}
+.modal-btns{
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+}
+.interventionTitle{
+  color: #252195;
+}
+</style>

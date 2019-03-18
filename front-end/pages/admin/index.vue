@@ -22,6 +22,10 @@
                   <editable :columns="headers" :data="users" :removable="false" :creable="false" 
                   :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
                   <template slot-scope="props" slot="actions">
+                    {{props.data.id}}
+                    <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
+                      <i class="material-icons" >edit</i>
+                    </b-btn>
                     <!--<b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
                       <i class="material-icons" >edit</i>
                     </b-btn>
@@ -73,20 +77,25 @@
           </b-card>
         </b-col>
     </b-row>
+    <modal name="editUser" height="auto" width="900px" @close="clearIntervention()" :scrollabe="true">
+      <user :user="utilisateur"/>
+    </modal>
   </b-container>
 </template>
 
 <script>
 import { mapState } from 'vuex'
 import Editable from '~/components/editable/index.vue'
+import user from '~/components/user.vue'
 
 export default {
    components: {
-    Editable
+    Editable,user
   },
    data() {
      return {
-       users: [],
+       loading: true,
+       utilisateur: [],
        headers: [
         
         { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
@@ -95,12 +104,21 @@ export default {
         { path: 'prenom', title: 'Prénom', type: 'text', sortable:true},
         { path: 'structure', title: 'structure', type: 'text', sortable:true},
         { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
-           
+     
       ]
      };
    },
-  computed: mapState([]),
+
   methods: {
+    editUser: function (id) {
+      return this.$store.dispatch('get_user',id)
+        .then(() => {
+          this.$modal.show('editUser')
+        })
+        .catch(error => {
+          console.error('Une erreur est survenue lors de la récupération du détail de l\'user', error)
+        })
+    },
 
   },
 //
@@ -110,7 +128,7 @@ export default {
     const url = process.env.API_URL + '/user'
     await this.$axios.$get(url)
         .then(response => {
-
+          this.loading = false
           this.users = response.users
         })
         .catch(error => {
