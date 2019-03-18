@@ -1,0 +1,13 @@
+version: '2'
+
+services:
+  mail-server:
+    build: .
+    command: yarn dev
+    volumes:
+      - $PWD:/app
+    environment:
+      - DEBUG=mail-server:info:*
+      - API_MANAGER_URL=http://fake-proxy/api-manager
+      - APP_URL=http://mail-server:3000
+

@@ -1,0 +1,43 @@
+services:
+  - docker:dind
+
+variables:
+  DOCKER_HOST: tcp://127.0.0.1:2375
+  KUBERNETES_POD_ANNOTATIONS_1: "runners.kubernetes.cpu_limit=0.5"
+  KUBERNETES_POD_ANNOTATIONS_2: "runners.kubernetes.memory_limit=500Mi"
+  KUBERNETES_POD_ANNOTATIONS_3: "runners.kubernetes.service_cpu_limit=0.5"
+  KUBERNETES_POD_ANNOTATIONS_4: "runners.kubernetes.helper_cpu_limit=500m"
+  
+stages:
+  - run_tests_server
+  - build_to_nexus
+
+### TEST SERVER
+
+tests:mail-server:
+  stage: run_tests_server
+  image: node:10.15.1
+  retry: 2
+  before_script:
+    - export APP_URL=http://mail-server:3000
+    - export API_MANAGER_URL=http://fake-proxy/api-manager
+    - export PORT=3000
+  script:
+    - yarn
+    - yarn test-ci
+  except:
+    - tags
+
+### BUILD TEST
+
+docker-push:mail-server:
+  stage: build_to_nexus
+  image: docker
+  retry: 2
+  script:
+    - docker build -f Dockerfile-built -t docker.app.synaltic.eu/common/dev/mail-server:$CI_BUILD_REF_NAME .
+    - docker login -p $DOCKER_REGISTRY_PASSWORD -u $DOCKER_REGISTRY_USER docker.app.synaltic.eu
+    - docker push docker.app.synaltic.eu/common/dev/mail-server:$CI_BUILD_REF_NAME
+  only:
+    - recette
+    - tags

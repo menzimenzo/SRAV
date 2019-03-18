@@ -1,0 +1,8 @@
+node_modules
+coverage
+dist
+jest_0
+*.log
+tmp
+
+

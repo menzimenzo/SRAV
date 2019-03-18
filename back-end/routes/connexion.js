@@ -3,6 +3,7 @@ const router = express.Router();
 
 const pgPool = require('../pgpool').getPool();
 const config = require('../config');
+const {sendEmail} = require('../utils/mail-service')
 const {getAuthorizationUrl, getLogoutUrl, formatUtilisateur} = require('../utils/utils')
 const bodyParser = require('body-parser');
 var moment = require('moment');
@@ -45,7 +46,12 @@ router.post('/verify', async (req,res) => {
              console.log(err)
              throw err
          })
-
+    sendEmail({
+        to: user.uti_mail,
+        subject: 'Savoir rouler à vélo',
+        body: `<p><b>Bonjour</b>,</p>
+            <p>Nous vous confirmons votre inscription à la plateforme Savoir Rouler à Vélo<br/></p>`
+    })
     req.session.user = updatRes.rows[0]
     user = formatUtilisateur(updatRes.rows[0])
     return res.send({user})
