@@ -150,6 +150,11 @@ ul li {
     width: 90px;
 }
 
+.text {
+    display: inline-block;
+    width: 350px;
+}
+
 .derniermodif {
     color: orange;
 }

@@ -183,6 +183,7 @@ router.post('/', function (req, res) {
     const dateintervention = req.body.params.dateintervention
     const commentaire = req.body.params.commentaire
     const codepostal = req.body.params.cp;
+    const siteintervention = req.body.params.siteintervention;
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -192,8 +193,8 @@ router.post('/', function (req, res) {
 
     //insert dans la table intervention
     const requete = `insert into intervention 
-                    (cai_id,blo_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_commentaire,int_dep_num,int_reg_num) 
-                    values(` + cai + `,` + blo_id + `,` + commune.cpi_codeinsee + `,` + codepostal + `,'` + commune.com_libellemaj + `',` + nbEnfants + `,` + nbGarcons + `,` + nbFilles + `,'` + dateintervention + `','` + datecreation + `','` + commentaire + `',` + commune.dep_num + `,94)`
+                    (cai_id,blo_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_commentaire,int_dep_num,int_reg_num,int_siteintervention) 
+                    values(` + cai + `,` + blo_id + `,` + commune.cpi_codeinsee + `,` + codepostal + `,'` + commune.com_libellemaj + `',` + nbEnfants + `,` + nbGarcons + `,` + nbFilles + `,'` + dateintervention + `','` + datecreation + `','` + commentaire + `',` + commune.dep_num + `,94,'` + siteintervention + `')`
     //console.log(requete)
     pgPool.query(requete, (err, result) => {
         if (err) {
