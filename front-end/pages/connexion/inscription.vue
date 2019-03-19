@@ -41,10 +41,10 @@
 
 
               <b-form-group id="structNationaleGroup" label="Structure nationale:" label-for="structNatSelect">
-                <b-form-select id="structNatSelect" :options="structures" required v-model="user.structureId" />
+                <b-form-select  id="structNatSelect" :options="structures" required v-model="user.structureId" />
               </b-form-group>
 
-              <b-form-group id="structLocaleGroup" label="Structure Locale:" v-if="isFederation(user.structureId)" label-for="structLocaleInput">
+              <b-form-group id="structLocaleGroup" label="Structure Locale:" v-if="isFederation(user.structureId)=='true'" label-for="structLocaleInput">
                 <b-form-input
                   id="structLocaleInput"
                   type="text" v-model="user.structureLocale"
@@ -54,7 +54,8 @@
 
               <b-form-group id="legalCheckGroup">
                 <b-form-checkbox-group v-model="isLegalChecked" id="legalCheck">
-                  <b-form-checkbox value="true">Je confirme...........</b-form-checkbox>
+                  <b-form-checkbox value="true">« Intervenant du <b>Savoir Rouler à Vélo</b>, je m’engage à construire et réaliser mes sessions d’apprentissage sur la base du socle commun <b>Savoir Rouler à Vélo</b> et à vérifier l’acquisition de l’ensemble des compétences attendues du bloc 1, 2 et 3 pour délivrer l’attestation <b>Savoir Rouler à Vélo</b>». 
+                  </b-form-checkbox>
                 </b-form-checkbox-group>
               </b-form-group>
             </b-card>
@@ -94,8 +95,23 @@ export default {
         console.log(err)
       })
     },
-    isFederation(id){
-      return true
+    async isFederation(id){
+      console.log("id Structure sélectionnée : " + id);
+      const url = process.env.API_URL + '/structures/structure?id=' + id;
+        console.info(url);
+        this.$axios
+          .$get(url)
+          .then(response => {
+            console.log("Réponse correcte de la route - Fédération :" + response.structures.str_federation);
+            return response.structures.str_federation;
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération de la structure associée à la sélection",
+              error
+            );
+          });
+      
     }
   },
   mounted(){
@@ -104,7 +120,7 @@ export default {
       this.structures = response.data.map(struct => {
         return {
           value: struct.str_id,
-          text: struct.str_libelle
+          text: struct.str_libellecourt
         }
       })
     }).catch(err => {
