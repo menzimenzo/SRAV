@@ -33,7 +33,7 @@ const formatIntervention = intervention => {
         dateCreation: new Date(intervention.int_datecreation),
         dateMaj: intervention.int_datemaj,
         commentaire: intervention.int_commentaire,
-        siteIntervention: intervention.int_siteintervention
+        siteintervention: intervention.int_siteintervention
     }
 }
 
@@ -127,7 +127,7 @@ router.put('/:id', async function (req, res) {
     const intervention = req.body.intervention
 
     const id = req.params.id
-    let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId } = intervention
+    let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId,siteintervention } = intervention
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -152,7 +152,8 @@ router.put('/:id', async function (req, res) {
         int_datemaj = now(),
         int_commentaire = '${commentaire}',
         int_dep_num = '${commune.dep_num}',
-        int_reg_num = '${commune.reg_num}'
+        int_reg_num = '${commune.reg_num}',
+        int_siteintervention = '${siteintervention}'
         WHERE int_id = ${id}
         RETURNING *
         ;`    
@@ -179,7 +180,7 @@ router.put('/:id', async function (req, res) {
 router.post('/', function (req, res) {
     const intervention = req.body.intervention
 
-    let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId } = intervention
+    let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId, siteintervention } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -189,8 +190,8 @@ router.post('/', function (req, res) {
 
     //insert dans la table intervention
     const requete = `insert into intervention 
-                    (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_datemaj,int_commentaire,int_dep_num,int_reg_num) 
-                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}', ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}', '${new Date().toISOString()}', '${new Date().toISOString()}','${commentaire}', '${commune.dep_num}', '${commune.reg_num}') RETURNING *`;
+                    (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_datemaj,int_commentaire,int_dep_num,int_reg_num,int_siteintervention) 
+                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}', ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}', '${new Date().toISOString()}', '${new Date().toISOString()}','${commentaire}', '${commune.dep_num}', '${commune.reg_num}','${siteintervention}') RETURNING *`;
     
     console.log({ requete });
     pgPool.query(requete, (err, result) => {

@@ -115,8 +115,16 @@
                   stacked
                   name="plainStacked"
                 />
+                <!--<i class="material-icons" >info</i>-->
               </b-form-group>
           </div>
+          <div class="mb-3 mt-3">
+                Site d'intervention :
+                <span class="text">
+                   <b-form-input maxlength="100" v-model="formIntervention.siteintervention" type="text"></b-form-input>
+                </span>                
+          </div>
+
           <div class="mb-3 mt-3">
             Commentaires libres :
               <b-form-textarea
@@ -180,7 +188,8 @@ var loadFormIntervention = function(intervention){
        cadreintervention: '',
        blocId: null,
        cai: null,
-       commentaire: ''
+       commentaire: '',
+       siteintervention: ''
     }, intervention)))
   let dateIntervention = moment(intervention.dateIntervention);
   formIntervention.dateIntervention = dateIntervention.format("YYYY-MM-DD")
@@ -295,7 +304,8 @@ export default {
         cai:this.formIntervention.cai,
         blocId:this.formIntervention.blocId,
         dateIntervention:this.formIntervention.dateIntervention,
-        commentaire:this.formIntervention.commentaire
+        commentaire:this.formIntervention.commentaire,
+        siteintervention:this.formIntervention.siteintervention
       }
 
       const action = intervention.id ? 'put_intervention' : 'post_intervention'
@@ -371,7 +381,8 @@ export default {
         cadreintervention: '',
         blocId: null,
         cai: null,
-        commentaire: ''
+        commentaire: '',
+        siteintervention: ''
       }, intervention)))
       formIntervention.dateIntervention = new Date(formIntervention.dateIntervention)
       Vue.set(this, 'formIntervention', loadFormIntervention(intervention))
