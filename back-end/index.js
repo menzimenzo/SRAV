@@ -7,6 +7,7 @@ const listecommune = require('./routes/listecommune');
 const attestations = require('./routes/attestations');
 const pdf = require('./routes/pdf');
 const user = require('./routes/user');
+const structure = require('./routes/structure');
 const session = require('express-session');
 const sessionstore = require('sessionstore');
 
@@ -44,6 +45,8 @@ app.use('/attestations', attestations);
 app.use('/pdf', pdf);
 
 app.use('/user', user);
+
+app.use('/structure', structure);
 
 app.get('/', function (req, res) {
     res.send('Bienvenue sur le backend de Savoir Rouler à vélo');

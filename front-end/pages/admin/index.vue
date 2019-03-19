@@ -12,7 +12,7 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img fluid :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,0.5)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion1 variant="Dark link">
-                      Liste des utilisateurs
+                      Gestion des comptes utilisateurs
                   </b-btn>
                 </b-col>
               </b-form-row>
@@ -22,7 +22,6 @@
                   <editable :columns="headers" :data="users" :removable="false" :creable="false" 
                   :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
                   <template slot-scope="props" slot="actions">
-                    {{props.data.id}}
                     <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
                       <i class="material-icons" >edit</i>
                     </b-btn>
@@ -38,7 +37,6 @@
             </b-collapse>
 
           </b-card>
-          <!--  ACCORDEON -- MES INTERVENTIONS -->
           <b-card no-body class="mb-3">
             <b-card-header header-tag="header" class="p-1" role="tab">
               <b-form-row>
@@ -46,18 +44,17 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion2 variant="Dark link">
-                    Title 2
+                    Gestion des référentiels
                   </b-btn>
                 </b-col>
               </b-form-row>
             </b-card-header>
             <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-
+                Disponible en V2
               </b-card-body>
             </b-collapse>
           </b-card>   
-          <!--  ACCORDEON -- DOCUMENTS -->
           <b-card no-body class="mb-3">
             <b-card-header header-tag="header" class="p-1" role="tab">
               <b-form-row>
@@ -65,20 +62,70 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion3 variant="Dark link">
+                    Accès aux indicateurs
                   </b-btn>
                 </b-col>
               </b-form-row>
             </b-card-header>
             <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
               <b-card-body>
+                Disponible en V2
+              </b-card-body>
+            </b-collapse>
+          </b-card>   <b-card no-body class="mb-3">
+            <b-card-header header-tag="header" class="p-1" role="tab">
+              <b-form-row>
+                <b-col>
+                  <!-- IMAGE RAYEE BANNER INTERVENTION -->
+                  <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
+                  <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion4 variant="Dark link">
+                    Publication des documents
+                  </b-btn>
+                </b-col>
+              </b-form-row>
+            </b-card-header>
+            <b-collapse id="accordion4" accordion="my-accordion" role="tabpanel">
+              <b-card-body>
+                Disponible en V2
+              </b-card-body>
+            </b-collapse>
+          </b-card>   
 
+          <!--  ACCORDEON -- DOCUMENTS -->
+          <b-card no-body class="mb-3">
+            <b-card-header header-tag="header" class="p-1" role="tab">
+              <b-form-row>
+                <b-col>
+                  <!-- IMAGE RAYEE BANNER INTERVENTION -->
+                  <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
+                  <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion5 variant="Dark link">
+                    Commentaires
+                  </b-btn>
+                </b-col>
+              </b-form-row>
+            </b-card-header>
+            <b-collapse id="accordion5" accordion="my-accordion" role="tabpanel">
+              <b-card-body>
+                  <editable :columns="headersCom" :data="commentaires" :removable="false" :creable="false" 
+                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                  <template slot-scope="props" slot="actions">
+                    {{props.data.id}}
+                    
+                    <!--<b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
+                      <i class="material-icons" >edit</i>
+                    </b-btn>
+                    <b-btn @click="downloadPdf(props.data.id)" size="sm" class="ml-1" variant="primary">
+                      <i class="material-icons" >cloud_download</i>
+                    </b-btn>-->
+                  </template>
+                </editable>   
               </b-card-body>
             </b-collapse>
           </b-card>
         </b-col>
     </b-row>
-    <modal name="editUser" height="auto" width="900px" @close="clearIntervention()" :scrollabe="true">
-      <user :user="utilisateur"/>
+    <modal name="editUser" height="auto" width="900px" :scrollabe="true">
+      <user />
     </modal>
   </b-container>
 </template>
@@ -95,7 +142,8 @@ export default {
    data() {
      return {
        loading: true,
-       utilisateur: [],
+       users: [],
+       commentaires: [],
        headers: [
         
         { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
@@ -105,7 +153,14 @@ export default {
         { path: 'structure', title: 'structure', type: 'text', sortable:true},
         { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
      
-      ]
+      ],
+     headersCom: [
+        { path: 'nom', title: 'Intervenant', type: 'text', sortable:true},
+        { path: 'commune.com_libellemaj', title: 'Lieu', type: 'text', sortable:true},
+        { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true, filter:"date"},
+        { path: 'commentaire', title: 'Commentaires', type: 'text', sortable:true},
+      ] 
+
      };
    },
 
@@ -132,7 +187,17 @@ export default {
           this.users = response.users
         })
         .catch(error => {
+          console.error('Une erreur est survenue lors de la récupération des users', error)
+        })
 
+    const url2 = process.env.API_URL + '/interventions'
+    await this.$axios.$get(url2)
+        .then(response => {
+          this.loading = false
+          this.commentaires = response.interventions
+        })
+        .catch(error => {
+          console.error('Une erreur est survenue lors de la récupération des commentaires d\'interventions', error)
         })
   }
 };

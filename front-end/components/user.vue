@@ -14,7 +14,7 @@
           <b-col> 
               Nom :
               <span class="">
-                <b-form-input
+                <b-form-input readonly
                   aria-describedby="inputFormatterHelp"
                   v-model="formUser.nom"
                   type="text"
@@ -24,7 +24,7 @@
           <b-col>
               Prénom :
               <span class="">
-                <b-form-input
+                <b-form-input readonly
                   aria-describedby="inputFormatterHelp"
                   v-model="formUser.prenom"
                   type="text"
@@ -39,7 +39,7 @@
           <b-col> 
               mail :
               <span class="">
-                <b-form-input
+                <b-form-input readonly
                   aria-describedby="inputFormatterHelp"
                   v-model="formUser.mail"
                   type="text"
@@ -59,10 +59,13 @@
       </b-row>  
       <b-row>
           <b-col> 
-          Profil<b-form-select v-model="formUser.profil" :options="listeprofil"/>
+          Profil : <b-form-select v-model="formUser.profil" :options="listeprofil"/>
           </b-col>
           <b-col> 
-          <br>
+          structure : 
+          <b-form-select v-model="formUser.structure">
+             <option v-for="structure in structures" :key="structure.id" :value="structure.id">{{ structure.libCourt}}</option>
+          </b-form-select>
           </b-col>
       </b-row> 
       <b-row>
@@ -107,10 +110,12 @@ export default {
     return {
        formUser: loadFormUser(this.$store.state.utilisateurSelectionne),
        listeprofil: [
-        { text: 'Administrateur', value: '1' },
-        { text: 'Partenaire', value: '2' },
-        { text: 'Trou du cul', value: '3' }
-      ],
+         { text: 'Administrateur', value: '1' },
+         { text: 'Partenaire', value: '2' },
+         { text: 'Trou du cul', value: '3' }
+       ],
+       structures: []
+
     };
   },
   methods: {
@@ -144,6 +149,7 @@ export default {
         mail:this.formUser.mail,
         profil:this.formUser.profil,
         validated:this.formUser.validated,
+        structure:this.formUser.structure
       }
       
       return this.$store.dispatch('put_user', utilisateur) 
@@ -157,6 +163,18 @@ export default {
         })
     },
   },
+  async mounted() {
+    const url = process.env.API_URL + '/structure'
+    await this.$axios.$get(url)
+        .then(response => {
+          this.loading = false
+          this.structures = response.structures
+        })
+        .catch(error => {
+          console.error('Une erreur est survenue lors de la récupération des users', error)
+        })
+  }
+
 
 };
 </script>

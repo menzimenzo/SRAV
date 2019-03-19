@@ -5,19 +5,13 @@ var moment = require('moment');
 moment().format();
 
 
-const formatUser = user => {
+const formatStructure = structure => {
 
     return {
-        id: user.uti_id,
-        profil: user.pro_id,
-        structure: user.str_id,
-        statut: user.stu_id,
-        validated: user.validated,
-        mail: user.uti_mail,
-        nom: user.uti_nom,
-        prenom: user.uti_prenom,
-        naissance: user.uti_datenaissance,
-        structureLocale: user.uti_structurelocale
+        id: structure.str_id,
+        lib: structure.str_libelle,
+        libCourt: structure.str_libellecourt,
+        federation: structure.str_actif
     }
 }
 
@@ -25,47 +19,46 @@ router.get('/:id', async function (req, res) {
 
     const id = req.params.id;
 
-    const requete =`SELECT * from utilisateur where uti_id=${id} order by uti_id asc`;
+    const requete =`SELECT * from structure where str_id=${id} order by str_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
         if (err) { 
             console.log(err.stack);
-            return res.status(400).json('erreur lors de la récupération de l\'utilisateur');
+            return res.status(400).json('erreur lors de la récupération de la structure');
         }
         else {
-            const user = result.rows && result.rows.length && result.rows[0];
-            if (!user) {
-                return res.status(400).json({ message: 'Utilisateur inexistant' });
+            const structure = result.rows && result.rows.length && result.rows[0];
+            if (!structure) {
+                return res.status(400).json({ message: 'structure inexistante' });
             }
-            res.json({ user: formatUser(user) });
+            res.json({ structure: formatUser(structure) });
         }
     })
 });
 
 router.get('/', async function (req, res) {
 
-    const utilisateurId = 1; // TODO à récupérer via GET ?
-    const requete = `SELECT * from utilisateur order by uti_id asc`;
+    const requete = `SELECT * from structure order by str_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
         if (err) {
             console.log(err.stack);
-            return res.status(400).json('erreur lors de la récupération des utilisateurs');
+            return res.status(400).json('erreur lors de la récupération des structures');
         }
         else {
             console.info(result.rows)
-            const users = result.rows.map(formatUser);
-            res.json({ users });
+            const structures = result.rows.map(formatStructure);
+            res.json({ structures });
         }
     })
 });
-
+/*
 router.put('/:id', async function (req, res) {
     const user = req.body.utilisateurSelectionne
     const id = req.params.id
-    let { nom, prenom, mail, profil, validated,structure } = user
+    let { nom, prenom, mail, profil, validated } = user
 
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
@@ -73,8 +66,7 @@ router.put('/:id', async function (req, res) {
         uti_prenom = '${prenom}',
         uti_mail = '${mail}',
         validated = ${validated},
-        pro_id = ${profil},
-        str_id = ${structure}
+        pro_id = ${profil}
         WHERE uti_id = ${id}
         ;`    
     
@@ -88,6 +80,6 @@ router.put('/:id', async function (req, res) {
             return res.status(200).json({ user: result.rows.map(formatUser)[0] });
         }
     })
-})
+})*/
 
 module.exports = router;
