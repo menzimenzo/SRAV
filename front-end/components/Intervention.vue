@@ -105,8 +105,11 @@
                 <b-form-input maxlength="10" v-model="formIntervention.dateIntervention" type="date"></b-form-input>
               </span>
           </div>
-          <div class="mb-3 mt-3">
-            Cadre d'intervention * :
+          <div class="mb-3 mt-3" >
+            Cadre d'intervention * <i class="material-icons" id="cadreInfo" >info</i> :
+              <b-popover target="cadreInfo" triggers="hover focus">
+                <b>Scolaire</b> : c'est ça<br><b>Péri-scolaire</b> : c'est ça<br><b>Extra-scolaire</b> : c'est ça
+              </b-popover>
               <b-form-group class="ml-3">
                 <b-form-radio-group
                   v-model="formIntervention.cai"
@@ -115,7 +118,9 @@
                   stacked
                   name="plainStacked"
                 />
-                <!--<i class="material-icons" >info</i>-->
+                <!--<aria-label="texte de l'infobulle">-->
+                <!-- v-b-popover.hover="'I am popover content!'"-->
+                <!--<i class="material-icons" >info</i><i class="material-icons" >info</i>-->
               </b-form-group>
           </div>
           <div class="mb-3 mt-3">
@@ -159,11 +164,7 @@
             <b-button v-on:click="resetform() " v-if="!intervention.id" title="Réinitialiser le formulaire">Réinitialiser le formulaire</b-button>
             <b-button variant="success" v-on:click="checkform">Enregistrer</b-button>
           </p>
-
-
         </b-col>
-
-
       </b-row>
     </b-container>
 
@@ -218,11 +219,12 @@ export default {
       listecommune: [{ text: 'Veuillez saisir un code postal', value: null, insee: null, cp: null,codedep: null}],
 
      formIntervention: loadFormIntervention(this.intervention),
- 
+      //<aria-label="texte de l'infobulle">
+      // v-b-popover.hover="'I am popover content!'"
       listecadreintervention: [
-        { text: "Scolaire", value: "3" },
-        { text: "Péri-scolaire", value: "1" },
-        { text: "Extra-scolaire", value: "2" }
+        { text: `Scolaire`, value: "3" },
+        { text: `Péri-scolaire`, value: "1" },
+        { text: `Extra-scolaire`, value: "2" }
       ],
       listebloc: [
         { text: '-- Choix du type de bloc --', value: null },
