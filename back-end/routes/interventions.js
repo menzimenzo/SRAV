@@ -98,9 +98,7 @@ router.get('/:id', async function (req, res) {
 
     // Where condition is here for security reasons.
     var whereClause = ""
-    if(user.pro_id == 2){
-        whereClause += `and str_id=${user.str_id}`
-    } else if(user.pro_id == 3){
+    if(user.pro_id == 3){
         whereClause += ` and uti_id=${utilisateurId} `
     }
 

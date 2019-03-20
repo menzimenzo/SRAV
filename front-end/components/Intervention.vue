@@ -325,7 +325,8 @@ export default {
               class: 'toastLink'
             })
           }
-          this.$toast.success(`Intervention #${intervention.id} enregistrée`, {action})
+          var interventionLabel = intervention.id ? "#" + intervention.id : ""
+          this.$toast.success(`Intervention ${interventionLabel} enregistrée`, {action})
           this.resetform()
           this.$modal.hide('editIntervention')
         })
