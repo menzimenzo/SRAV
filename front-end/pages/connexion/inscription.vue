@@ -44,7 +44,7 @@
                 <b-form-select  id="structNatSelect" :options="structures" required v-model="user.structureId" />
               </b-form-group>
 
-              <b-form-group id="structLocaleGroup" label="Structure Locale:" v-if="isFederation(user.structureId)=='true'" label-for="structLocaleInput">
+              <b-form-group id="structLocaleGroup" label="Structure Locale:" v-if="isFederation(user.structureId)" label-for="structLocaleInput">
                 <b-form-input
                   id="structLocaleInput"
                   type="text" v-model="user.structureLocale"
@@ -95,22 +95,13 @@ export default {
         console.log(err)
       })
     },
-    async isFederation(id){
-      console.log("id Structure sélectionnée : " + id);
-      const url = process.env.API_URL + '/structures/structure?id=' + id;
-        console.info(url);
-        this.$axios
-          .$get(url)
-          .then(response => {
-            console.log("Réponse correcte de la route - Fédération :" + response.structures.str_federation);
-            return response.structures.str_federation;
-          })
-          .catch(error => {
-            console.error(
-              "Une erreur est survenue lors de la récupération de la structure associée à la sélection",
-              error
-            );
-          });
+    isFederation(id){
+
+       var structure = this.structures.find(str => {
+         return str.str_id == id
+       })
+       if(!structure){return false}
+       return structure.federation
       
     }
   },
@@ -120,7 +111,9 @@ export default {
       this.structures = response.data.map(struct => {
         return {
           value: struct.str_id,
-          text: struct.str_libellecourt
+          text: struct.str_libellecourt,
+          federation : struct.str_federation,
+          str_id: struct.str_id
         }
       })
     }).catch(err => {
