@@ -12,7 +12,8 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img fluid :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,0.5)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion1 variant="Dark link">
-                      Gestion des comptes utilisateurs
+                    <h4><i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >people</i>
+                      Gestion des comptes utilisateurs</h4>
                   </b-btn>
                 </b-col>
               </b-form-row>
@@ -38,7 +39,8 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion2 variant="Dark link">
-                    Gestion des référentiels
+                    <h4><i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >list_alt</i>
+                    Gestion des référentiels</h4>
                   </b-btn>
                 </b-col>
               </b-form-row>
@@ -56,7 +58,8 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion3 variant="Dark link">
-                    Accès aux indicateurs
+                    <h4><i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >poll</i>
+                    Accès aux indicateurs</h4>
                   </b-btn>
                 </b-col>
               </b-form-row>
@@ -93,7 +96,8 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion5 variant="Dark link">
-                    Commentaires
+                    <h4><i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >comment</i>
+                    Commentaires</h4>
                   </b-btn>
                 </b-col>
               </b-form-row>
