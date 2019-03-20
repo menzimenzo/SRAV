@@ -12,7 +12,7 @@ const formatIntervention = intervention => {
 
     let blocLib = 'TODO récupérer le lib';
 
-    return {
+    var result = {
         id: intervention.int_id,
         cai: intervention.cai_id,
         blocId: intervention.blo_id,
@@ -35,6 +35,12 @@ const formatIntervention = intervention => {
         commentaire: intervention.int_commentaire,
         siteintervention: intervention.int_siteintervention
     }
+
+    if(intervention.uti_nom){
+        result.nom = intervention.uti_prenom + ' ' + intervention.uti_nom
+    }
+
+    return result
 }
 
 router.get('/csv/:utilisateurId', async function (req, res) {
@@ -83,10 +89,22 @@ router.get('/csv/:utilisateurId', async function (req, res) {
 
 router.get('/:id', async function (req, res) {
 
-    const id = req.params.id;
-    const utilisateurId = req.query.utilisateurId; // TODO à récupérer via POST ?
+    if(!req.session.user){
+        return res.sendStatus(403)
+    }
+    const id = req.params.id
+    const user = req.session.user
+    const utilisateurId = user.uti_id
 
-    const requete =`SELECT * from intervention where int_id=${id} and uti_id=${utilisateurId} order by int_id asc`;
+    // Where condition is here for security reasons.
+    var whereClause = ""
+    if(user.pro_id == 2){
+        whereClause += `and str_id=${user.str_id}`
+    } else if(user.pro_id == 3){
+        whereClause += ` and uti_id=${utilisateurId} `
+    }
+
+    const requete =`SELECT * from intervention where int_id=${id} ${whereClause} order by int_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
@@ -106,8 +124,22 @@ router.get('/:id', async function (req, res) {
 
 router.get('/', async function (req, res) {
 
-    const utilisateurId = req.query.utilisateurId; // TODO à récupérer via GET ?
-    const requete = `SELECT * from intervention where uti_id=${utilisateurId} order by int_id asc`;
+    if(!req.session.user){
+        return res.sendStatus(403)
+    }
+
+    const user = req.session.user
+    const utilisateurId = user.uti_id
+
+    // Get subset of interventions depending on user profile
+    var whereClause = ""
+    if(user.pro_id == 2){
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id}`
+    } else if(user.pro_id == 3){
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where uti_id=${utilisateurId} `
+    }
+
+    const requete = `SELECT * from intervention ${whereClause} order by int_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {

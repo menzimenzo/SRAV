@@ -25,12 +25,6 @@
                     <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
                       <i class="material-icons" >edit</i>
                     </b-btn>
-                    <!--<b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
-                      <i class="material-icons" >edit</i>
-                    </b-btn>
-                    <b-btn @click="downloadPdf(props.data.id)" size="sm" class="ml-1" variant="primary">
-                      <i class="material-icons" >cloud_download</i>
-                    </b-btn>-->
                   </template>
                 </editable>   
                 </b-card-body>
@@ -70,18 +64,8 @@
             </b-card-header>
             <b-collapse id="accordion5" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                  <editable :columns="headersCom" :data="commentaires" :removable="false" :creable="false" 
+                  <editable :columns="headersCom" :data="interventions" :removable="false" :creable="false" 
                   :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
-                  <template slot-scope="props" slot="actions">
-                    {{props.data.id}}
-                    
-                    <!--<b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
-                      <i class="material-icons" >edit</i>
-                    </b-btn>
-                    <b-btn @click="downloadPdf(props.data.id)" size="sm" class="ml-1" variant="primary">
-                      <i class="material-icons" >cloud_download</i>
-                    </b-btn>-->
-                  </template>
                 </editable>   
               </b-card-body>
             </b-collapse>
@@ -107,7 +91,6 @@ export default {
      return {
        loading: true,
        users: [],
-       commentaires: [],
        headers: [
         
         { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
@@ -139,6 +122,7 @@ export default {
         })
     }
   },
+  computed: mapState(['interventions']),
 
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
@@ -154,15 +138,9 @@ export default {
           console.error('Une erreur est survenue lors de la récupération des users', error)
         })
 
-    const url2 = process.env.API_URL + '/interventions'
-    await this.$axios.$get(url2)
-        .then(response => {
-          this.loading = false
-          this.commentaires = response.interventions
-        })
-        .catch(error => {
-          console.error('Une erreur est survenue lors de la récupération des commentaires d\'interventions', error)
-        })
+    await this.$store.dispatch('get_interventions');
+
+    this.loading = false
   }
 };
 </script>

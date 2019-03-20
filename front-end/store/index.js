@@ -70,7 +70,7 @@ export const actions = {
   },
   async get_interventions({ commit, state }) {
     console.info("get_interventions");
-    const url = process.env.API_URL + "/interventions?utilisateurId=" + state.utilisateurCourant.id;
+    const url = process.env.API_URL + "/interventions";
     return await this.$axios
       .$get(url)
       .then(response => {
@@ -94,7 +94,7 @@ export const actions = {
   },
   async get_intervention({ commit, state }, idIntervention) {
     console.info("get_interventions");
-    const url = process.env.API_URL + "/interventions/" + idIntervention + '?utilisateurId=' + state.utilisateurCourant.id;
+    const url = process.env.API_URL + "/interventions/" + idIntervention;
     return await this.$axios
       .$get(url)
       .then(response => {

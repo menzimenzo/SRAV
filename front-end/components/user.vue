@@ -49,7 +49,7 @@
           <b-col>
             <span class="">
                <b-form-checkbox switch v-model="formUser.validated" name="check-button">
-                Utiliseur validé <b></b>
+                Utilisateur validé <b></b>
               </b-form-checkbox>
             </span>
           </b-col>
