@@ -37,7 +37,7 @@
       </b-row>  
       <b-row>
           <b-col> 
-              mail :
+              E-mail :
               <span class="">
                 <b-form-input readonly
                   aria-describedby="inputFormatterHelp"

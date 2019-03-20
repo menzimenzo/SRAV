@@ -47,7 +47,7 @@
             </b-card-header>
             <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                Disponible en V2
+                <h3 class="text-center"> Disponible en V2 </h3>
               </b-card-body>
             </b-collapse>
           </b-card>   
@@ -66,7 +66,7 @@
             </b-card-header>
             <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                Disponible en V2
+                <h3 class="text-center"> Disponible en V2 </h3>
               </b-card-body>
             </b-collapse>
           </b-card>   <b-card no-body class="mb-3">
@@ -83,7 +83,7 @@
             </b-card-header>
             <b-collapse id="accordion4" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                Disponible en V2
+                <h3 class="text-center"> Disponible en V2 </h3>
               </b-card-body>
             </b-collapse>
           </b-card>   

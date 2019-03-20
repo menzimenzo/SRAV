@@ -48,7 +48,9 @@
             </b-card-header>
             <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel">
               <b-card-body>
+                <h3 class="text-center">
                 Disponible en V2
+                </h3>
               </b-card-body>
             </b-collapse>
           </b-card>   
