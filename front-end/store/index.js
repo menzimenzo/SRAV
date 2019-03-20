@@ -3,7 +3,9 @@ import Vue from 'vue'
 export const state = () => ({
   interventions: [],
   interventionCourrante: {},
-  utilisateurCourant: null
+  utilisateurCourant: null,
+  utilisateurSelectionne: []
+
 });
 
 export const mutations = {
@@ -36,6 +38,16 @@ export const mutations = {
     console.log('%O', utilisateur)
     state.utilisateurCourant = utilisateur;
   },
+  set_utilisateurSelectionne(state, utilisateur) {
+    console.info("set_utilisateurSelectionne BEGIN");
+    state.utilisateurSelectionne = utilisateur;
+  },
+
+  put_user(state, { utilisateurSelectionne, index }) {
+    console.info("set_utilisateurSelectionne", { utilisateurSelectionne });
+    Vue.set(state.utilisateurSelectionne, index, utilisateurSelectionne);
+  },
+
   clean_utilisateurCourant(state) {
     console.log("CLEANING USER")
     state.utilisateurCourant = null;
@@ -46,14 +58,14 @@ export const actions = {
   async nuxtServerInit({ commit }, { req, route }) {
     // Transition states
     console.log('Loading user')
-    if (route.path.indexOf('/connexion/logout') === 0 ){
+    if (route.path.indexOf('/connexion/logout') === 0) {
       return
-  }
+    }
     await this.$axios.$get(process.env.API_SERVER_URL + '/connexion/user').then(utilisateur => {
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
-        console.log("Error - nuxtServerInit")
-        console.log(err)
+      console.log("Error - nuxtServerInit")
+      console.log(err)
     })
   },
   async get_interventions({ commit, state }) {
@@ -120,7 +132,59 @@ export const actions = {
   async set_utilisateur({ commit }, utilisateur) {
     commit("set_utilisateurCourant", utilisateur)
   },
-  async logout({commit}){
+
+  async get_users({ commit, state }) {
+    console.info("get_users :" + state.utilisateurCourant);
+    const url = process.env.API_URL + "/user/";
+    console.info('url:' + url)
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        return { users: response.users }
+      })
+
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération des utilisateurs",
+          error
+        );
+      });
+  },
+  async get_user({ commit,state }, idUtilisateur) {
+    console.info("get_user :" + idUtilisateur);
+    const url = process.env.API_URL + "/user/" + idUtilisateur;
+    console.info('url:' + url)
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        commit("set_utilisateurSelectionne", response.user);
+        console.info("fetched user - done", {
+          utilisateurSelectionne: response.user
+        });
+      })
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération de l'utilisateur",
+          error
+        );
+      });
+  },
+
+  async put_user({ commit, state }, utilisateurSelectionne) {
+    const url = process.env.API_URL + "/user/" + utilisateurSelectionne.id;
+    console.info('url:' + url)
+
+    return await this.$axios
+      .$put(url, { utilisateurSelectionne })
+      .then(console.info("update user - done"))
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la mise à jour de l'utilisateur",
+          error
+        );
+      });
+  },
+  async logout({ commit }) {
     commit("set_utilisateurCourant", {})
   }
 };
@@ -128,4 +192,3 @@ export const actions = {
 export const getters = {
   primaryColor: () => "#4546A1"
 }
-
