@@ -4,7 +4,7 @@ export const state = () => ({
   interventions: [],
   interventionCourrante: {},
   utilisateurCourant: null,
-  utilisateurSelectionne:[]
+  utilisateurSelectionne: []
 
 });
 
@@ -58,14 +58,14 @@ export const actions = {
   async nuxtServerInit({ commit }, { req, route }) {
     // Transition states
     console.log('Loading user')
-    if (route.path.indexOf('/connexion/logout') === 0 ){
+    if (route.path.indexOf('/connexion/logout') === 0) {
       return
-  }
+    }
     await this.$axios.$get(process.env.API_SERVER_URL + '/connexion/user').then(utilisateur => {
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
-        console.log("Error - nuxtServerInit")
-        console.log(err)
+      console.log("Error - nuxtServerInit")
+      console.log(err)
     })
   },
   async get_interventions({ commit }) {
@@ -130,9 +130,26 @@ export const actions = {
     commit("set_utilisateurCourant", utilisateur)
   },
 
-  async get_user({ commit },idUtilisateur) {
-    console.info("get_user :"+idUtilisateur);
-    const url = process.env.API_URL + "/user/"+ idUtilisateur;
+  async get_users({ commit, state }) {
+    console.info("get_users :" + state.utilisateurCourant);
+    const url = process.env.API_URL + "/user/";
+    console.info('url:' + url)
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        return { users: response.users }
+      })
+
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération des utilisateurs",
+          error
+        );
+      });
+  },
+  async get_user({ commit,state }, idUtilisateur) {
+    console.info("get_user :" + idUtilisateur);
+    const url = process.env.API_URL + "/user/" + idUtilisateur;
     console.info('url:' + url)
     return await this.$axios
       .$get(url)
@@ -153,7 +170,7 @@ export const actions = {
   async put_user({ commit, state }, utilisateurSelectionne) {
     const url = process.env.API_URL + "/user/" + utilisateurSelectionne.id;
     console.info('url:' + url)
-   
+
     return await this.$axios
       .$put(url, { utilisateurSelectionne })
       .then(console.info("update user - done"))
@@ -164,7 +181,7 @@ export const actions = {
         );
       });
   },
-  async logout({commit}){
+  async logout({ commit }) {
     commit("set_utilisateurCourant", {})
   }
 };

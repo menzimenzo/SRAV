@@ -111,10 +111,10 @@ export default {
        headers: [
         
         { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
-        { path: 'profil', title: 'Rôle', type: 'date', sortable:true},
+        { path: 'proLibelle', title: 'Rôle', type: 'date', sortable:true},
         { path: 'nom', title: 'Nom', type: 'date', sortable:true},
         { path: 'prenom', title: 'Prénom', type: 'text', sortable:true},
-        { path: 'structure', title: 'structure', type: 'text', sortable:true},
+        { path: 'structureLibelleCourt', title: 'structure', type: 'text', sortable:true},
         { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
      
       ],
@@ -137,15 +137,15 @@ export default {
         .catch(error => {
           console.error('Une erreur est survenue lors de la récupération du détail de l\'user', error)
         })
-    },
-
+    }
   },
-//
+
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
   async mounted() {
     const url = process.env.API_URL + '/user'
-    await this.$axios.$get(url)
+    //await this.$axios.$get(url)
+    await this.$store.dispatch('get_users')
         .then(response => {
           this.loading = false
           this.users = response.users

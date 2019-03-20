@@ -17,16 +17,29 @@ const formatUser = user => {
         nom: user.uti_nom,
         prenom: user.uti_prenom,
         naissance: user.uti_datenaissance,
-        structureLocale: user.uti_structurelocale
+        structureLocale: user.uti_structurelocale,
+        structureLibelleCourt: user.str_libellecourt,
+        proLibelle:user.pro_libelle
     }
 }
 
 router.get('/:id', async function (req, res) {
     
     const id = req.params.id;
+    const utilisateurCourant = req.session.user
+    if ( utilisateurCourant.pro_id == 1) {
+        // si on est admin, on affiche l'utilisateur
+        requete = `SELECT uti.*, str.str_libellecourt from utilisateur uti join structure str on str.str_id= uti.str_id where uti_id=${id} order by uti_id asc`;
+    }
+    else 
+    {
+        // si on est partenaire, on affiche l'utilisateur s'il appartient à ma structure
+        requete = `SELECT uti.*, str.str_libellecourt from utilisateur uti join structure str on str.str_id= uti.str_id 
+        where uti_id=${id} and uti.str_id = ${utilisateurCourant.str_id}
+        order by uti_id asc `;
+    }
 
-    const requete =`SELECT * from utilisateur where uti_id=${id} order by uti_id asc`;
-    console.log(requete)
+    console.log('select un USER'+requete)
 
     pgPool.query(requete, (err, result) => {
         if (err) { 
@@ -45,9 +58,27 @@ router.get('/:id', async function (req, res) {
 
 router.get('/', async function (req, res) {
     
-    const utilisateurId = 1; // TODO à récupérer via GET ?
-    const requete = `SELECT * from utilisateur order by uti_id asc`;
-    console.log(requete)
+    const utilisateurCourant = req.session.user
+    //const utilisateurId = 1; // TODO à récupérer via GET ?
+    
+    if ( utilisateurCourant.pro_id == 1) {
+        // si on est admin, on affiche tous les utilisateurs
+        requete = `SELECT uti.*,str.str_libellecourt,pro.pro_libelle
+        from utilisateur uti 
+        join structure str on str.str_id = uti.str_id 
+        join profil pro on pro.pro_id = uti.pro_id
+        order by uti_id asc`;
+    }
+    else 
+    {
+        // si on est partenaire, on affiche seulements les utilisateurs de la structure
+        requete = `SELECT uti.*,str.str_libellecourt,pro.pro_libelle
+        from utilisateur uti 
+        join structure str on str.str_id = uti.str_id 
+        join profil pro on pro.pro_id = uti.pro_id
+        where uti.str_id=${utilisateurCourant.str_id} order by uti_id asc  `;
+    }
+    console.log( requete)
 
     pgPool.query(requete, (err, result) => {
         if (err) {
@@ -55,7 +86,7 @@ router.get('/', async function (req, res) {
             return res.status(400).json('erreur lors de la récupération des utilisateurs');
         }
         else {
-            console.info(result.rows)
+            //console.info(result.rows)
             const users = result.rows.map(formatUser);
             res.json({ users });
         }
