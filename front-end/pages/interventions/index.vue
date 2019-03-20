@@ -150,12 +150,16 @@ export default {
         method: 'GET',
         responseType: 'blob', // important
         }).then((response) => {
-          const url = window.URL.createObjectURL(new Blob([response.data]));
+          // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          // Crée un lien caché pour télécharger le fichier
           const link = document.createElement('a');
           link.href = url;
           link.setAttribute('download', `${id}.pdf`); //or any other extension
           document.body.appendChild(link);
+          // Télécharge le fichier
           link.click();
+          link.remove()
       })
     },
     clearIntervention(){
@@ -169,11 +173,14 @@ export default {
           responseType: 'blob'
       }).then((response) => {
           // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+           // Crée un objet blob avec le contenue du CSV et un lien associé
           const url = window.URL.createObjectURL(new Blob([response.data]))
+          // Crée un lien caché pour télécharger le fichier
           const link = document.createElement('a')
           link.href = url
           const fileName = 'Savoir Rouler - Interventions.csv'
           link.setAttribute('download', fileName)
+          // Télécharge le fichier
           link.click()
           link.remove()
           console.log('Done - Download', {fileName})

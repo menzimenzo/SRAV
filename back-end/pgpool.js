@@ -13,6 +13,7 @@ var config = {
 }
 
 module.exports = {
+    // Retourne la pool Postgres, la crée si nécessaire
     getPool: function () {
       if (pool) return pool
       pool = new pg.Pool(config)

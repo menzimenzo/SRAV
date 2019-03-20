@@ -1,11 +1,9 @@
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
-const config = require('./config');
+const config = require('../config');
 
 function generate(id,nbenfants) {
-
-        // Formatage de l'id pour passer sur 7 caractères
    var nbzero;
    var idformate = "";
    idformate = id.toString();
@@ -23,7 +21,6 @@ function generate(id,nbenfants) {
     //doc.pipe(fs.createWriteStream("../tmp/" + idformate + ".pdf"));
     doc.pipe(fs.createWriteStream(`${config.pathAttestation}${idformate}.pdf`));    
 
-    
     var indexpage;
     for (indexpage = 1; indexpage <= nbenfants; indexpage++) {
         doc.image("./assets/FondSavoirRouler.png", 75,5,{

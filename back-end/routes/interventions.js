@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pgPool = require('../pgpool').getPool();
 const stringify                                        = require('csv-stringify')
-const myPdf = require('../pdf')
+const myPdf = require('../utils/pdf')
 var moment = require('moment');
 moment().format();
 
@@ -131,11 +131,14 @@ router.get('/', async function (req, res) {
 
     // Get subset of interventions depending on user profile
     var whereClause = ""
+    // Utilisateur est partenaire => intervention de la structure
     if(user.pro_id == 2){
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id}`
+    // Utilisateur est intervenant => ses interventions
     } else if(user.pro_id == 3){
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where uti_id=${utilisateurId} `
     }
+    // Sinon l'utilisateur est admin et récupère l'intégrlité des interventions
 
     const requete = `SELECT * from intervention ${whereClause} order by int_id asc`;
     console.log(requete)
@@ -161,11 +164,6 @@ router.put('/:id', async function (req, res) {
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
-
-
-    console.log('Contenu de la commune :');
-    console.log('%O', commune);
-
 
     //insert dans la table intervention
     const requete = `UPDATE intervention 
@@ -197,7 +195,7 @@ router.put('/:id', async function (req, res) {
         }
         else {
             
-            // generation du pdf
+            // generation du pdf (synchrone)
             if (blocId == 3 ) {
               myPdf.generate(id,nbEnfants)  
             }
@@ -215,9 +213,6 @@ router.post('/', function (req, res) {
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
 
-    console.log('Contenu de la commune :');
-    console.log('%O', commune);
-
     //insert dans la table intervention
     const requete = `insert into intervention 
                     (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_datemaj,int_commentaire,int_dep_num,int_reg_num,int_siteintervention) 
@@ -230,13 +225,12 @@ router.post('/', function (req, res) {
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
         }
         else {
-            //console.log({ result, rows: result.rows });
+            console.log({ result, rows: result.rows });
 
-            // generation du pdf
+            // generation du pdf (synchrone)
             if (blocId == 3) {
               myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants)
             }
-            //const idIntervention = result.rows.map(formatIntervention)[0].id;
             
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
         }

@@ -215,6 +215,10 @@ h1{
   
   }
 
+.form-group[required="required"] .col-form-label:after {
+content:"*";color:red;
+}
+
 
 /* Bootstrap override */
 

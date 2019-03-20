@@ -17,35 +17,24 @@ router.get('/login', (req, res) => {
     return res.send({url: getAuthorizationUrl()});
 });
 
+// Gère une connexion validée avec FC
 router.get('/callback', oauthCallback);
 
-router.get('/profile', (req, res) => {
-    if (!req.session.accessToken) {
-        return res.sendStatus(401);
-    }
-
-    return res.render('pages/profile', {
-        // get user info from session
-        user: req.session.userInfo,
-        isUserAuthenticated: true,
-        isUsingFDMock: config.USE_FD,
-        franceConnectKitUrl: `${config.FC_URL}${config.FRANCE_CONNECT_KIT_PATH}`,
-
-    });
-});
-
+// Valide un compte utilisateur avec les infomations complémentaires
 router.post('/verify', async (req,res) => {
     if(!req.body.id){
         return res.sendStatus(500)
     }
     var user = formatUtilisateur(req.body, false)
 
+    // Mise à jour de l'utilisateur
     const updatRes = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, validated = true \
          WHERE uti_id = $4 RETURNING *", 
          [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_id]).catch(err => {
              console.log(err)
              throw err
          })
+    // Envoie de l'email de confirmation
     sendEmail({
         to: user.uti_mail,
         subject: 'Savoir rouler à vélo',
@@ -57,6 +46,7 @@ router.post('/verify', async (req,res) => {
     return res.send({user})
 })
 
+// Envoie l'utilisateur de la session
 router.get('/user', (req,res) => {
     if(!req.session || !req.session.user || !req.session.accessToken){
         return res.sendStatus(404)
@@ -64,10 +54,12 @@ router.get('/user', (req,res) => {
     return res.send(formatUtilisateur(req.session.user))
 })
 
+// Envoie l'url FC pour se déconnecter
 router.get('/logout', (req, res) => {
     res.send({url: getLogoutUrl(req)});
 });
 
+// Nettoie la session de l'utilisateur
 router.get('/logged-out', (req, res) => {
     // Resetting the id token hint.
     req.session.idToken = null;

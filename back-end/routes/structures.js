@@ -19,8 +19,6 @@ router.get('/structure',
             }
             else {
                 const structures = result.rows[0];
-
-                //const intervention = result.rows && result.rows.length && result.rows[0];
                 if (!structures) {
                     return res.status(400).json({ message: 'Structure inexistante' });
                 }
@@ -33,7 +31,7 @@ router.get('/',
 
     function (req, res) {
 
-        console.log('1-Getting result');
+        console.log('Getting structures');
         // La méthode get est appelée sans paramètre : On retourne la liste
         pgPool.query(
             'SELECT * FROM structure',
@@ -41,7 +39,7 @@ router.get('/',
                 if (err) {
                     console.log(err);
                 } else {
-                    console.log('Fin de la transaction (sans paramètres)', result.length);
+                    console.log('Fin de la transaction structures (sans paramètres)', result.length);
                     return res.send(result.rows);
                 }
             });

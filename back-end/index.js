@@ -1,7 +1,6 @@
 const express = require('express');
 const app = express();
 const connexion = require('./routes/connexion');
-const checking = require('./routes/checking');
 const interventions = require('./routes/interventions');
 const listecommune = require('./routes/listecommune');
 const attestations = require('./routes/attestations');
@@ -34,8 +33,6 @@ app.use(session({
 app.locals.FCUrl = config.franceConnect.fcURL
 // Route vers la page de connexion
 app.use('/connexion', connexion);
-
-app.use('/checking', checking);
 
 app.use('/interventions', interventions);
 

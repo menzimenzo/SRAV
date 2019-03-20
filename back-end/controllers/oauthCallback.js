@@ -57,46 +57,48 @@ const oauthCallback = async (req, res, next) => {
     if(!userInfo.email){userInfo.email = ''}
 
     var utilisateur, url
-    await pgPool.query('SELECT * from utilisateur where uti_tockenfranceconnect = $1',
-    [$1 = userInfo.sub],
-    async (err, result) => {
-        // If user was never created we insert it in our database
-        if (result.rows.length === 0) {
-          console.log("L'utilisateur n'existe pas");
-          url = "/connexion/inscription"
-          const { rows } = await pgPool.query(
-            'INSERT INTO utilisateur(pro_id, stu_id, str_id, uti_mail, uti_nom, uti_prenom, uti_datenaissance,\
-              uti_tockenfranceconnect) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *'
-            , [3, 1, 1, userInfo.email, userInfo.family_name, userInfo.given_name, userInfo.birthdate, userInfo.sub]
-          ).catch(err => {
+    await pgPool.query('SELECT * from utilisateur where uti_tockenfranceconnect = $1', [$1 = userInfo.sub],
+      async (err, result) => {
+          if(err){
             console.log(err)
-            throw err
-          })
-          utilisateur = rows[0]
-
-        // User is logging in
-        } else {
-          console.log(err, result.rows) // Hello world!
-          utilisateur = result.rows[0]
-          // Account was never validated so is considered as new user
-          if(!utilisateur.validated){
+            throw(err)
+          }
+          // If user was never created we insert it in our database
+          if (result.rows.length === 0) {
+            console.log("L'utilisateur n'existe pas");
             url = "/connexion/inscription"
-          // User access the app
+            const { rows } = await pgPool.query(
+              'INSERT INTO utilisateur(pro_id, stu_id, str_id, uti_mail, uti_nom, uti_prenom, uti_datenaissance,\
+                uti_tockenfranceconnect) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *'
+              , [3, 1, 1, userInfo.email, userInfo.family_name, userInfo.given_name, userInfo.birthdate, userInfo.sub]
+            ).catch(err => {
+              console.log(err)
+              throw err
+            })
+            utilisateur = rows[0]
+
+          // User is logging in
           } else {
-            if(utilisateur.pro_id == 1){
-              url = "/admin"
-            } else if(utilisateur.pro_id == 2) {
-              url = "/partenaire"
+            utilisateur = result.rows[0]
+            // Account was never validated so is considered as new user
+            if(!utilisateur.validated){
+              url = "/connexion/inscription"
+            // User access the app
             } else {
-              url = "/interventions"
+              if(utilisateur.pro_id == 1){
+                url = "/admin"
+              } else if(utilisateur.pro_id == 2) {
+                url = "/partenaire"
+              } else {
+                url = "/interventions"
+              }
             }
           }
-        }
 
-        //console.log(err.message)
-        req.session.user = utilisateur
-        return res.send({user: formatUtilisateur(utilisateur), url});
-    })
+          //console.log(err.message)
+          req.session.user = utilisateur
+          return res.send({user: formatUtilisateur(utilisateur), url});
+      })
   } catch (error) {
     console.log(error)
     return next(error);

@@ -333,16 +333,9 @@ export default {
         .catch(error => {
           console.error('Une erreur est survenue lors de la sauvegarde de l\'intervention', error)
         })
-      // this.$axios.$post(url, intervention )
-      // .then(response => {
-      //   // alert ('Intervention enregistrée')
-      //   // TODO : refresh list ici ? / Alert à supprimer ?
-      //  })
-      // .catch(error => {
-      //   // alert ('Une erreur est survenue lors de la sauvegarde de l\'intervention')
-      //   console.error('Une erreur est survenue lors de la sauvegarde de l\'intervention', error)
-      // }) 
+
     },
+    // Get liste des communes correspondant au code postal
     recherchecommune: function() {
       console.info("Recherche de la commune");
       if (this.formIntervention.cp.length===5) {
@@ -352,8 +345,7 @@ export default {
         return this.$axios
           .$get(url)
           .then(response => {
-            // this.listecommune = response.communes;
-            Vue.set(this, 'listecommune',response.communes)
+            this.listecommune = response.communes;
           })
           .catch(error => {
             console.error(
@@ -401,9 +393,7 @@ export default {
   },
   mounted(){
      this.recherchecommune().then(res => {
-
        if(this.formIntervention && this.formIntervention.commune){
-         
          this.selectedCommune = this.formIntervention.commune.cpi_codeinsee
        }
      })

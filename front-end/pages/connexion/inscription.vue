@@ -30,7 +30,7 @@
               <b-form-group
                 id="emailInputGroup"
                 label="Email:"
-                label-for="emailInput">
+                label-for="emailInput" required>
 
                 <b-form-input
                   id="emailInput"
@@ -40,11 +40,11 @@
               </b-form-group>
 
 
-              <b-form-group id="structNationaleGroup" label="Structure nationale:" label-for="structNatSelect">
+              <b-form-group required id="structNationaleGroup" label="Structure nationale:" label-for="structNatSelect">
                 <b-form-select  id="structNatSelect" :options="structures" required v-model="user.structureId" />
               </b-form-group>
 
-              <b-form-group id="structLocaleGroup" label="Structure Locale:" v-if="isFederation(user.structureId)" label-for="structLocaleInput">
+              <b-form-group id="structLocaleGroup" label="Structure Locale:" required v-if="isFederation(user.structureId)" label-for="structLocaleInput">
                 <b-form-input
                   id="structLocaleInput"
                   type="text" v-model="user.structureLocale"
@@ -60,7 +60,7 @@
               </b-form-group>
             </b-card>
             <div class="mb-3 text-right">
-              <b-button variant="success" @click="confirmRegistration()" :disabled="isLegalChecked == 'false' || !isLegalChecked" >
+              <b-button variant="success" @click="confirmRegistration()" :disabled="isFormDisabled" >
                 Je valide mon compte
               </b-button>
             </div>
@@ -84,6 +84,7 @@ export default {
     };
   },
   methods: {
+    // Validation de l'inscription
     confirmRegistration(){
       const url = process.env.API_URL + '/connexion/verify'
 
@@ -95,6 +96,7 @@ export default {
         console.log(err)
       })
     },
+    // true si la structure sélectionnée est une fédération
     isFederation(id){
 
        var structure = this.structures.find(str => {
@@ -119,6 +121,17 @@ export default {
     }).catch(err => {
       console.log(err)
     })
+  },
+  computed:{
+    // Valide les champs requis
+    isFormDisabled(){
+      var isDisabled = false
+      isDisabled = isDisabled || this.isLegalChecked == 'false' || !this.isLegalChecked
+      isDisabled = isDisabled || this.user.structureLocale == '' || !this.user.structureLocale
+      isDisabled = isDisabled || this.user.mail == '' || !this.user.mail
+      return isDisabled
+      
+    }
   }
 
 };

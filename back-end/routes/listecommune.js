@@ -15,11 +15,6 @@ router.get('/',
     function (req, res) {
         var v_codepostal;
         v_codepostal = req.query.codepostal;
-        //var v_codepostal = req.query.codepostal);
-        console.log('Parametre=' + v_codepostal);
-
-    
-
         // Recherche des communes correspondant au codepostal
         pgPool.query(`select com.*, dep.reg_num
                         from commune com  
