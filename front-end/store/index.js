@@ -118,7 +118,8 @@ export const actions = {
     intervention.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$post(url, { intervention }).then(({ intervention }) => {
       console.info('post_intervention', { intervention });
-      return commit('add_intervention', intervention)
+      commit('add_intervention', intervention)
+      return intervention
     });
   },
   async put_intervention({ commit, state }, intervention) {
@@ -127,6 +128,7 @@ export const actions = {
     intervention.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$put(url, { intervention }).then(({ intervention }) => {
       commit('put_intervention', { intervention, index })
+      return intervention
     })
   },
   async set_utilisateur({ commit }, utilisateur) {

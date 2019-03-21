@@ -236,9 +236,8 @@ export default {
     };
   },
   methods: {
-    showPDF: function() {
+    showPDF: function(id) {
       console.info( 'showPDF' )
-      const id = this.intervention.id
       this.$axios({
         url: process.env.API_URL + '/pdf/'+id,
         method: 'GET',
@@ -313,19 +312,20 @@ export default {
       const action = intervention.id ? 'put_intervention' : 'post_intervention'
       console.info({ intervention, action })
       return this.$store.dispatch(action, intervention) 
-        .then(message => {
-          console.info(message)
+        .then(async serverIntervention => {
+          console.info(serverIntervention)
           var action = []
           if(intervention.blocId == '3'){
             action.push({
               text : 'Télécharger l\'attestation',
               onClick : (e, toastObject) => {
-                  this.showPDF()
+                  this.showPDF(serverIntervention.id)
               },
               class: 'toastLink'
             })
           }
-          var interventionLabel = intervention.id ? "#" + intervention.id : ""
+          console.log(serverIntervention)
+          var interventionLabel = serverIntervention.id ? "#" + serverIntervention.id : ""
           this.$toast.success(`Intervention ${interventionLabel} enregistrée`, {action})
           this.resetform()
           this.$modal.hide('editIntervention')
