@@ -108,8 +108,8 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
               </span>
           </div>
           <div class="mb-3 mt-3" >
-            Cadre d'intervention * <i class="material-icons" id="cadreInfo" style="cursor: pointer;" >info</i> :
-              <b-popover target="cadreInfo" triggers="hover focus">
+            Cadre d'intervention * <i class="material-icons" :id="randomId" style="cursor: pointer;" >info</i> :
+              <b-popover :target="randomId" triggers="hover focus">
                 <b>Scolaire</b> : c'est ça<br><b>Péri-scolaire</b> : c'est ça<br><b>Extra-scolaire</b> : c'est ça
               </b-popover>
               <b-form-group class="ml-3">
@@ -234,7 +234,9 @@ export default {
         { text: 'Bloc 2 : Savoir circuler', value: '2' },
         { text: 'Bloc 3 : Savoir rouler', value: '3' }
       ],
-      selectedCommune: null
+      selectedCommune: null,
+      // Nécessaire pour le fonctionnement des popovers quand plusieurs composants intervention sont sur la page
+      randomId: 'myModal' + Math.random()
     };
   },
   methods: {

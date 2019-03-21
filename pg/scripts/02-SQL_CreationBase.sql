@@ -240,8 +240,8 @@ create table STATUT_UTILISATEUR (
 /*==============================================================*/
 create table STRUCTURE (
    STR_ID               SERIAL               not null,
-   STR_LIBELLE          VARCHAR(100)         not null,
-   STR_LIBELLECOURT     VARCHAR(50)          null,
+   STR_LIBELLE          VARCHAR(150)         not null,
+   STR_LIBELLECOURT     VARCHAR(100)          null,
    STR_ACTIF            BOOLEAN              not null,
    STR_FEDERATION       BOOLEAN              not null,
    constraint PK_STRUCTURE primary key (STR_ID)

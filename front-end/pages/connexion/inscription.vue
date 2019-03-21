@@ -41,7 +41,7 @@
 
 
               <b-form-group required id="structNationaleGroup" label="Structure nationale:" label-for="structNatSelect">
-                <b-form-select id="structNatSelect"  v-model="formUser.structureId">
+                <b-form-select id="structNatSelect"  v-model="user.structureId">
                   <option v-for="structure in structures" :key="structure.str_id" :value="structure.str_id">{{ structure.str_libelle}}</option>
                 </b-form-select>
               </b-form-group>
@@ -80,9 +80,6 @@ import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      structures: [
-        { value: 1, text: 'Structure DEMO : DS' }
-      ],
       user: JSON.parse(JSON.stringify(this.$store.state.utilisateurCourant)),
       isLegalChecked: "false"
     };
@@ -107,24 +104,12 @@ export default {
          return str.str_id == id
        })
        if(!structure){return false}
-       return structure.federation
+       return structure.str_federation
       
     }
   },
-  mounted(){
-    const url = process.env.API_URL + '/structures'
-    this.$axios.get(url).then(response => {
-      this.structures = response.data.map(struct => {
-        return {
-          value: struct.str_id,
-          text: struct.str_libellecourt,
-          federation : struct.str_federation,
-          str_id: struct.str_id
-        }
-      })
-    }).catch(err => {
-      console.log(err)
-    })
+  async mounted(){
+    await this.$store.dispatch('get_structures')
   },
   computed:{
     ...mapState(['structures']),
