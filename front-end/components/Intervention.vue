@@ -9,7 +9,9 @@
         <!-- PREMIER BLOC DE SAISIE INTERVENTION -->
         <b-col cols="6" style="border-right: 1px solid #252195;">
           <div class="bv-example-row">
-            <p>Intéger ici le texte précisant ce qu'est une interventions (au sens "validation" du bloc)</p>
+            <p>Il convient de renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun du SRAV. 
+Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusion aux enfants ayant réalisé les 3 blocs du SRAV.
+</p>
           </div>
 
               Type de bloc * :

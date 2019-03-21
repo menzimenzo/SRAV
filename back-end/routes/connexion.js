@@ -37,9 +37,11 @@ router.post('/verify', async (req,res) => {
     // Envoie de l'email de confirmation
     sendEmail({
         to: user.uti_mail,
-        subject: 'Savoir rouler à vélo',
-        body: `<p><b>Bonjour</b>,</p>
-            <p>Nous vous confirmons votre inscription à la plateforme Savoir Rouler à Vélo<br/></p>`
+        subject: 'création compte savoir rouler à vélo',
+        body: `<p>Bonjour,</p>
+            <p>Votre compte « Intervenant Savoir Rouler à Vélo » a bien été créé. <br/><br/>
+            Nous vous invitons à y renseigner les informations relatives à la mise en œuvre de chacun des 3 blocs du socle commun du SRAV.<br/>
+            Le site <a href="www.savoirrouleravelo.fr">www.savoirrouleravelo.fr</a> est à votre disposition pour toute information sur le programme Savoir Rouler à Vélo.<br/></p>`
     })
     req.session.user = updatRes.rows[0]
     user = formatUtilisateur(updatRes.rows[0])

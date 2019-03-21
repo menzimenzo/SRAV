@@ -7,7 +7,9 @@
       </b-row>
       <b-row>
           <div class="bv-example-row">
-            <p>Intéger ici le texte précisant ce qu'on entend par gérer un utilisateur</p>
+            <p>Il convient de renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun du SRAV. 
+Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusion aux enfants ayant réalisé les 3 blocs du SRAV.
+</p>
           </div>
       </b-row>
       <b-row>
