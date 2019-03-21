@@ -136,7 +136,7 @@ router.get('/', async function (req, res) {
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id}`
     // Utilisateur est intervenant => ses interventions
     } else if(user.pro_id == 3){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where uti_id=${utilisateurId} `
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
     }
     // Sinon l'utilisateur est admin et récupère l'intégrlité des interventions
 
