@@ -99,7 +99,7 @@
           </b-card>
         </b-col>
     </b-row>
-    <modal name="editIntervention" height="auto" width="900px" @close="clearIntervention()" :scrollabe="true">
+    <modal name="editIntervention" height="auto" width="900px" @closed="clearIntervention()" :scrollabe="true">
       <Intervention :intervention="interventionCourrante"/>
     </modal>
   </b-container>
@@ -163,7 +163,8 @@ export default {
       })
     },
     clearIntervention(){
-      this.$store.dispatch('reset_interventions')
+      console.log("CLOSED MODALAAAAAAAAAZ")
+      this.$store.commit('reset_interventions')
     },
     exportCsv(){
       this.$axios({

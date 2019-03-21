@@ -106,7 +106,7 @@
               </span>
           </div>
           <div class="mb-3 mt-3" >
-            Cadre d'intervention * <i class="material-icons" id="cadreInfo" >info</i> :
+            Cadre d'intervention * <i class="material-icons" id="cadreInfo" style="cursor: pointer;" >info</i> :
               <b-popover target="cadreInfo" triggers="hover focus">
                 <b>Scolaire</b> : c'est ça<br><b>Péri-scolaire</b> : c'est ça<br><b>Extra-scolaire</b> : c'est ça
               </b-popover>
