@@ -163,7 +163,6 @@ export default {
       })
     },
     clearIntervention(){
-      console.log("CLOSED MODALAAAAAAAAAZ")
       this.$store.commit('reset_interventions')
     },
     exportCsv(){

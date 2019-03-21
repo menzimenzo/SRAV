@@ -9,14 +9,10 @@ moment().format();
 
 const formatIntervention = intervention => {
 
-
-    let blocLib = 'TODO récupérer le lib';
-
     var result = {
         id: intervention.int_id,
         cai: intervention.cai_id,
         blocId: intervention.blo_id,
-        blocLib: blocLib,
         sinId: intervention.sin_id,
         utiId: intervention.uti_id,
         cp: intervention.int_com_codepostal,
@@ -40,6 +36,14 @@ const formatIntervention = intervention => {
         result.nom = intervention.uti_prenom + ' ' + intervention.uti_nom
     }
 
+    if(intervention.blo_libelle){
+        result.blocLib = intervention.blo_libelle
+    }
+
+    if(intervention.cai_libelle){
+        result.caiLib = intervention.cai_libelle
+    }
+
     return result
 }
 
@@ -47,7 +51,11 @@ router.get('/csv/:utilisateurId', async function (req, res) {
 
     const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
 
-    const requete =`SELECT * from intervention where uti_id=${utilisateurId} order by int_id asc`;
+    const requete =`SELECT * from intervention 
+    LEFT JOIN bloc ON bloc.blo_id = intervention.blo_id 
+    LEFT JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
+    LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
+    where utilisateur.uti_id=${utilisateurId} order by int_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
@@ -60,10 +68,13 @@ router.get('/csv/:utilisateurId', async function (req, res) {
             interventions = interventions.map(intervention => {
                 var newIntervention = formatIntervention(intervention)
                 delete newIntervention.commune
-                newIntervention.commune = intervention.int_com_libellemaj
+                newIntervention.commune = intervention.int_com_libelle
                 newIntervention.codeinsee = intervention.int_com_codeinsee
                 newIntervention.dep_num = intervention.int_dep_num
                 newIntervention.reg_num = intervention.int_reg_num
+                newIntervention.dateIntervention = newIntervention.dateIntervention.toISOString(),
+                newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
+                newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
                 return newIntervention
             })
             if (!interventions || !interventions.length) {
@@ -71,10 +82,8 @@ router.get('/csv/:utilisateurId', async function (req, res) {
             }
             stringify(interventions, {
                 quoted: '"',
-                header: true,
-                date: (value) => '' + new Date(value).toISOString()
+                header: true
             }, (err, csvContent) => {
-                console.log("COUCOU")
                 if(err){
                     console.log(err)
                     return res.status(500)
