@@ -29,12 +29,17 @@ router.get('/:id', async function (req, res) {
     const utilisateurCourant = req.session.user
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
-        requete = `SELECT uti.*, str.str_libellecourt from utilisateur uti join structure str on str.str_id= uti.str_id where uti_id=${id} order by uti_id asc`;
+        requete = `SELECT uti.*, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        join structure str on str.str_id= uti.str_id 
+        join profil pro on pro.pro_id = uti.pro_id
+        where uti_id=${id} order by uti_id asc`;
     }
     else 
     {
         // si on est partenaire, on affiche l'utilisateur s'il appartient à ma structure
-        requete = `SELECT uti.*, str.str_libellecourt from utilisateur uti join structure str on str.str_id= uti.str_id 
+        requete = `SELECT uti.*, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        join structure str on str.str_id= uti.str_id 
+        join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} and uti.str_id = ${utilisateurCourant.str_id}
         order by uti_id asc `;
     }
@@ -96,7 +101,7 @@ router.get('/', async function (req, res) {
 router.put('/:id', async function (req, res) {
     const user = req.body.utilisateurSelectionne
     const id = req.params.id
-    let { nom, prenom, mail, profil, validated,structure } = user
+    let { nom, prenom, mail, profil, validated,structure, structureLocale } = user
 
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
@@ -105,8 +110,10 @@ router.put('/:id', async function (req, res) {
         uti_mail = '${mail}',
         validated = ${validated},
         pro_id = ${profil},
-        str_id = ${structure}
+        str_id = ${structure},
+        uti_structurelocale = '${structureLocale}'
         WHERE uti_id = ${id}
+        RETURNING *
         ;`    
     
     pgPool.query(requete, (err, result) => {
@@ -116,7 +123,8 @@ router.put('/:id', async function (req, res) {
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');
         }
         else {
-            return res.status(200).json({ user: result.rows.map(formatUser)[0] });
+            console.log(result.rows)
+            return res.status(200).json({ user: formatUser(result.rows[0])});
         }
     })
 })

@@ -76,7 +76,9 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion4 variant="Dark link">
-                    Publication des documents
+                    <h4><i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >cloud_upload</i>
+                    Publication des documents</h4>
+                    
                   </b-btn>
                 </b-col>
               </b-form-row>
@@ -134,11 +136,9 @@ export default {
    data() {
      return {
        loading: true,
-       users: [],
        headers: [
-        
         { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
-        { path: 'proLibelle', title: 'Rôle', type: 'date', sortable:true},
+        { path: 'proLibelle', title: 'Rôle', type: 'text', sortable:true},
         { path: 'nom', title: 'Nom', type: 'date', sortable:true},
         { path: 'prenom', title: 'Prénom', type: 'text', sortable:true},
         { path: 'structureLibelleCourt', title: 'structure', type: 'text', sortable:true},
@@ -170,19 +170,16 @@ export default {
 //
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
-  computed: mapState(['interventions']),
+  computed: mapState(['interventions', 'users']),
   async mounted() {
     const url = process.env.API_URL + '/user'
-    await this.$store.dispatch('get_users')
-        .then(response => {
-          this.loading = false
-          this.users = response.users
-        })
-        .catch(error => {
-          console.error('Une erreur est survenue lors de la récupération des users', error)
-        })
-
-    await this.$store.dispatch('get_interventions');
+    await Promise.all([
+      this.$store.dispatch('get_users')
+          .catch(error => {
+            console.error('Une erreur est survenue lors de la récupération des users', error)
+          })
+      , this.$store.dispatch('get_interventions')
+    ])
     this.loading = false
   }
 };

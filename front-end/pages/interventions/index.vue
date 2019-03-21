@@ -228,8 +228,4 @@ a:not(.collapsed) .accordion-chevron{
 
 }
 
-.btn .material-icons{
- position: relative;
- top: 2px;
-}
 </style>

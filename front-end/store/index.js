@@ -1,10 +1,12 @@
 import Vue from 'vue'
 
 export const state = () => ({
-  interventions: [],
-  interventionCourrante: {},
-  utilisateurCourant: null,
-  utilisateurSelectionne: []
+  interventions         : [],
+  interventionCourrante : {},
+  utilisateurCourant    : null,
+  utilisateurSelectionne: [],
+  users                 : [],
+  structures            : []
 
 });
 
@@ -51,6 +53,15 @@ export const mutations = {
   clean_utilisateurCourant(state) {
     console.log("CLEANING USER")
     state.utilisateurCourant = null;
+  },
+  set_users(state, users){
+    state.users = users
+  },
+  put_user(state, {user, index}){
+    Vue.set(state.users, index, user)
+  },
+  set_structures(state, structures){
+    state.structures = structures
   }
 };
 
@@ -75,7 +86,7 @@ export const actions = {
       .$get(url)
       .then(response => {
         response.interventions.forEach(intervention => {
-          intervention.dateCreation = new Date(intervention.dateCreation)
+          intervention.dateCreation     = new Date(intervention.dateCreation)
           intervention.dateIntervention = new Date(intervention.dateIntervention)
         })
         commit("set_interventionCourrantes", response.interventions);
@@ -98,7 +109,7 @@ export const actions = {
     return await this.$axios
       .$get(url)
       .then(response => {
-        response.intervention.dateCreation = new Date(response.intervention.dateCreation)
+        response.intervention.dateCreation     = new Date(response.intervention.dateCreation)
         response.intervention.dateIntervention = new Date(response.intervention.dateIntervention)
         commit("set_interventionCourrante", response.intervention);
         console.info("fetched intervention - done", {
@@ -114,8 +125,8 @@ export const actions = {
       });
   },
   async post_intervention({ commit, state }, intervention) {
-    const url = process.env.API_URL + "/interventions";
-    intervention.utilisateurId = state.utilisateurCourant.id
+    const url                        = process.env.API_URL + "/interventions";
+          intervention.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$post(url, { intervention }).then(({ intervention }) => {
       console.info('post_intervention', { intervention });
       commit('add_intervention', intervention)
@@ -123,9 +134,9 @@ export const actions = {
     });
   },
   async put_intervention({ commit, state }, intervention) {
-    const url = process.env.API_URL + "/interventions/" + intervention.id;
-    const index = state.interventions.findIndex(i => i.id === intervention.id )
-    intervention.utilisateurId = state.utilisateurCourant.id
+    const url                        = process.env.API_URL + "/interventions/" + intervention.id;
+    const index                      = state.interventions.findIndex(i => i.id === intervention.id )
+          intervention.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$put(url, { intervention }).then(({ intervention }) => {
       commit('put_intervention', { intervention, index })
       return intervention
@@ -142,6 +153,7 @@ export const actions = {
     return await this.$axios
       .$get(url)
       .then(response => {
+        commit("set_users", response.users);
         return { users: response.users }
       })
 
@@ -175,10 +187,20 @@ export const actions = {
   async put_user({ commit, state }, utilisateurSelectionne) {
     const url = process.env.API_URL + "/user/" + utilisateurSelectionne.id;
     console.info('url:' + url)
-
+    var userIndex = state.users.findIndex(utilisateur => {
+      return utilisateur.id == utilisateurSelectionne.id
+    })
     return await this.$axios
       .$put(url, { utilisateurSelectionne })
-      .then(console.info("update user - done"))
+      .then(async res => {
+        const url = process.env.API_URL + "/user/" + res.user.id;
+        console.info('url:' + url)
+        return this.$axios
+          .$get(url)
+          .then(response => {
+            commit("put_user", {user: response.user, index: userIndex});
+          })
+      })
       .catch(error => {
         console.error(
           "Une erreur est survenue lors de la mise à jour de l'utilisateur",
@@ -188,6 +210,14 @@ export const actions = {
   },
   async logout({ commit }) {
     commit("set_utilisateurCourant", {})
+  },
+  async get_structures({commit}) {
+    const url = process.env.API_URL + '/structures'
+    return this.$axios.get(url).then(response => {
+      commit("set_structures", response.data);
+    }).catch(err => {
+      console.log(err)
+    })
   }
 };
 

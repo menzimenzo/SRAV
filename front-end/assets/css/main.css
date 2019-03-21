@@ -220,6 +220,11 @@ content:"*";color:red;
 }
 
 
+.btn .material-icons{
+    position: relative;
+    top: 2px;
+   }
+
 /* Bootstrap override */
 
 .btn-primary{

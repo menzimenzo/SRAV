@@ -41,7 +41,9 @@
 
 
               <b-form-group required id="structNationaleGroup" label="Structure nationale:" label-for="structNatSelect">
-                <b-form-select  id="structNatSelect" :options="structures" required v-model="user.structureId" />
+                <b-form-select id="structNatSelect"  v-model="formUser.structureId">
+                  <option v-for="structure in structures" :key="structure.str_id" :value="structure.str_id">{{ structure.str_libelle}}</option>
+                </b-form-select>
               </b-form-group>
 
               <b-form-group id="structLocaleGroup" label="Structure Locale:" required v-if="isFederation(user.structureId)" label-for="structLocaleInput">
@@ -73,6 +75,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex'
+
 export default {
   data() {
     return {
@@ -123,6 +127,7 @@ export default {
     })
   },
   computed:{
+    ...mapState(['structures']),
     // Valide les champs requis
     isFormDisabled(){
       var isDisabled = false

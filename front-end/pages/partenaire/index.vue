@@ -96,7 +96,6 @@ export default {
    data() {
      return {
        loading: true,
-       users: [],
        headers: [
         
         { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
@@ -128,23 +127,25 @@ export default {
         })
     }
   },
-  computed: mapState(['interventions']),
+  computed: mapState(['interventions', 'users']),
 
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
   async mounted() {
     const url = process.env.API_URL + '/user'
     //await this.$axios.$get(url)
-    await this.$store.dispatch('get_users')
-        .then(response => {
-          this.loading = false
-          this.users = response.users
-        })
-        .catch(error => {
-          console.error('Une erreur est survenue lors de la récupération des users', error)
-        })
+    await Promise.all([
 
-    await this.$store.dispatch('get_interventions');
+      this.$store.dispatch('get_users')
+          .then(response => {
+            this.loading = false
+          })
+          .catch(error => {
+            console.error('Une erreur est survenue lors de la récupération des users', error)
+          })
+      , this.$store.dispatch('get_interventions')
+    ])
+
 
     this.loading = false
   }

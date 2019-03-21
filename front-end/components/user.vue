@@ -2,7 +2,7 @@
     <b-container class="interventionModal">
       <b-row>
         <b-col cols="12" class="text-center">
-          <h2 class="mb-3 interventionTitle">Edition de l'utilisateur <b>{{formUser.mail}}</b></h2>
+          <h2 class="mb-3 interventionTitle">Edition de l'utilisateur <br><b>{{formUser.mail}}</b></h2>
         </b-col>
       </b-row>
       <b-row>
@@ -11,67 +11,66 @@
           </div>
       </b-row>
       <b-row>
-          <b-col> 
+          <b-col style="border-right: 1px solid #252195;"> 
+            <div class="mb-3 mt-3">
               Nom :
-              <span class="">
+
                 <b-form-input readonly
                   aria-describedby="inputFormatterHelp"
                   v-model="formUser.nom"
                   type="text"
                   ></b-form-input>
-              </span>
-          </b-col>
-          <b-col>
+              
+            </div>
+            <div class="mb-3 mt-3">
               Prénom :
-              <span class="">
-                <b-form-input readonly
-                  aria-describedby="inputFormatterHelp"
-                  v-model="formUser.prenom"
-                  type="text"
-                  ></b-form-input>
-              </span>
-          </b-col>
-      </b-row> 
-      <b-row>
-        <br>
-      </b-row>  
-      <b-row>
-          <b-col> 
+
+              <b-form-input readonly
+                aria-describedby="inputFormatterHelp"
+                v-model="formUser.prenom"
+                type="text"
+                ></b-form-input>
+              
+            </div>
+            <div class="mb-3 mt-3">
               E-mail :
-              <span class="">
+
                 <b-form-input readonly
                   aria-describedby="inputFormatterHelp"
                   v-model="formUser.mail"
                   type="text"
                   ></b-form-input>
-              </span>
-          </b-col>
-          <b-col>
-            <span class="">
-               <b-form-checkbox switch v-model="formUser.validated" name="check-button">
+              
+            </div>
+            <div class="mb-3 mt-3">
+              <b-form-checkbox switch v-model="formUser.validated" name="check-button">
                 Utilisateur validé <b></b>
               </b-form-checkbox>
-            </span>
+            </div>
           </b-col>
+          <b-col>
+              
+            <div class="mb-3 mt-3">
+              Profil : <b-form-select v-model="formUser.profil" :options="listeprofil"/>
+            </div>
+            <div class="mb-3 mt-3">
+              Structure : 
+              <b-form-select v-model="formUser.structure">
+                <option v-for="structure in structures" :key="structure.str_id" :value="structure.str_id">{{ structure.str_libelle}}</option>
+              </b-form-select>
+            </div>
+            <div class="mb-3 mt-3" v-if="isFederation(formUser.structure)">
+              Structure locale : 
+              <b-form-input
+                  id="structLocaleInput"
+                  type="text" v-model="formUser.structureLocale"
+                  required
+                  placeholder="Nom de la structure" />
+            </div>
+          </b-col>
+
       </b-row> 
-      <b-row>
-        <br>
-      </b-row>  
-      <b-row>
-          <b-col> 
-          Profil : <b-form-select v-model="formUser.profil" :options="listeprofil"/>
-          </b-col>
-          <b-col> 
-          structure : 
-          <b-form-select v-model="formUser.structure">
-             <option v-for="structure in structures" :key="structure.id" :value="structure.id">{{ structure.libCourt}}</option>
-          </b-form-select>
-          </b-col>
-      </b-row> 
-      <b-row>
-        <br>
-        <br>
-      </b-row>
+      
       <p class="modal-btns">
         <b-button v-on:click="$modal.hide('editUser')">Annuler</b-button>
         <b-button variant="success" v-on:click="checkform">Enregistrer</b-button>
@@ -81,6 +80,7 @@
 <script>
 import Vue from 'vue'
 import moment from 'moment'
+import { mapState } from 'vuex'
 
 var loadFormUser = function(utilisateur){
   let formUser = JSON.parse(JSON.stringify(Object.assign({
@@ -90,6 +90,7 @@ var loadFormUser = function(utilisateur){
     naissance:'',
     profil: '',
     structure: '',
+    structureLocale: '',
     statut: '',
     validated: ''
     }, utilisateur)))
@@ -113,8 +114,7 @@ export default {
          { text: 'Administrateur', value: '1' },
          { text: 'Partenaire', value: '2' },
          { text: 'Trou du cul', value: '3' }
-       ],
-       structures: []
+       ]
 
     };
   },
@@ -149,7 +149,8 @@ export default {
         mail:this.formUser.mail,
         profil:this.formUser.profil,
         validated:this.formUser.validated,
-        structure:this.formUser.structure
+        structure:this.formUser.structure,
+        structureLocale:this.formUser.structureLocale
       }
       
       return this.$store.dispatch('put_user', utilisateur) 
@@ -162,17 +163,20 @@ export default {
           console.error('Une erreur est survenue lors de la mise à jour de l\'utilisateur', error)
         })
     },
+    // true si la structure sélectionnée est une fédération
+    isFederation(id){
+       var structure = this.structures.find(str => {
+         return str.str_id == id
+       })
+       if(!structure){return false}
+       return structure.str_federation
+      
+    }
   },
+  computed: {...mapState(['structures'])},
   async mounted() {
-    const url = process.env.API_URL + '/structure'
-    await this.$axios.$get(url)
-        .then(response => {
-          this.loading = false
-          this.structures = response.structures
-        })
-        .catch(error => {
-          console.error('Une erreur est survenue lors de la récupération des users', error)
-        })
+    await this.$store.dispatch('get_structures')
+    this.loading = false
   }
 
 
