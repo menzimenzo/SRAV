@@ -115,7 +115,7 @@ export default {
        listeprofil: [
          { text: 'Administrateur', value: '1' },
          { text: 'Partenaire', value: '2' },
-         { text: 'Trou du cul', value: '3' }
+         { text: 'Intervenant', value: '3' }
        ]
 
     };
