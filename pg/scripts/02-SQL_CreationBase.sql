@@ -164,9 +164,10 @@ REG_NUM
 /* Table : DOCUMENT                                             */
 /*==============================================================*/
 create table DOCUMENT (
-   DOC_ID               BIGINT               not null,
+   DOC_ID               SERIAL               not null,
    DOC_TYPE             VARCHAR(20)          not null,
    DOC_LIBELLE          VARCHAR(50)          not null,
+   DOC_FILENAME         VARCHAR(50)          not null,
    DOC_CONTENU          BYTEA                null,
    constraint PK_DOCUMENT primary key (DOC_ID)
 );

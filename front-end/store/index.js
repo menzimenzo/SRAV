@@ -6,7 +6,8 @@ export const state = () => ({
   utilisateurCourant    : null,
   utilisateurSelectionne: [],
   users                 : [],
-  structures            : []
+  structures            : [],
+  documents             : []
 
 });
 
@@ -62,7 +63,10 @@ export const mutations = {
   },
   set_structures(state, structures){
     state.structures = structures
-  }
+  },
+  set_documents(state, documents){
+    state.documents = documents
+  },
 };
 
 export const actions = {
@@ -188,7 +192,7 @@ export const actions = {
     const url = process.env.API_URL + "/user/" + utilisateurSelectionne.id;
     console.info('url:' + url)
     var userIndex = state.users.findIndex(utilisateur => {
-      return utilisateur.id == utilisateurSelectionne.id
+      return utilisateur.id = utilisateurSelectionne.id
     })
     return await this.$axios
       .$put(url, { utilisateurSelectionne })
@@ -215,6 +219,18 @@ export const actions = {
     const url = process.env.API_URL + '/structures'
     return this.$axios.get(url).then(response => {
       commit("set_structures", response.data);
+    }).catch(err => {
+      console.log(err)
+    })
+  },
+  async get_documents({commit}) {
+    const url = process.env.API_URL + '/documents'
+    return this.$axios.get(url).then(response => {
+      var documents = response.data
+      documents.forEach(doc => {
+        delete doc.doc_contenu
+      })
+      commit("set_documents", response.data);
     }).catch(err => {
       console.log(err)
     })

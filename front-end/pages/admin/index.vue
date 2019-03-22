@@ -85,7 +85,7 @@
             </b-card-header>
             <b-collapse id="accordion4" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                <h3 class="text-center"> Disponible en V2 </h3>
+                <file-upload/>
               </b-card-body>
             </b-collapse>
           </b-card>   
@@ -128,10 +128,11 @@
 import { mapState } from 'vuex'
 import Editable from '~/components/editable/index.vue'
 import user from '~/components/user.vue'
+import fileUpload from '~/components/fileUpload.vue'
 
 export default {
    components: {
-    Editable,user
+    Editable,user,fileUpload
   },
    data() {
      return {

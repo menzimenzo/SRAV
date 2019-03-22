@@ -86,9 +86,9 @@
                       <b-col cols="12">
                         <h5 class="mb-3">Documents disponibles: </h5>
                         <ul>
-                          <li>
-                            Livret savoir rouler
-                            <b-img class="img-icon" fluid :src="require('assets/pdf-240x240.png')" blank-color="rgba(0,0,0,0.5)" />
+                          <li v-for="doc in documents" :key="doc.doc_id" >
+                            {{doc.doc_libelle}}
+                            <b-img class="img-icon" fluid  @click="downloadDoc(doc)" :src="require('assets/pdf-240x240.png')" blank-color="rgba(0,0,0,0.5)" />
                           </li>
                         </ul>
                       </b-col>
@@ -130,7 +130,7 @@ export default {
       ]
     };
   },
-  computed: mapState(['interventions', 'interventionCourrante', 'utilisateurCourant']),
+  computed: mapState(['interventions', 'interventionCourrante', 'utilisateurCourant', 'documents']),
   methods: {
 //
 //  fonction de recupération des infos d'une intervention par id
@@ -160,6 +160,29 @@ export default {
           // Télécharge le fichier
           link.click();
           link.remove()
+      })
+    },
+    downloadDoc: function(doc) {
+      this.$axios({
+        url: process.env.API_URL + '/documents/'+doc.doc_id,
+        method: 'GET',
+        responseType: 'blob'
+      }).then((response) => {
+          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+           // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          // Crée un lien caché pour télécharger le fichier
+          const link = document.createElement('a')
+          link.href = url
+          const fileName = doc.doc_filename
+          link.setAttribute('download', fileName)
+          // Télécharge le fichier
+          link.click()
+          link.remove()
+          console.log('Done - Download', {fileName})
+      }).catch(err => {
+          console.log(JSON.stringify(err))
+          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
       })
     },
     clearIntervention(){
@@ -194,7 +217,10 @@ export default {
 //  CHARGEMENT ASYNCHRONE DES INTERVENTIONS
 //
   async mounted() {
-    await this.$store.dispatch('get_interventions');
+    await Promise.all([
+      this.$store.dispatch('get_interventions'),
+      this.$store.dispatch('get_documents')
+    ])
     this.loading = false
     console.info("mounted", { interventions: this.interventions});
   }

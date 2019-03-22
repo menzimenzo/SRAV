@@ -1,17 +1,19 @@
-const express = require('express');
-const app = express();
-const connexion = require('./routes/connexion');
-const interventions = require('./routes/interventions');
-const listecommune = require('./routes/listecommune');
-const attestations = require('./routes/attestations');
-const structures = require('./routes/structures');
-const pdf = require('./routes/pdf');
-const user = require('./routes/user');
-const structure = require('./routes/structure');
-const session = require('express-session');
-const sessionstore = require('sessionstore');
+const express       = require('express');
+const app           = express();
+const session       = require('express-session');
+const sessionstore  = require('sessionstore');
 
-var config = require('./config');
+const connexion     = require('./routes/connexion');
+const interventions = require('./routes/interventions');
+const listecommune  = require('./routes/listecommune');
+const attestations  = require('./routes/attestations');
+const structures    = require('./routes/structures');
+const pdf           = require('./routes/pdf');
+const user          = require('./routes/user');
+const structure     = require('./routes/structure');
+const documents     = require('./routes/documents');
+
+var config     = require('./config');
 var bodyParser = require('body-parser');
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -23,11 +25,11 @@ app.use(bodyParser.urlencoded({ extended: true }));
  * @see {@link https://github.com/expressjs/session/blob/master/README.md#compatible-session-stores}
  */
 app.use(session({
-    store: sessionstore.createSessionStore(),
-    secret: config.sessionSecret,
-    cookie: {},
+    store            : sessionstore.createSessionStore(),
+    secret           : config.sessionSecret,
+    cookie           : {},
     saveUninitialized: true,
-    resave: true,
+    resave           : true,
 }));
 
 app.locals.FCUrl = config.franceConnect.fcURL
@@ -41,6 +43,8 @@ app.use('/listecommune', listecommune);
 app.use('/attestations', attestations);
 
 app.use('/structures', structures);
+
+app.use('/documents', documents);
 
 app.use('/pdf', pdf);
 
