@@ -110,7 +110,8 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
           <div class="mb-3 mt-3" >
             Cadre d'intervention * <i class="material-icons" :id="randomId" style="cursor: pointer;" >info</i> :
               <b-popover :target="randomId" triggers="hover focus">
-                <b>Scolaire</b> : c'est ça<br><b>Péri-scolaire</b> : c'est ça<br><b>Extra-scolaire</b> : c'est ça
+                <b>Péri-scolaire</b> : concerne les activités organisées durant les jours d’école ainsi que le mercredi, qu’il y ait ou non école le matin.<br>
+                <b>Extra-scolaire</b> : concerne les accueils organisés les samedis sans école, les dimanches et pendant les congés scolaires.
               </b-popover>
               <b-form-group class="ml-3">
                 <b-form-radio-group
@@ -120,9 +121,6 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
                   stacked
                   name="plainStacked"
                 />
-                <!--<aria-label="texte de l'infobulle">-->
-                <!-- v-b-popover.hover="'I am popover content!'"-->
-                <!--<i class="material-icons" >info</i><i class="material-icons" >info</i>-->
               </b-form-group>
           </div>
           <div class="mb-3 mt-3">
@@ -140,9 +138,6 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
                 placeholder=""
                 :rows="3"
               ></b-form-textarea>
-              <!-- Affichage du texte au fur est à mesure de la frappe (ça sert à rien)
-                  <pre class="mt-3">{{ commentaire }}</pre>
-              -->
           </div>
           <div
             id="error"

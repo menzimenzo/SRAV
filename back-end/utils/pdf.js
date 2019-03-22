@@ -9,7 +9,6 @@ function generate(id,nbenfants) {
    idformate = id.toString();
    for (nbzero=0;nbzero<7-id.toString().length;nbzero++){
        idformate = "0" + idformate;
-       console.log(idformate);
    }
     var doc = new PDFDocument({
         size: 'legal',
@@ -37,7 +36,6 @@ function generate(id,nbenfants) {
         var indexpageformate = indexpage.toString();
         for (nbzero=0;nbzero<4-indexpage.toString().length;nbzero++){
             indexpageformate = "0" + indexpageformate;
-            console.log(indexpageformate);
         }
         // Formatage final du numéro d'intervention
         numattestation = idformate + indexpageformate;
