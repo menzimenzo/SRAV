@@ -215,7 +215,7 @@ h1{
   
   }
 
-.form-group[required="required"] .col-form-label:after {
+.form-group[required="required"] label:after {
 content:"*";color:red;
 }
 
