@@ -43,6 +43,21 @@ router.get('/:docId', function (req, res, next) {
         });
 })
 
+router.delete('/:docId', function (req, res, next) {
+    console.log('Deleting document');
+
+    pgPool.query(
+        'DELETE FROM document WHERE doc_id = $1', [req.params.docId],
+        function (err, results) {
+            if (err) {
+                console.log(err);
+                return res.sendStatus(500)
+            } else {
+                return res.send('OK')
+            }
+        });
+})
+
 router.post('/', upload.single("file"), (req, res) => {
 
     const requete = `insert into document 
