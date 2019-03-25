@@ -20,6 +20,7 @@
             </b-card-header>
             <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
                 <b-card-body>
+                  <b-btn @click="exportCsv()" class="mb-2" variant="primary"><i class="material-icons" style="font-size: 18px; top: 4px;" >import_export</i> Export CSV</b-btn>
                   <editable :columns="headers" :data="users" :removable="false" :creable="false" 
                   :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
                   <template slot-scope="props" slot="actions">
@@ -30,7 +31,6 @@
                 </editable>   
                 </b-card-body>
             </b-collapse>
-
           </b-card>
           <b-card no-body class="mb-3">
             <b-card-header header-tag="header" class="p-1" role="tab">
@@ -125,6 +125,30 @@ export default {
         .catch(error => {
           console.error('Une erreur est survenue lors de la récupération du détail de l\'user', error)
         })
+    },
+    exportCsv(){
+      this.$axios({
+          url: process.env.API_URL + '/user/csv', // + this.utilisateurCourant.id,
+          // url: apiUrl + '/droits/' + 17,
+          method: 'GET',
+          responseType: 'blob'
+      }).then((response) => {
+          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+           // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          // Crée un lien caché pour télécharger le fichier
+          const link = document.createElement('a')
+          link.href = url
+          const fileName = 'Savoir Rouler - Utilisateurs.csv'
+          link.setAttribute('download', fileName)
+          // Télécharge le fichier
+          link.click()
+          link.remove()
+          console.log('Done - Download', {fileName})
+      }).catch(err => {
+          console.log(JSON.stringify(err))
+          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
+      })
     }
   },
   computed: mapState(['interventions', 'users']),
