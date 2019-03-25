@@ -146,10 +146,12 @@ router.get('/', async function (req, res) {
     // Utilisateur est intervenant => ses interventions
     } else if(user.pro_id == 3){
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
+    // Utilisateur Administrateur : Exclusion des interventions sans commentaires
+    } else if(user.pro_id == 1){
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id WHERE int_commentaire is not null and int_commentaire <> ''`
     }
-    // Sinon l'utilisateur est admin et récupère l'intégrlité des interventions
 
-    const requete = `SELECT * from intervention ${whereClause} order by int_id asc`;
+    const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
