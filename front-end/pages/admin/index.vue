@@ -51,6 +51,7 @@
               </b-card-body>
             </b-collapse>
           </b-card>   
+          <!-- ACCORDEON -- ACCES AUX INDICATEURS -->
           <b-card no-body class="mb-3">
             <b-card-header header-tag="header" class="p-1" role="tab">
               <b-form-row>
@@ -90,7 +91,7 @@
             </b-collapse>
           </b-card>   
 
-          <!--  ACCORDEON -- DOCUMENTS -->
+          <!--  ACCORDEON -- COMMENTAIRES -->
           <b-card no-body class="mb-3">
             <b-card-header header-tag="header" class="p-1" role="tab">
               <b-form-row>
@@ -140,7 +141,7 @@ export default {
        headers: [
         { path: 'id', title: 'N° d\'utilisateur', type: 'text', sortable:true},
         { path: 'proLibelle', title: 'Rôle', type: 'text', sortable:true},
-        { path: 'nom', title: 'Nom', type: 'date', sortable:true},
+        { path: 'nom', title: 'Nom', type: 'text', sortable:true},
         { path: 'prenom', title: 'Prénom', type: 'text', sortable:true},
         { path: 'structureLibelleCourt', title: 'structure', type: 'text', sortable:true},
         { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
