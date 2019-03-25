@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const stringify = require('csv-stringify')
 const pgPool = require('../pgpool').getPool();
 var moment = require('moment');
 moment().format();
@@ -22,6 +23,48 @@ const formatUser = user => {
         proLibelle:user.pro_libelle
     }
 }
+
+
+/* route d'extraction de la liste d'utilisateurs pour le CSV */
+/* Pas d'argument, on utilise la structure de l'utilisateur en session */
+router.get('/csv', async function (req, res) {
+
+    const utilisateurCourant = req.session.user
+
+    const requete =`SELECT  uti.*, str.str_libellecourt,pro.pro_libelle
+    from utilisateur  uti
+    join structure str on str.str_id= uti.str_id 
+    join profil pro on pro.pro_id = uti.pro_id
+    where uti.str_id=${utilisateurCourant.str_id} order by uti.uti_nom,uti.uti_prenom asc`;
+    console.log( requete)
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            console.log(err.stack);
+            return res.status(400).json('erreur lors de la récupération des utilisateurs');
+        }
+        else {
+            //console.info(result.rows)
+            const users = result.rows.map(formatUser);
+            if (!users || !users.length) {
+                return res.status(400).json({ message: 'Utilisateurs inexistants' });
+            }
+            stringify(users, {
+                quoted: '"',
+                header: true
+            }, (err, csvContent) => {
+                if(err){
+                    console.log(err)
+                    return res.status(500)
+                } else {
+
+                    return res.send(csvContent)
+                }
+            })            
+            //res.json({ users });
+        }
+    })
+});
 
 router.get('/:id', async function (req, res) {
     
@@ -128,5 +171,7 @@ router.put('/:id', async function (req, res) {
         }
     })
 })
+
+
 
 module.exports = router;
