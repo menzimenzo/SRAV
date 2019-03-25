@@ -31,7 +31,7 @@
             <li v-for="doc in documents" :key="doc.doc_id" >
               {{doc.doc_libelle}}
               <b-img class="img-icon" fluid  @click="downloadDoc(doc)" :src="require('assets/pdf-240x240.png')" blank-color="rgba(0,0,0,0.5)" />
-              <b-button variant="danger" class="ml-3 sm" @click="deleteFile(doc.doc_id)" size="sm"><i class="material-icons">delete</i></b-button>
+              <b-button variant="danger" class="ml-3" @click="deleteFile(doc.doc_id)" size="sm"><i class="material-icons">delete</i></b-button>
             </li>
           </ul>
           <div v-if="documents.length == 0">Aucun document disponible</div>

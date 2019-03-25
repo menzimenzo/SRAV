@@ -25,6 +25,10 @@ const formatIntervention = intervention => {
         nbEnfants: intervention.int_nombreenfant,
         nbFilles: intervention.int_nombrefille,
         nbGarcons: intervention.int_nombregarcon,
+        nbmoinssix:intervention.int_nombremoinssix,
+        nbsixhuit:intervention.int_nombresixhuit,
+        nbneufdix:intervention.int_nombreneufdix,
+        nbplusdix:intervention.int_nombreplusdix,
         dateIntervention: new Date(intervention.int_dateintervention),
         dateCreation: new Date(intervention.int_datecreation),
         dateMaj: intervention.int_datemaj,
@@ -171,7 +175,9 @@ router.put('/:id', async function (req, res) {
     const intervention = req.body.intervention
 
     const id = req.params.id
-    let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId,siteintervention } = intervention
+    let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
+        commentaire, cp, utilisateurId,siteintervention,
+        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix  } = intervention
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -187,6 +193,10 @@ router.put('/:id', async function (req, res) {
         int_nombreenfant = ${nbEnfants},
         int_nombregarcon = ${nbGarcons},
         int_nombrefille = ${nbFilles}, 
+        INT_NOMBREMOINSSIX = ${nbmoinssix}, 
+        INT_NOMBRESIXHUIT = ${nbsixhuit}, 
+        INT_NOMBRENEUFDIX = ${nbneufdix}, 
+        INT_NOMBREPLUSDIX = ${nbplusdix}, 
         int_dateintervention = '${dateIntervention}',
         int_datemaj = now(),
         int_commentaire = '${commentaire}',
@@ -219,15 +229,25 @@ router.put('/:id', async function (req, res) {
 router.post('/', function (req, res) {
     const intervention = req.body.intervention
 
-    let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, commentaire, cp, utilisateurId, siteintervention } = intervention
+    let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
+         commentaire, cp, utilisateurId, siteintervention,
+         nbmoinssix, nbsixhuit, nbneufdix, nbplusdix } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
 
     //insert dans la table intervention
     const requete = `insert into intervention 
-                    (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_datemaj,int_commentaire,int_dep_num,int_reg_num,int_siteintervention) 
-                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}', ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}', '${new Date().toISOString()}', '${new Date().toISOString()}','${commentaire}', '${commune.dep_num}', '${commune.reg_num}','${siteintervention}') RETURNING *`;
+                    (cai_id,blo_id,uti_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,
+                        int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,
+                        int_datecreation,int_datemaj,int_commentaire,
+                        int_dep_num,int_reg_num,int_siteintervention,
+                        INT_NOMBREMOINSSIX, INT_NOMBRESIXHUIT, INT_NOMBRENEUFDIX, INT_NOMBREPLUSDIX) 
+                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}',
+                     ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}',
+                      '${new Date().toISOString()}', '${new Date().toISOString()}','${commentaire}', 
+                      '${commune.dep_num}', '${commune.reg_num}','${siteintervention}',
+                      '${nbmoinssix}', '${nbsixhuit}', '${nbneufdix}', '${nbplusdix}' ) RETURNING *`;
     
     console.log({ requete });
     pgPool.query(requete, (err, result) => {
