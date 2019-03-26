@@ -108,13 +108,22 @@
             </b-card-header>
             <b-collapse id="accordion5" accordion="my-accordion" role="tabpanel">
               <b-card-body>
-                  <editable :columns="headersCom" :data="interventions" :removable="false" :creable="false" 
-                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                <div class="mb-3">
+                  <b-form inline>
+                      <label for="nameFilter">Intervenant: </label>
+                      <b-input class="ml-2" id="nameFilter" v-model="nameFilter" placeholder="Bernard Dupond" />
+                      <label class="ml-3" for="placeFilter">Lieu: </label>
+                      <b-input class="ml-2" id="placeFilter" v-model="placeFilter" placeholder="Paris" />
+                  </b-form>
+                </div>
+                <editable :columns="headersCom" :data="filteredInterventions" :removable="false" :creable="false" 
+                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading" v-if="filteredInterventions.length > 0">
                   <template slot-scope="props" slot="actions">
                     {{props.data.id}}
                     
                   </template>
-                </editable>   
+                </editable>
+                <h5 class="text-center" v-if="filteredInterventions.length == 0">Aucune intervention </h5>  
               </b-card-body>
             </b-collapse>
           </b-card>
@@ -153,7 +162,9 @@ export default {
         { path: 'commune.com_libellemaj', title: 'Lieu', type: 'text', sortable:true},
         { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true, filter:"date"},
         { path: 'commentaire', title: 'Commentaires', type: 'text', sortable:true},
-      ] 
+      ],
+      nameFilter: '',
+      placeFilter: ''
 
      };
    },
@@ -200,7 +211,21 @@ export default {
 //
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
-  computed: mapState(['interventions', 'users']),
+  computed: {
+    ...mapState(['interventions', 'users']),
+    filteredInterventions: function(){
+      return this.interventions.filter(intervention => {
+        var isMatch = true
+        if(this.nameFilter != ''){
+          isMatch = isMatch && (intervention.nom.toLowerCase().indexOf(this.nameFilter.toLowerCase()) > -1)
+        }
+        if(this.placeFilter != ''){
+          isMatch = isMatch && (intervention.commune.com_libellemaj.toLowerCase().indexOf(this.placeFilter.toLowerCase()) > -1)
+        }
+        return isMatch
+      })
+    }
+  },
   async mounted() {
     const url = process.env.API_URL + '/user'
     await Promise.all([
