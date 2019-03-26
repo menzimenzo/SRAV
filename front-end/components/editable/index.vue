@@ -159,7 +159,7 @@
                         </template>
                     </editing-row>
                 </tbody>
-                <tfoot class="table-footer" v-if="pagination && paginationNumbers > 1">
+                <tfoot class="table-footer" v-if="pagination && data.length > 5">
                     <ul class="pagination">
                         <li class="page-item"
                             :class="{disabled: selectedPage == 1}"
