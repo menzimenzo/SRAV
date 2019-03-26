@@ -3615,6 +3615,11 @@ globule@^1.0.0:
     lodash "~4.17.10"
     minimatch "~3.0.2"
 
+glyphicons-only-bootstrap@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/glyphicons-only-bootstrap/-/glyphicons-only-bootstrap-1.0.1.tgz#a04f9a25a20c4613f98f970b07af40918a11ef7c"
+  integrity sha1-oE+aJaIMRhP5j5cLB69AkYoR73w=
+
 graceful-fs@^4.1.11, graceful-fs@^4.1.15, graceful-fs@^4.1.2, graceful-fs@^4.1.6:
   version "4.1.15"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.15.tgz#ffb703e1066e8a0eeaa4c8b80ba9253eeefbfb00"

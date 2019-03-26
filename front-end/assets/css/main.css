@@ -245,3 +245,7 @@ content:"*";color:red;
 .toastLink{
     color: #FDB842 !important; 
 }
+
+.cursor-pointer{
+    cursor: pointer;
+}

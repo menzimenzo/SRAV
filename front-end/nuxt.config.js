@@ -61,7 +61,9 @@ module.exports = {
   }, axios: {
     // proxyHeaders: false
   },
-  css: ['~/node_modules/vue-js-modal/dist/styles.css'],
+  css: ['~/node_modules/vue-js-modal/dist/styles.css',
+        '~/node_modules/glyphicons-only-bootstrap/css/bootstrap.min.css'
+  ],
   env: {
     // Utilisé côté client, url publique
     API_URL: process.env.API_URL || 'http://localhost/backend',

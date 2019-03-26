@@ -5,7 +5,7 @@
             <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
             {{ noDataLabel }}
         </div>
-        <div :style="`max-height: ${tableMaxHeight}; overflow-y: auto;`"> 
+        <div :style="!pagination ? {maxHeight:tableMaxHeight,overflowY:'auto'} : {}">
             <table v-if="!loading && data && data.length > 0 || newItem"
                 class="table table-hover">
                 <thead>
@@ -27,7 +27,73 @@
                         <th key="header-col-action" class="text-center" v-if="creableComputed || editable || removableComputed">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody v-if="pagination">
+                    <template v-for="(item, i) in paginationData">
+                        <reading-row
+                            v-show="editingIndex !== i"
+                            :scope="scope"
+                            :key="'row-' + i"
+                            :ref="'row' + i"
+                            :item="item"
+                            :columns="columns"
+                            :editable="item.options && typeof item.options.editable === 'boolean' ? item.options.editable : editable"
+                            :creable="creableComputed"
+                            :removable="item.options && typeof item.options.removable === 'boolean' ? item.options.removable : removableComputed"
+                            :class="rowClassValue(item)"
+                            :editByLine="editByLine"
+                            :index="i"
+                            :data-test-key="getObjectValue(item, trackBy)"
+                            data-test-editing="false"
+                            @edit="edit"
+                            @remove="confirmRemove"
+                            >
+                            <template v-for="column in columns">
+                                <template v-if="fieldType(column.path) === '__slot'" :slot="fieldPath(column.path)">
+                                    <slot :name="fieldPath(column.path)" :data="item" :onEdit="false"></slot>
+                                </template>
+                            </template>
+                        </reading-row>
+                        <editing-row v-if="editingIndex === i"
+                            :key="'editing-row-' + i"
+                            :ref="'row' + i"
+                            :item="item"
+                            :columns="columns"
+                            :class="rowClassValue(item)"
+                            :index="i"
+                            :data-test-key="getObjectValue(item, trackBy)"
+                            data-test-editing="true"
+                            @save="save"
+                            @clean="clean"
+                            >
+                            <template v-for="column in columns">
+                                <template v-if="fieldType(column.path) === '__slot'" :slot="fieldPath(column.path)">
+                                    <slot :name="fieldPath(column.path)" :data="item" :onEdit="true"></slot>
+                                </template>
+                            </template>
+                        </editing-row>
+                    </template>
+                    <editing-row  v-if="newItem"
+                        ref="newItem"
+                        :item="newItem"
+                        :columns="columns"
+                        :class="rowClassValue(newItem)"
+                        :editByLine="editByLine"
+                        :newItem="true"
+                        :index="-1"
+                        :removable="false"
+                        @save="save"
+                        @clean="clean"
+                        data-test-key="newItem"
+                        data-test-editing="true"
+                        >
+                        <template v-for="column in columns">
+                            <template v-if="fieldType(column.type) === '__slot'" :slot="fieldPath(column.type)">
+                                <slot :name="fieldPath(column.type)" :data="newItem" :onEdit="true"></slot>
+                            </template>
+                        </template>
+                    </editing-row>
+                </tbody>
+                <tbody  v-if="!pagination">
                     <template v-for="(item, i) in sortedData">
                         <reading-row
                             v-show="editingIndex !== i"
@@ -93,6 +159,59 @@
                         </template>
                     </editing-row>
                 </tbody>
+                <tfoot class="table-footer" v-if="pagination && paginationNumbers > 1">
+                    <ul class="pagination">
+                        <li class="page-item"
+                            :class="{disabled: selectedPage == 1}"
+                        >
+                            <a 
+                                class="page-link"
+                                @click.prevent="setPaginationData(selectedPage - 1)"
+                            >
+                            Précédent
+                            </a>
+                        </li>
+                        <li 
+                            class="page-item page-number"
+                            v-for="i in paginationNumbers" 
+                            :key="i"
+                            @click.prevent="setPaginationData(i)"
+                        >
+                            <a 
+                                class="page-link"
+                                :class="{highlight:i == selectedPage}"
+                                >{{i}}
+                            </a>
+                        </li>
+                        <li class="page-item"
+                            :class="{disabled: selectedPage == paginationNumbers}"
+                            >
+                            <a 
+                                class="page-link"
+                                 @click.prevent="setPaginationData(selectedPage + 1)"
+                            >
+                            Suivant
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="select-custom col-3 pagination-entries" 
+                        v-if="pagination">
+                        <span>
+                            Nombre d'entrées affichées:
+                        </span>
+                        <select 
+                            class="form-control"
+                            v-model="paginationEntries"
+                            @change="setPaginationData(1)">
+                            <option selected value="6">5</option>
+                            <option value="11">10</option>
+                            <option value="26">25</option>
+                            <option value="51">50</option>
+                            <option :value="sortedData.length+1">Tout</option>
+                        </select>
+                    </div>
+                    
+                </tfoot>
             </table>
         </div>
         <div v-if="creableComputed && !loading" 
@@ -109,6 +228,7 @@
         </div>
     </div>
 </template>
+
 
 <script>
 
@@ -179,7 +299,12 @@ export default {
         },
         scope: {
             type: String
+        },
+        pagination: {
+            type: Boolean,
+            default: true
         }
+
     },
     components: {
         readingRow, editingRow,
@@ -211,13 +336,39 @@ export default {
                 return 0
             })
             return sortedData
+        },
+        paginationNumbers() {
+            if(!this.sortField) {
+                const n = Math.trunc(this.data.length/(this.paginationEntries-1))
+                if (n === 0) {
+                    return 1
+                }
+                return n+1
+            }
+            const n = Math.trunc(this.data.length/(this.paginationEntries-1))
+                if (n === 0) {
+                    return 1
+                }
+            return n+1
+        },
+        paginationData() {
+            const begin = this.paginationEntries * (this.selectedPage - 1)  
+            var end = (this.paginationEntries * this.selectedPage) - 1
+            const splitCorrection = this.selectedPage - 1
+            if( end > this.sortedData.length ) {
+                return this.sortedData.slice(begin === 0 ? 0 : begin-splitCorrection )
+            }
+            return this.sortedData.slice( begin !== 0 ? begin-splitCorrection  : 0 , begin !== 0 ? end-splitCorrection  : end )
         }
+
     },
     data() {
         return {
             sortField: this.defaultSortField,
             editingIndex: null,
-            newItem: null
+            newItem: null,
+            selectedPage: 1,
+            paginationEntries: 6
         }
     },
     methods: {
@@ -258,13 +409,11 @@ export default {
             })
         },
         clean() {
-            log.i('clean')
             this.editingIndex = null
             this.newItem = null
             // this.$refs.newItem && this.$refs.newItem.close()
         },
         add() {
-            log.i('add')
             const paths = _.filter(_.map(this.columns, 'path'), path => !this.isSpecialField(path))
             if (this.editByLine) {
                 this.newItem = _.zipObjectDeep(paths, [])
@@ -274,7 +423,6 @@ export default {
             }
         },
         save({ index, item }) {
-            log.i('save')
             const event = index === -1 ? 'create' : 'update'
             if (event === 'create') {
                 this.$emit(event, item)
@@ -286,27 +434,59 @@ export default {
             }
         },
         edit({ index }) {
-            log.i('edit')
             if (this.editByLine) {
                 this.editingIndex = index
                 this.newItem = null
             } else {
                 this.$emit('edit', this.data[index])
             }
+        },
+        setPaginationData(i) {
+            if(i >= 1 && i <= this.paginationNumbers) {
+                this.selectedPage = i
+            }
         }
+
     }
 }
 </script>
 
 <style lang="scss">
 @import '~assets/css/_variable.scss';
-
 .editable {
     position: relative;
     margin-bottom: 5px;
     display: block;
     table {
         margin-bottom: 0;
+        tfoot {  
+            .pagination {
+                cursor: pointer;
+                display: flex;
+                margin-left: 10px;
+            }
+        .select-custom {
+            position: absolute;
+            bottom: 15px;
+            right: 30px;
+            width: 300px;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            .positionbottom {
+                bottom: 0;
+                color: red;
+            }
+            select {
+                width: 70px;
+                }
+            span {
+                font-size: 14px;
+                font-weight: 600;
+                }
+            }
+        }
     }
     .btn-add {
         margin-top: 15px;
@@ -324,6 +504,10 @@ export default {
             border-radius: 50px;
             background-color: $primary-color;
         }
+    }
+    .highlight {
+        color: white;
+        background-color: $primary-color;
     }
 }
 @media
@@ -374,4 +558,5 @@ only screen and (max-width: 980px),
         }
     }
 }
+
 </style>
