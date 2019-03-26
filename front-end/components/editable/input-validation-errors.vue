@@ -46,7 +46,7 @@ const getErrors = function(name) {
         fr: `Le champ est obligatoire.`
     }, {
         en: `The ${name} field must be a valid email.`,
-        fr: `Le champ doit être un email valide.`
+        fr: `Le champ doit être un courriel valide.`
     }, {
         en: `The ${name} field may only contain numeric characters.`,
         fr: `Le champ doit contenir uniquement des caractères numériques.`
