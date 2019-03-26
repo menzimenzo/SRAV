@@ -34,7 +34,7 @@ router.get('/',
         console.log('Getting structures');
         // La méthode get est appelée sans paramètre : On retourne la liste
         pgPool.query(
-            'SELECT * FROM structure',
+            'SELECT * FROM structure order by str_libellecourt',
             function (err, result) {
                 if (err) {
                     console.log(err);

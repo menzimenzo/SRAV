@@ -181,33 +181,54 @@ router.put('/:id', async function (req, res) {
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
+    if (nbmoinssix == '') { nbmoinssix = null }
+    if (nbsixhuit == '') { nbsixhuit = null }
+    if (nbneufdix == '') { nbneufdix = null }
+    if (nbplusdix == '') { nbplusdix = null }
 
     //insert dans la table intervention
     const requete = `UPDATE intervention 
-        SET cai_id = ${cai},
-        blo_id = ${blocId},
-        uti_id = ${utilisateurId},
-        int_com_codeinsee = '${commune.cpi_codeinsee}',
-        int_com_codepostal = '${cp}',
-        int_com_libelle = '${commune.com_libellemaj}',
-        int_nombreenfant = ${nbEnfants},
-        int_nombregarcon = ${nbGarcons},
-        int_nombrefille = ${nbFilles}, 
-        INT_NOMBREMOINSSIX = ${nbmoinssix}, 
-        INT_NOMBRESIXHUIT = ${nbsixhuit}, 
-        INT_NOMBRENEUFDIX = ${nbneufdix}, 
-        INT_NOMBREPLUSDIX = ${nbplusdix}, 
-        int_dateintervention = '${dateIntervention}',
+        SET cai_id = $1,
+        blo_id = $2,
+        uti_id = $3,
+        int_com_codeinsee = $4,
+        int_com_codepostal = $5,
+        int_com_libelle = $6,
+        int_nombreenfant = $7,
+        int_nombregarcon = $8,
+        int_nombrefille = $9, 
+        INT_NOMBREMOINSSIX = $10, 
+        INT_NOMBRESIXHUIT = $11, 
+        INT_NOMBRENEUFDIX = $12, 
+        INT_NOMBREPLUSDIX = $13, 
+        int_dateintervention = $14,
         int_datemaj = now(),
-        int_commentaire = '${commentaire}',
-        int_dep_num = '${commune.dep_num}',
-        int_reg_num = '${commune.reg_num}',
-        int_siteintervention = '${siteintervention}'
+        int_commentaire = $15,
+        int_dep_num = $16,
+        int_reg_num = $17,
+        int_siteintervention = $18
         WHERE int_id = ${id}
         RETURNING *
         ;`    
     
-    pgPool.query(requete, (err, result) => {
+    pgPool.query(requete, [cai,
+        blocId,
+        utilisateurId,
+        commune.cpi_codeinsee,
+        cp,
+        commune.com_libellemaj,
+        nbEnfants,
+        nbGarcons,
+        nbFilles, 
+        nbmoinssix, 
+        nbsixhuit, 
+        nbneufdix, 
+        nbplusdix, 
+        dateIntervention,
+        commentaire,
+        commune.dep_num,
+        commune.reg_num,
+        siteintervention], (err, result) => {
         if (err) {
             console.log(requete);
             console.log(err.stack);
@@ -235,6 +256,10 @@ router.post('/', function (req, res) {
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
+    if (nbmoinssix == '') { nbmoinssix = null }
+    if (nbsixhuit == '') { nbsixhuit = null }
+    if (nbneufdix == '') { nbneufdix = null }
+    if (nbplusdix == '') { nbplusdix = null }
 
     //insert dans la table intervention
     const requete = `insert into intervention 
@@ -243,14 +268,12 @@ router.post('/', function (req, res) {
                         int_datecreation,int_datemaj,int_commentaire,
                         int_dep_num,int_reg_num,int_siteintervention,
                         INT_NOMBREMOINSSIX, INT_NOMBRESIXHUIT, INT_NOMBRENEUFDIX, INT_NOMBREPLUSDIX) 
-                    values(${cai},${blocId},${utilisateurId},'${commune.cpi_codeinsee}','${cp}','${commune.com_libellemaj}',
-                     ${nbEnfants}, ${nbGarcons}, ${nbFilles},'${dateIntervention}',
-                      '${new Date().toISOString()}', '${new Date().toISOString()}','${commentaire}', 
-                      '${commune.dep_num}', '${commune.reg_num}','${siteintervention}',
-                      '${nbmoinssix}', '${nbsixhuit}', '${nbneufdix}', '${nbplusdix}' ) RETURNING *`;
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20 ) RETURNING *`;
     
     console.log({ requete });
-    pgPool.query(requete, (err, result) => {
+    pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
+    nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
+    commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix],(err, result) => {
         if (err) {
             console.log(err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');

@@ -9,12 +9,12 @@
       </b-form-group>
 
       <b-form-group label="Date de naissance:">
-        <b-form-input type="text" v-model="user.dateNaissance" disabled/>
+        <b-form-input type="date" v-model="user.dateNaissance" disabled/>
       </b-form-group>
     </b-card>
     <b-card class="mb-3">
       <b-form>
-        <b-form-group id="emailInputGroup" label="Email:" label-for="emailInput" required>
+        <b-form-group id="emailInputGroup" label="Courriel:" label-for="emailInput" required>
           <b-form-input
             id="emailInput"
             type="email"
@@ -23,11 +23,11 @@
             name="mail"
             v-validate="{required: true, email: true}"
             aria-describedby="emailFeedback"
-            placeholder="Email"
+            placeholder="Courriel"
             :state="validateState('mail')"
           />
 
-          <b-form-invalid-feedback id="emailFeedback">L'email est obligatoire et doit être valide.</b-form-invalid-feedback>
+          <b-form-invalid-feedback id="emailFeedback">Le courriel est obligatoire et doit être valide.</b-form-invalid-feedback>
         </b-form-group>
 
         <b-form-group
@@ -68,11 +68,12 @@
             aria-describedby="structLocFeedback"
             id="structLocaleInput"
             type="text"
+            text=""
             v-model="user.structureLocale"
             required
             placeholder="Nom de la structure"
           />
-          <b-form-invalid-feedback id="structLocFeedback">La structure local est obligatoire.</b-form-invalid-feedback>
+          <b-form-invalid-feedback id="structLocFeedback">La structure locale est obligatoire.</b-form-invalid-feedback>
         </b-form-group>
 
         <b-form-group id="legalCheckGroup" v-if="checkLegal">
