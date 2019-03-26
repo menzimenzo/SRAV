@@ -29,14 +29,27 @@ const formatUser = user => {
 /* Pas d'argument, on utilise la structure de l'utilisateur en session */
 router.get('/csv', async function (req, res) {
 
-    const utilisateurCourant = req.session.user
+    const utilisateurCourant = req.session.user;
+    var requete = "";
 
-    const requete =`SELECT  uti.*, str.str_libellecourt,pro.pro_libelle
-    from utilisateur  uti
-    join structure str on str.str_id= uti.str_id 
-    join profil pro on pro.pro_id = uti.pro_id
-    where uti.str_id=${utilisateurCourant.str_id} order by uti.uti_nom,uti.uti_prenom asc`;
-    console.log( requete)
+    console.log("Profil de l'utilisateur : " + req.session.user.pro_id);
+    // Je suis utilisateur "Administrateur" ==> Export de la liste des tous les utilisateurs
+    if ( utilisateurCourant.pro_id == 1 ) {
+        requete =`SELECT  uti.*, str.str_libellecourt,pro.pro_libelle
+        from utilisateur  uti
+        join structure str on str.str_id= uti.str_id 
+        join profil pro on pro.pro_id = uti.pro_id 
+        order by uti.uti_nom,uti.uti_prenom asc`;
+    } 
+    // Je suis utilisateur "Partenaire" ==> Export de la liste des interventants
+    else {
+        requete =`SELECT  uti.*, str.str_libellecourt,pro.pro_libelle
+        from utilisateur  uti
+        join structure str on str.str_id= uti.str_id 
+        join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
+        where uti.str_id=${utilisateurCourant.str_id} order by uti.uti_nom,uti.uti_prenom asc`;
+    }
+    console.log( requete);
 
     pgPool.query(requete, (err, result) => {
         if (err) {
@@ -120,10 +133,11 @@ router.get('/', async function (req, res) {
     else 
     {
         // si on est partenaire, on affiche seulements les utilisateurs de la structure
+        // Sauf les Admin créés sur structure
         requete = `SELECT uti.*,str.str_libellecourt,pro.pro_libelle
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
-        join profil pro on pro.pro_id = uti.pro_id
+        join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
         where uti.str_id=${utilisateurCourant.str_id} order by uti_id asc  `;
     }
     console.log( requete)
