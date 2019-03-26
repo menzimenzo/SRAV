@@ -192,7 +192,7 @@ export const actions = {
     const url = process.env.API_URL + "/user/" + utilisateurSelectionne.id;
     console.info('url:' + url)
     var userIndex = state.users.findIndex(utilisateur => {
-      return utilisateur.id = utilisateurSelectionne.id
+      return utilisateur.id == utilisateurSelectionne.id
     })
     return await this.$axios
       .$put(url, { utilisateurSelectionne })

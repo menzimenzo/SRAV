@@ -25,6 +25,7 @@ router.post('/verify', async (req,res) => {
     if(!req.body.id){
         return res.sendStatus(500)
     }
+    var wasValidated = req.body.validated
     var user = formatUtilisateur(req.body, false)
 
     // Mise à jour de l'utilisateur
@@ -35,14 +36,16 @@ router.post('/verify', async (req,res) => {
              throw err
          })
     // Envoie de l'email de confirmation
-    sendEmail({
-        to: user.uti_mail,
-        subject: 'création compte savoir rouler à vélo',
-        body: `<p>Bonjour,</p>
-            <p>Votre compte « Intervenant Savoir Rouler à Vélo » a bien été créé. <br/><br/>
-            Nous vous invitons à y renseigner les informations relatives à la mise en œuvre de chacun des 3 blocs du socle commun du SRAV.<br/>
-            Le site <a href="www.savoirrouleravelo.fr">www.savoirrouleravelo.fr</a> est à votre disposition pour toute information sur le programme Savoir Rouler à Vélo.<br/></p>`
-    })
+    if(!wasValidated){
+        sendEmail({
+            to: user.uti_mail,
+            subject: 'création compte savoir rouler à vélo',
+            body: `<p>Bonjour,</p>
+                <p>Votre compte « Intervenant Savoir Rouler à Vélo » a bien été créé. <br/><br/>
+                Nous vous invitons à y renseigner les informations relatives à la mise en œuvre de chacun des 3 blocs du socle commun du SRAV.<br/>
+                Le site <a href="www.savoirrouleravelo.fr">www.savoirrouleravelo.fr</a> est à votre disposition pour toute information sur le programme Savoir Rouler à Vélo.<br/></p>`
+        })
+    }
     req.session.user = updatRes.rows[0]
     user = formatUtilisateur(updatRes.rows[0])
     return res.send({user})

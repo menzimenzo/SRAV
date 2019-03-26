@@ -2,7 +2,7 @@
   <b-container class="mb-3 mt-3">
     <b-row>
         <b-col cols="12">
-          <a href="/" >
+          <a href="/" title="Afficher la page d'accueil" style="text-decoration: none" >
               <b-img fluid :src="require('assets/Gouvernement_PiloteMS.jpg')" blank-color="rgba(0,0,0,0.5)" />
             <!-- <b-img fluid :src="require('assets/header.png')" /> -->
             <!-- <b-img fluid :src="require('assets/header-20191403.png')" /> -->
@@ -22,7 +22,7 @@
       </div>
       <b-dropdown v-if="utilisateurCourant" id="accountBtn" >
         <template slot="button-content">{{utilisateurCourant && utilisateurCourant.prenom}} {{utilisateurCourant && utilisateurCourant.nom}}</template>
-        <b-dropdown-item href="#">Mon compte</b-dropdown-item>
+        <b-dropdown-item href="/connexion/profil">Mon compte</b-dropdown-item>
         <b-dropdown-item href="#" @click="logout()">Se déconnecter</b-dropdown-item>
       </b-dropdown>
     </div>

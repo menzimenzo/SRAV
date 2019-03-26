@@ -113,7 +113,7 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
                 <b>Péri-scolaire</b> : concerne les activités organisées durant les jours d’école ainsi que le mercredi, qu’il y ait ou non école le matin.<br>
                 <b>Extra-scolaire</b> : concerne les accueils organisés les samedis sans école, les dimanches et pendant les congés scolaires.
               </b-popover>
-              <b-form-group class="ml-3">
+              <b-form-group class="ml-3"> 
                 <b-form-radio-group
                   v-model="formIntervention.cai"
                   :options="listecadreintervention"
@@ -231,7 +231,7 @@ export default {
       ],
       selectedCommune: null,
       // Nécessaire pour le fonctionnement des popovers quand plusieurs composants intervention sont sur la page
-      randomId: 'myModal' + Math.random()
+      randomId: 'popover-' + Math.floor(Math.random() * 100000)
     };
   },
   methods: {

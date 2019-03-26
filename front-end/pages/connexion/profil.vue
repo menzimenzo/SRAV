@@ -5,10 +5,10 @@
         <b-col cols="6" offset="3" >
             <div class="text-center mb-3">
               <h1>
-                Validation de l'inscription
+                Édition des informations
               </h1>
             </div>
-            <user-infos :user="user" :check-legal="true" :submit-txt="'Je valide mon compte'" @submit="confirmRegistration"/>
+            <user-infos :user="user" :check-legal="false" :submit-txt="'Enregistrer'" @submit="editProfile"/>
         </b-col>
       </b-row>
     </b-container>
@@ -26,16 +26,18 @@ export default {
   },
   methods: {
     // Validation de l'inscription
-    confirmRegistration(){
-      const url = process.env.API_URL + '/connexion/verify'
-      return this.$axios.$post(url, this.user)
-      .then(async response => {
-        await this.$store.dispatch('set_utilisateur', response.user);
-        this.$router.push('/interventions')
-        this.$toast.success('Inscription validée.')
-      }).catch(err => {
-        console.log(err)
-      })
+    async editProfile(){
+        console.info('url:' + url)
+
+        const url = process.env.API_URL + '/connexion/verify'
+        return this.$axios.$post(url, this.user)
+        .then(async response => {
+            await this.$store.dispatch('set_utilisateur', response.user);
+            this.$toast.success('Profil enregistré avec succès.')
+
+        }).catch(err => {
+            console.log(err)
+        })
     },
 
   },
