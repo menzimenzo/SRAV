@@ -139,6 +139,9 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
                 :rows="3"
               ></b-form-textarea>
           </div>
+          <div class="mb-3 mt-3" v-if="formIntervention.dateMaj">
+             Dernière modification réalisée le {{formIntervention.dateMaj | timestamp}}
+          </div>
           <div
             id="error"
             v-if="erreurformulaire.length==1"
