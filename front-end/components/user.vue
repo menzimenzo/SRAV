@@ -45,6 +45,9 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
               
             </div>
             <div class="mb-3 mt-3">
+              Statut utilisateur : <b-form-select v-model="formUser.statut" :options="liststatus"/>
+            </div>
+            <div class="mb-3 mt-3">
               <b-form-checkbox switch v-model="formUser.validated" name="check-button">
                 Utilisateur validé <b></b>
               </b-form-checkbox>
@@ -116,6 +119,10 @@ export default {
          { text: 'Administrateur', value: '1' },
          { text: 'Partenaire', value: '2' },
          { text: 'Intervenant', value: '3' }
+       ],
+       liststatus: [
+         { text: 'Actif', value: '1' },
+         { text: 'Bloqué', value: '2' }
        ]
 
     };
@@ -143,22 +150,12 @@ export default {
         console.info('Formulaire invalide', this.erreurformulaire)
         return
       }
-
-      const utilisateur = {
-        id: this.formUser.id, 
-        nom:this.formUser.nom,
-        prenom:this.formUser.prenom,
-        mail:this.formUser.mail,
-        profil:this.formUser.profil,
-        validated:this.formUser.validated,
-        structure:this.formUser.structure,
-        structureLocale:this.formUser.structureLocale
-      }
       
-      return this.$store.dispatch('put_user', utilisateur) 
+      return this.$store.dispatch('put_user', this.formUser) 
         .then(message => {
           console.info(message)
-          this.$toast.success(`Utilisateur #${utilisateur.mail} mis à jour`, [])
+          this.$toast.success(`Utilisateur #${this.formUser.mail} mis à jour`, [])
+          this.$store.dispatch('get_users') 
           this.$modal.hide('editUser')
         })
         .catch(error => {

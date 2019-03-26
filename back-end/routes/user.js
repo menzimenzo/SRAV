@@ -158,7 +158,7 @@ router.get('/', async function (req, res) {
 router.put('/:id', async function (req, res) {
     const user = req.body.utilisateurSelectionne
     const id = req.params.id
-    let { nom, prenom, mail, profil, validated,structure, structureLocale } = user
+    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut } = user
 
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
@@ -168,11 +168,12 @@ router.put('/:id', async function (req, res) {
         validated = ${validated},
         pro_id = ${profil},
         str_id = ${structure},
-        uti_structurelocale = '${structureLocale}'
+        uti_structurelocale = '${structureLocale}',
+        stu_id = '${statut}'
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
-    
+    console.log(requete)
     pgPool.query(requete, (err, result) => {
         if (err) {
             console.log(requete);

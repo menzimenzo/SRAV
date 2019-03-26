@@ -11,14 +11,20 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
         route.path.indexOf('/connexion/logout') === 0 ){
         return
     }
-    
 
+    
+    
     console.log(JSON.stringify(store.state))
     if(!store.state.utilisateurCourant || !store.state.utilisateurCourant.id){
         if(logedOutRoutes.indexOf(route.path) < 0){
             return redirect('/')
         }
     } else {
+        // Utilisateur est bloqué
+        if(store.state.utilisateurCourant.statutId == 2 && route.path != '/connexion/locked' ){
+            return redirect('/connexion/locked')
+        }
+        // Utilisateur n'a pas validé son inscription
         if(!store.state.utilisateurCourant.validated && route.path != '/connexion/inscription' ){
             return redirect('/connexion/inscription')
         }
