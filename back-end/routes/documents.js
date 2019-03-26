@@ -62,9 +62,9 @@ router.post('/', upload.single("file"), (req, res) => {
 
     const requete = `insert into document 
     (doc_type, doc_filename, doc_libelle, doc_contenu) 
-    values('${req.file.mimetype}','${req.file.originalname}','${req.body.libelle}',$1)`;
+    values($1,$2,$3,$4)`;
     console.log(requete)
-    return pgPool.query(requete, [req.file.buffer], (err, result) => {
+    return pgPool.query(requete, [req.file.mimetype,req.file.originalname,req.body.libelle,req.file.buffer], (err, result) => {
         if (err) {
             console.log(err.stack);
             return res.status(400).json('erreur lors de la sauvegarde du fichier');

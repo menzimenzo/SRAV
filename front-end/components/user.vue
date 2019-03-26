@@ -35,7 +35,7 @@ Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusio
               
             </div>
             <div class="mb-3 mt-3">
-              E-mail :
+              Courriel :
 
                 <b-form-input readonly
                   aria-describedby="inputFormatterHelp"

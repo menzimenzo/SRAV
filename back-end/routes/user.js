@@ -162,19 +162,26 @@ router.put('/:id', async function (req, res) {
 
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
-        SET uti_nom = '${nom}',
-        uti_prenom = '${prenom}',
-        uti_mail = '${mail}',
-        validated = ${validated},
-        pro_id = ${profil},
-        str_id = ${structure},
-        uti_structurelocale = '${structureLocale}',
-        stu_id = '${statut}'
+        SET uti_nom = $1,
+        uti_prenom = $2,
+        uti_mail = $3,
+        validated = $4,
+        pro_id = $5,
+        str_id = $6,
+        uti_structurelocale = $7,
+        stu_id = $8
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
     console.log(requete)
-    pgPool.query(requete, (err, result) => {
+    pgPool.query(requete,[nom,
+        prenom,
+        mail,
+        validated,
+        profil,
+        structure,
+        structureLocale,
+        statut], (err, result) => {
         if (err) {
             console.log(requete);
             console.log(err.stack);

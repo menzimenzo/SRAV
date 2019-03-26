@@ -102,7 +102,7 @@ export default {
         { path: 'proLibelle', title: 'Rôle', type: 'date', sortable:true},
         { path: 'nom', title: 'Nom', type: 'date', sortable:true},
         { path: 'prenom', title: 'Prénom', type: 'text', sortable:true},
-        { path: 'structureLibelleCourt', title: 'structure', type: 'text', sortable:true},
+        { path: 'structureLibelleCourt', title: 'Structure', type: 'text', sortable:true},
         { path: '__slot:actions', title: 'Actions', type: '__slot:actions', sortable:false},
      
       ],
