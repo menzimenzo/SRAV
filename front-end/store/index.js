@@ -211,7 +211,7 @@ export const actions = {
           error
         );
       });
-  },
+  }, 
   async logout({ commit }) {
     commit("set_utilisateurCourant", {})
   },

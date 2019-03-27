@@ -10,7 +10,6 @@ const attestations  = require('./routes/attestations');
 const structures    = require('./routes/structures');
 const pdf           = require('./routes/pdf');
 const user          = require('./routes/user');
-const structure     = require('./routes/structure');
 const documents     = require('./routes/documents');
 
 var config     = require('./config');
@@ -49,8 +48,6 @@ app.use('/documents', documents);
 app.use('/pdf', pdf);
 
 app.use('/user', user);
-
-app.use('/structure', structure);
 
 app.get('/', function (req, res) {
     res.send('Bienvenue sur le backend de Savoir Rouler à vélo');
