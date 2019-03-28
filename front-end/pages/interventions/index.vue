@@ -58,7 +58,7 @@
                           </editable>
                         </div>
                         <h4 class="text-center" v-if="interventions.length == 0">
-                          Aucune intervention n'a été crée pour le moment.
+                          Aucune intervention n'a été créée pour le moment.
                         </h4>
                     </b-col>
                   </b-row>
@@ -74,7 +74,7 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion3 variant="Dark link"><h4>
-                    <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >bookmarks</i>Documents
+                    <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >bookmarks</i>Documents utiles
                   </h4></b-btn>
                 </b-col>
               </b-form-row>
