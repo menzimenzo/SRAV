@@ -30,7 +30,7 @@
               </b-col>
             </b-form-row>
           </b-card-header>
-          <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
+          <b-collapse id="accordion1" accordion="my-accordion" role="tabpanel">
             <b-card-body>
               <b-btn @click="exportCsv()" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
@@ -89,11 +89,19 @@
                 :loading="loading"
               >
                 <template slot-scope="props" slot="actions">
-                  <b-btn @click="editStruct(props.data.id)" size="sm" class="mr-1" variant="primary">
+                  <b-btn
+                    @click="editStruct(props.data.str_id)"
+                    size="sm"
+                    class="mr-1"
+                    variant="primary"
+                  >
                     <i class="material-icons">edit</i>
                   </b-btn>
                 </template>
               </editable>
+              <b-btn @click="editStruct(null)" class="btn btn-primary btn-lg btn-block">
+                <i class="material-icons">add</i>
+              </b-btn>
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -282,10 +290,25 @@ export default {
       placeFilter: "",
       headersRef: [
         { path: "str_libelle", title: "Libellé", type: "text", sortable: true },
-        { path: "str_libellecourt", title: "libellé court", type: "text", sortable: true },
+        {
+          path: "str_libellecourt",
+          title: "libellé court",
+          type: "text",
+          sortable: true
+        },
         { path: "str_actif", title: "actif", type: "boolean", sortable: true },
-        { path: "str_federation", title: "federation", type: "boolean", sortable: true },
-        { path: "__slot:actions", title: "Actions", type: "__slot:actions", sortable: false }
+        {
+          path: "str_federation",
+          title: "federation",
+          type: "boolean",
+          sortable: true
+        },
+        {
+          path: "__slot:actions",
+          title: "Actions",
+          type: "__slot:actions",
+          sortable: false
+        }
       ]
     };
   },
@@ -305,17 +328,22 @@ export default {
         });
     },
     editStruct: function(id) {
-      return this.$store
-        .dispatch("get_structures", id)
-        .then(() => {
-          this.$modal.show("editStruct");
-        })
-        .catch(error => {
-          console.error(
-            "Une erreur est survenue lors de la récupération du détail de la structure",
-            error
-          );
-        });
+      if (id === null) {
+        this.$store.commit("clean_structureSelectionnee");
+        this.$modal.show("editStruct");
+      } else {
+        return this.$store
+          .dispatch("get_structure", id)
+          .then(() => {
+            this.$modal.show("editStruct");
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération du détail de la structure",
+              error
+            );
+          });
+      }
     },
     //
     // Export CSV des utilisateurs
@@ -348,10 +376,10 @@ export default {
     }
   },
   //
-  //  CHARGEMENT ASYNCHRONE DES USERS
+  //  CHARGEMENT ASYNCHRONE DES USERS, STRUCTURES ET INTERVENTIONS
   //
   computed: {
-    ...mapState(["interventions", "users","structures"]),
+    ...mapState(["interventions", "users", "structures"]),
     filteredInterventions: function() {
       return this.interventions.filter(intervention => {
         var isMatch = true;
