@@ -63,8 +63,8 @@ var loadFormStruct = function(structure) {
     JSON.stringify(
       Object.assign(
         {
-          str_libelle: null,mùùmmùmùmm
-          str_libellecourt: mùùmmùmùmm
+          str_libelle: null,
+          str_libellecourt: null,
           str_actif: "",
           str_federation: ""
         },

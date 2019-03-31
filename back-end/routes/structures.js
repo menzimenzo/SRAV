@@ -2,32 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pgPool = require('../pgpool').getPool();
 
-
-
-router.get('/structure',
-    async function (req, res) {
-        const id = req.query.id;
-        console.log('Recherche d\'une structure - id = ' + id);
-
-        const requete = `SELECT * from Structure where str_id=${id}`;
-        console.log(requete)
-
-        pgPool.query(requete, (err, result) => {
-            if (err) {
-                console.log(err.stack);
-                return res.status(400).json('erreur lors de la récupération de la structure');
-            }
-            else {
-                const structures = result.rows[0];
-                if (!structures) {
-                    return res.status(400).json({ message: 'Structure inexistante' });
-                }
-                return res.status(200).json({ structures });
-            }
-        })
-    });
-
-
+/*
 router.get('/:id', async function (req, res) {
         const id = req.params.id;
         console.log('Recherche d\'une structure - id = ' + id);
@@ -48,7 +23,7 @@ router.get('/:id', async function (req, res) {
                 return res.status(200).json({ structures });
             }
         })
-    });
+    });*/
 
 router.get('/',
 
