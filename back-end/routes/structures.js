@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pgPool = require('../pgpool').getPool();
 
-/*
+
 router.get('/:id', async function (req, res) {
         const id = req.params.id;
         console.log('Recherche d\'une structure - id = ' + id);
@@ -23,7 +23,7 @@ router.get('/:id', async function (req, res) {
                 return res.status(200).json({ structures });
             }
         })
-    });*/
+    });
 
 router.get('/',
 
