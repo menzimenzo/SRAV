@@ -22,7 +22,7 @@
                 <b-card-body>
                   <b-btn @click="exportCsv()" class="mb-2" variant="primary"><i class="material-icons" style="font-size: 18px; top: 4px;" >import_export</i> Export CSV</b-btn>
                   <editable :columns="headers" :data="users" :removable="false" :creable="false" 
-                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading"  :defaultSortField="{ key: 'nom', order: 'asc' }">
                   <template slot-scope="props" slot="actions">
                     <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
                       <i class="material-icons" >edit</i>
@@ -117,7 +117,8 @@
                   </b-form>
                 </div>
                 <editable :columns="headersCom" :data="filteredInterventions" :removable="false" :creable="false" 
-                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading" v-if="filteredInterventions.length > 0">
+                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading" 
+                  v-if="filteredInterventions.length > 0" :defaultSortField="{ key: 'id', order: 'asc' }">
                   <template slot-scope="props" slot="actions">
                     {{props.data.id}}
                     

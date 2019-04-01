@@ -160,7 +160,7 @@
                     </editing-row>
                 </tbody>
                 <tfoot class="table-footer" v-if="pagination && data.length > 5"  style="display: inline-flex;">
-                    <div style="height: 60px;"></div>
+                    <div style="height: 70px;"></div>
                     <ul class="pagination" v-if="paginationEntries < sortedData.length+1">
                         <li class="page-item"
                             :class="{disabled: selectedPage == 1}"

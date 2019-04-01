@@ -57,9 +57,9 @@
         </td>
         <td class="actions text-center"
             aria-label="Actions"
-            data-title="Actions">
-            <div class="btn-group" role="group"
-                v-if="creable || editable || removable">
+            data-title="Actions"
+            v-if="creable || editable || removable">
+            <div class="btn-group" role="group">
                 <a class="btn-editer btn-rounded btn-shadow"
                     v-if="editable && isFieldsEditable"
                     role="button"

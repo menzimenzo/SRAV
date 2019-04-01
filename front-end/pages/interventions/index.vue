@@ -44,7 +44,8 @@
                         <div v-if="interventions.length > 0">
                           <b-btn @click="exportCsv()" class="mb-2" variant="primary"><i class="material-icons" style="font-size: 18px; top: 4px;" >import_export</i> Export CSV</b-btn>
                           <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
-                            :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                            :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading"
+                            :defaultSortField="{ key: 'id', order: 'asc' }">
                             <template slot-scope="props" slot="actions">
                               <div style="min-width: 100px;">
                                 <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
