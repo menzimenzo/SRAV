@@ -2,7 +2,7 @@ const {smtpSettings, serverSettings} = require('./config')
 const {initDI} = require('./di')
 const models = require('../models')
 
-const requiredEnv = ['API_MANAGER_URL', 'APP_URL']
+const requiredEnv = [] //'API_MANAGER_URL', 'APP_URL']
 const unsetEnv = requiredEnv.filter((env) => !(typeof process.env[env] !== 'undefined'))
 
 if (unsetEnv.length > 0) {
