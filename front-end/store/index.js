@@ -7,6 +7,7 @@ export const state = () => ({
   utilisateurSelectionne: [],
   users                 : [],
   structures            : [],
+  structureSelectionnee : [],
   documents             : []
 
 });
@@ -63,6 +64,21 @@ export const mutations = {
   },
   set_structures(state, structures){
     state.structures = structures
+  },
+  set_structureSelectionnee(state, structure) {
+    console.info("set_structureSelectionne BEGIN");
+    state.structureSelectionnee = structure;
+  },
+  put_structure(state, {structure, index}){
+    Vue.set(state.structures, index, structure)
+  },
+  add_structure(state, structure) {
+    console.info("add_structure", { structure: JSON.stringify(structure) });
+    state.structures.push(structure);
+  },
+  clean_structureSelectionnee(state) {
+    console.log("CLEANING structure sélectionnée")
+    state.structureSelectionnee = null;
   },
   set_documents(state, documents){
     state.documents = documents
@@ -211,7 +227,7 @@ export const actions = {
           error
         );
       });
-  },
+  }, 
   async logout({ commit }) {
     commit("set_utilisateurCourant", {})
   },
@@ -223,6 +239,60 @@ export const actions = {
       console.log(err)
     })
   },
+  async get_structure({ commit,state }, idStructure) {
+    console.info("get_structure :" + idStructure);
+    const url = process.env.API_URL + "/structures/" + idStructure;
+    console.info('url:' + url)
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        commit("set_structureSelectionnee", response.structures);
+        console.info("fetched structure - done", {
+          structureSelectionnee: response.structures
+        });
+      })
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération de la structure",
+          error
+        );
+      });
+  },
+  async put_structure({ commit, state }, structureSelectionnee) {
+    const url = process.env.API_URL + "/structures/" + structureSelectionnee.str_id;
+    console.info('url put:' + url)
+    var structureIndex = state.structures.findIndex(structure=> {
+      return structure.id == structureSelectionnee.id
+    })
+    return await this.$axios
+      .$put(url, { structureSelectionnee })
+      .then(async res => {
+        const url = process.env.API_URL + "/structures/" + res.structures.str_id;
+        console.info('url put 2 :' + url)
+        return this.$axios
+          .$get(url)
+          .then(response => {
+            commit("put_user", {structure: response.structure, index: structureIndex});
+          })
+      })
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la mise à jour de l'utilisateur",
+          error
+        );
+      });
+  }, 
+
+  async post_structure({ commit, state }, structure) {
+    const url  = process.env.API_URL + "/structures";
+          
+    return await this.$axios.$post(url, { structure }).then(({ structure }) => {
+      console.info('post_structure', { structure });
+      commit('add_structure', structure)
+      return structure
+    });
+  },
+
   async get_documents({commit}) {
     const url = process.env.API_URL + '/documents'
     return this.$axios.get(url).then(response => {
