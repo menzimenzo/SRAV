@@ -1,20 +1,20 @@
 <template>
   <div>
     <b-card class="mb-3">
-      <b-form-group label="Prénom:">
+      <b-form-group label="Prénom :">
         <b-form-input type="text" v-model="user.prenom" disabled/>
       </b-form-group>
-      <b-form-group label="Nom:">
+      <b-form-group label="Nom :">
         <b-form-input type="text" v-model="user.nom" disabled/>
       </b-form-group>
 
-      <b-form-group label="Date de naissance:">
+      <b-form-group label="Date de naissance :">
         <b-form-input type="date" v-model="user.dateNaissance" disabled/>
       </b-form-group>
     </b-card>
     <b-card class="mb-3">
       <b-form>
-        <b-form-group id="emailInputGroup" label="Courriel:" label-for="emailInput" required>
+        <b-form-group id="emailInputGroup" label="Courriel :" label-for="emailInput" required>
           <b-form-input
             id="emailInput"
             type="email"
@@ -33,7 +33,7 @@
         <b-form-group
           required
           id="structNationaleGroup"
-          label="Structure nationale:"
+          label="Structure nationale :"
           label-for="structNatSelect"
         >
           <b-form-select
@@ -56,7 +56,7 @@
 
         <b-form-group
           id="structLocaleGroup"
-          label="Structure Locale:"
+          label="Structure locale :"
           required
           v-if="isFederation(user.structureId)"
           label-for="structLocaleInput"
@@ -105,7 +105,7 @@
           <b-button
             @click="submit"
             variant="success"
-            :disabled="errors.any()"
+            :disabled="errors.any() || isLegalChecked == 'false'"
           >{{submitTxt}}</b-button>
         </div>
       </b-form>

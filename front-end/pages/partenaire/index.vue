@@ -21,7 +21,7 @@
             <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
                 <b-card-body>
                   <b-btn @click="exportCsv()" class="mb-2" variant="primary"><i class="material-icons" style="font-size: 18px; top: 4px;" >import_export</i> Export CSV</b-btn>
-                  <editable :columns="headers" :data="users" :removable="false" :creable="false" 
+                  <editable :columns="headers" :data="users" :removable="false" :creable="false" :defaultSortField="{ key: 'nom', order: 'asc' }" 
                   :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
                   <template slot-scope="props" slot="actions">
                     <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
@@ -71,7 +71,8 @@
             <b-collapse id="accordion5" accordion="my-accordion" role="tabpanel">
               <b-card-body>
                   <editable :columns="headersCom" :data="interventions" :removable="false" :creable="false" 
-                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                  :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading"
+                  :defaultSortField="{ key: 'id', order: 'asc' }">
                 </editable>   
               </b-card-body>
             </b-collapse>

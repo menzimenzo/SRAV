@@ -159,8 +159,9 @@
                         </template>
                     </editing-row>
                 </tbody>
-                <tfoot class="table-footer" v-if="pagination && data.length > 5">
-                    <ul class="pagination">
+                <tfoot class="table-footer" v-if="pagination && data.length > 5"  style="display: inline-flex;">
+                    <div style="height: 70px;"></div>
+                    <ul class="pagination" v-if="paginationEntries < sortedData.length+1">
                         <li class="page-item"
                             :class="{disabled: selectedPage == 1}"
                         >
@@ -203,10 +204,10 @@
                             class="form-control"
                             v-model="paginationEntries"
                             @change="setPaginationData(1)">
-                            <option selected value="6">5</option>
-                            <option value="11">10</option>
-                            <option value="26">25</option>
-                            <option value="51">50</option>
+                            <option selected value="5">5</option>
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
                             <option :value="sortedData.length+1">Tout</option>
                         </select>
                     </div>
@@ -338,27 +339,18 @@ export default {
             return sortedData
         },
         paginationNumbers() {
-            if(!this.sortField) {
-                const n = Math.trunc(this.data.length/(this.paginationEntries-1))
-                if (n === 0) {
-                    return 1
-                }
-                return n+1
-            }
-            const n = Math.trunc(this.data.length/(this.paginationEntries-1))
-                if (n === 0) {
-                    return 1
-                }
-            return n+1
+            return this.data.length === 0 ? 1 : Math.trunc((this.data.length - 1) / (this.paginationEntries)) + 1
         },
         paginationData() {
-            const begin = this.paginationEntries * (this.selectedPage - 1)  
-            var end = (this.paginationEntries * this.selectedPage) - 1
-            const splitCorrection = this.selectedPage - 1
-            if( end > this.sortedData.length ) {
-                return this.sortedData.slice(begin === 0 ? 0 : begin-splitCorrection )
+            if (this.paginationEntries === -1) {
+                return this.sortedData
             }
-            return this.sortedData.slice( begin !== 0 ? begin-splitCorrection  : 0 , begin !== 0 ? end-splitCorrection  : end )
+            const begin = this.paginationEntries * (this.selectedPage - 1)
+            const end = begin + this.paginationEntries
+            if( end > this.sortedData.length ) {
+                return this.sortedData.slice(begin)
+            }
+            return this.sortedData.slice( begin, end )
         }
 
     },
@@ -368,7 +360,7 @@ export default {
             editingIndex: null,
             newItem: null,
             selectedPage: 1,
-            paginationEntries: 6
+            paginationEntries: 5
         }
     },
     methods: {

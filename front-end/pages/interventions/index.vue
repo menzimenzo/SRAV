@@ -44,7 +44,8 @@
                         <div v-if="interventions.length > 0">
                           <b-btn @click="exportCsv()" class="mb-2" variant="primary"><i class="material-icons" style="font-size: 18px; top: 4px;" >import_export</i> Export CSV</b-btn>
                           <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
-                            :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading">
+                            :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading"
+                            :defaultSortField="{ key: 'id', order: 'asc' }">
                             <template slot-scope="props" slot="actions">
                               <div style="min-width: 100px;">
                                 <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
@@ -58,7 +59,7 @@
                           </editable>
                         </div>
                         <h4 class="text-center" v-if="interventions.length == 0">
-                          Aucune intervention n'a été crée pour le moment.
+                          Aucune intervention n'a été créée pour le moment.
                         </h4>
                     </b-col>
                   </b-row>
@@ -74,7 +75,7 @@
                   <!-- IMAGE RAYEE BANNER INTERVENTION -->
                   <b-img  :src="require('assets/banner_ray_yellow.png')" blank-color="rgba(0,0,0,1)" />
                   <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion3 variant="Dark link"><h4>
-                    <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >bookmarks</i>Documents
+                    <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >bookmarks</i>Documents utiles
                   </h4></b-btn>
                 </b-col>
               </b-form-row>

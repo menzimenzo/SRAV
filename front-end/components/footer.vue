@@ -4,7 +4,7 @@
       <b-row>
           <b-col cols="12 text-center">
 
-              Savoir Rouler A Vélo - Version 1.0.0 Beta
+              Savoir Rouler A Vélo - Version 1.0.1 Beta
           </b-col>
 
       </b-row>
