@@ -11,8 +11,8 @@
       <!-- PREMIER BLOC DE SAISIE INTERVENTION -->
       <b-col cols="6" style="border-right: 1px solid #252195;">
         <div class="bv-example-row">
-          <p>
-            Renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun.
+          <p class="text-danger">
+            Renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun.<br>
             Seule la réalisation du bloc 3 permet l'impression de l'attestation.
           </p>
         </div>Type de bloc * :
