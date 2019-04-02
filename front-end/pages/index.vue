@@ -3,12 +3,20 @@
     <div>
       <!--<app-logo/>-->
       
-      <img  
+      <!--img  
         border="0" 
         style="max-width: 20rem; cursor: pointer;"
         alt="Logo Savoir rouler à vélo / Connexion France Connect"
         src="~assets/LogoSavoirRoulerAVelo.png"
-        v-on:click="connexionutilisateur">
+        v-on:click="connexionutilisateur"-->
+        <!--img  
+        border="0" 
+        style="max-width: 20rem; cursor: pointer;"
+        alt="Logo Savoir rouler à vélo / Connexion France Connect"
+        src="~assets/LogoSavoirRoulerAVelo.png"
+        v-on:click="connexionutilisateur"-->
+
+      <p class="text-primary" style="font-size: 1.5em;"><br>Je suis Intervenant Savoir Rouler à Vélo, <br>je m’identifie et renseigne mes interventions</p>
       <div class="mb-3 mt-1">
       <a @click="connexionutilisateur()" class="fcBtn"><br>
         <img border="0" alt="Connexion France Connect" src="~assets/FCboutons-10.png">
