@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const config = require('../config');
 
-function generate(id,nbenfants) {
+function generate(id,nbenfants,dateintervention) {
    var nbzero;
    var idformate = "";
    idformate = id.toString();
@@ -31,7 +31,8 @@ function generate(id,nbenfants) {
         });
         var numattestation = "";
         var nbzero;
-
+        var dateaffichee = ""
+       
         // Formatage du numéro correspondant à chaque page
         var indexpageformate = indexpage.toString();
         for (nbzero=0;nbzero<4-indexpage.toString().length;nbzero++){
@@ -39,8 +40,11 @@ function generate(id,nbenfants) {
         }
         // Formatage final du numéro d'intervention
         numattestation = idformate + indexpageformate;
+        // Formatage de la date
+        dateaffichee = dateintervention.substr(8,2)+"/"+dateintervention.substr(5,2)+"/"+dateintervention.substr(0,4);
         doc.fontSize(14);
-        doc.text(numattestation,390,390,{align:'center'});
+        doc.text(numattestation,592,358,{align:'center'});
+        doc.text(dateaffichee,410,430,{align:'center'});
         // dernière page ? pour ne pas ajouter de page vide
         if (indexpage <= nbenfants-1) {
             doc.addPage();

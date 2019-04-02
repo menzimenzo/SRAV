@@ -13,7 +13,7 @@
         <div class="bv-example-row">
           <p>
             Renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun.
-            Seule la réalisation du bloc 3 permet l'impression de l'attestation.gfd
+            Seule la réalisation du bloc 3 permet l'impression de l'attestation.
           </p>
         </div>Type de bloc * :
         <span class="liste-deroulante">
@@ -276,7 +276,7 @@ export default {
         for (nbzero=0;nbzero<7-id.toString().length;nbzero++){
             idformate = "0" + idformate;
         }
-        idformate = "SRAV_Attestion-" + idformate;  
+        idformate = "SRAV_Attestation-" + idformate;  
         console.log("intervention : " + idformate);      
         link.setAttribute("download", `${idformate}.pdf`); //or any other extension
         document.body.appendChild(link);
