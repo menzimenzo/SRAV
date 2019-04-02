@@ -239,7 +239,7 @@ router.put('/:id', async function (req, res) {
             
             // generation du pdf (synchrone)
             if (blocId == 3 ) {
-              myPdf.generate(id,nbEnfants)  
+                myPdf.generate(id,nbEnfants, dateIntervention)  
             }
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
 
@@ -283,7 +283,7 @@ router.post('/', function (req, res) {
 
             // generation du pdf (synchrone)
             if (blocId == 3) {
-              myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants)
+              myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants,dateIntervention);
             }
             
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
