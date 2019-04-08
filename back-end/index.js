@@ -46,23 +46,23 @@ app.use(session({
 
 app.locals.FCUrl = config.franceConnect.fcURL
 // Route vers la page de connexion
-app.use('/connexion', connexion);
+app.use('/api/connexion', connexion);
 
-app.use('/interventions', interventions);
+app.use('/api/interventions', interventions);
 
-app.use('/listecommune', listecommune);
+app.use('/api/listecommune', listecommune);
 
-app.use('/attestations', attestations);
+app.use('/api/attestations', attestations);
 
-app.use('/structures', structures);
+app.use('/api/structures', structures);
 
-app.use('/documents', documents);
+app.use('/api/documents', documents);
 
-app.use('/pdf', pdf);
+app.use('/api/pdf', pdf);
 
-app.use('/user', user);
+app.use('/api/user', user);
 
-app.get('/', function (req, res) {
+app.get('/api', function (req, res) {
     res.send('Bienvenue sur le backend de Savoir Rouler à vélo');
 });
 

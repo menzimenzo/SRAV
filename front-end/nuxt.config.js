@@ -68,9 +68,9 @@ module.exports = {
   ],
   env: {
     // Utilisé côté client, url publique
-    API_URL: process.env.API_URL || 'http://localhost/backend',
+    API_URL: process.env.API_URL || 'http://localhost/backend/api',
     // Utilisé par le serveur Nuxt, url locale ou publique
-    API_SERVER_URL: process.env.API_SERVER_URL || 'http://proxy/backend'
+    API_SERVER_URL: process.env.API_SERVER_URL || 'http://proxy/backend/api'
 
   },
   plugins: [

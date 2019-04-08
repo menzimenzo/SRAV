@@ -26,9 +26,9 @@ spec:
         - name: PORT
           value: "3000"
         - name: API_URL
-          value: "http://srav-back.app.synaltic.eu"
+          value: "http://srav-back.app.synaltic.eu/api"
         - name: API_SERVER_URL
-          value: "http://srav-back.app.synaltic.eu"
+          value: "http://srav-back.app.synaltic.eu/api"
         image: docker.app.synaltic.eu/savoirrouler/front-end
         ports:
         - containerPort: 3000
