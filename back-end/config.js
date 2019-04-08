@@ -43,8 +43,10 @@ module.exports = {
     "LOGOUT_FC_PATH": process.env.LOGOUT_FC_PATH || "/api/v1/logout",
 
     "SCOPES": "openid profile birth",
-    "state": "myTestServiceState",
-    "nonce": "timestamp123"
+
+    // Random values for security purpose
+    "state": "02XZ4MjSE0OAZ3JS",
+    "nonce": new Date().toISOString()
     
   }
 }

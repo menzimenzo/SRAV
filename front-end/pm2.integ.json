@@ -1,0 +1,19 @@
+{
+    "apps": [
+        {
+            "name":"srav-front",
+            "script":"./node_modules/nuxt/bin/nuxt-start",
+            "cwd":"/opt/srav/front/",
+            "instances":2,
+            "exec_mode":"cluster",
+            "out_file":        "/var/log/srav-front.log",
+            "error_file":      "/var/log/srav-front.log",
+            "log_date_format": "YYYY-MM-DD HH:mm:ss",
+            "merge_logs":      true,
+            "env": {
+                "API_URL": "http://mtsfp-vm-dsb5-srv-integ.accelance.net/api",
+                "API_SERVER_URL": "http://mtsfp-vm-dsb5-srv-integ.accelance.net/api"
+            }
+        }
+    ]
+}
