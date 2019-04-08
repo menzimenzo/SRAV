@@ -130,7 +130,7 @@
           </b-card-header>
           <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
             <b-card-body>
-              <h3 class="text-center">Disponible en V2</h3>
+              <graph/>
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -235,17 +235,20 @@ import Editable from "~/components/editable/index.vue";
 import user from "~/components/user.vue";
 import fileUpload from "~/components/fileUpload.vue";
 import struct from "~/components/struct.vue";
+import graph from "~/components/chart.vue";
 
 export default {
   components: {
     Editable,
     user,
     fileUpload,
-    struct
+    struct,
+    graph
   },
   data() {
     return {
       loading: true,
+      chartdata: null,
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
         { path: "proLibelle", title: "Rôle", type: "text", sortable: true },
@@ -402,7 +405,7 @@ export default {
     }
   },
   async mounted() {
-    const url = process.env.API_URL + "/user";
+  
     await Promise.all([
       this.$store.dispatch("get_users").catch(error => {
         console.error(
@@ -416,8 +419,11 @@ export default {
           error
         );
       }),
-      this.$store.dispatch("get_interventions")
+      this.$store.dispatch("get_interventions"), 
+
     ]);
+    
+
     this.loading = false;
   }
 };

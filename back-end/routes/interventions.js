@@ -152,7 +152,7 @@ router.get('/', async function (req, res) {
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
     // Utilisateur Administrateur : Exclusion des interventions sans commentaires
     } else if(user.pro_id == 1){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id WHERE int_commentaire is not null and int_commentaire <> ''`
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id`
     }
 
     const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
