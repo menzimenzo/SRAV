@@ -159,6 +159,7 @@ export default {
         return this.$axios
           .$get(url)
           .then(response => {
+            this.$store.dispatch('get_interventions')
               this.resetform();
               this.clearIntervention();
             this.$toast.success(`Intervention #${idIntervention} a bien été supprimée`, {
