@@ -1,0 +1,49 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (a74acad)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: mail-server
+  name: mail-server
+  namespace: srav
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: mail-server
+    spec:
+      containers:
+      - env:
+        - name: API_MANAGER_URL
+          value: http://nginx/api-manager
+        - name: APP_URL
+          value: http://mail-server:3000
+        - name: DEBUG
+          value: mail-server:info:*
+        - name: PORT
+          value: "3000"
+        - name: PROXY_USER
+          value: rverdier@synaltic.fr
+        - name: SMTP_HOST
+          value: smtp.gmail.com
+        - name: SMTP_PASSWORD
+          value: PGctP9Fs4E959Goc
+        - name: SMTP_PORT
+          value: "587"
+        - name: SMTP_USER
+          value: smtp.synaltic@gmail.com
+        image: docker.app.synaltic.eu/common/dev/mail-server:v1.1.1
+        name: mail-server
+        resources: {}
+        tty: true
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+status: {}

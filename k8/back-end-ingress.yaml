@@ -1,0 +1,19 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: back-end
+  namespace: srav
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: 2000m
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  # CHANGE ME
+  - host: srav-back.app.synaltic.eu
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: back-service
+          servicePort: 80
+  

@@ -105,7 +105,7 @@
           <b-button
             @click="submit"
             variant="success"
-            :disabled="errors.any() || isLegalChecked == 'false'"
+            :disabled="errors.any() || (isLegalChecked == 'false' && !user.validated)"
           >{{submitTxt}}</b-button>
         </div>
       </b-form>

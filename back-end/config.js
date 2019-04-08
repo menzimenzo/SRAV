@@ -24,6 +24,7 @@ module.exports = {
   pathAttestation: process.env.PATH_PDF_ATTESTATION || "../../tmp/",
   MAIL_URL: process.env.MAIL_URL,
   SENDER_EMAIL: process.env.SENDER_EMAIL || 'nepasrepondresrav@sports.gouv.fr',
+  FRONT_DOMAIN: process.env.FRONT_DOMAIN || 'localhost', 
   // FRANCE CONNECT
   franceConnect: {
     "FC_URL": process.env.FC_URL || "https://fcp.integ01.dev-franceconnect.fr",

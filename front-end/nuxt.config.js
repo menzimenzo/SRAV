@@ -59,6 +59,8 @@ module.exports = {
         }
     ]
   }, axios: {
+    credentials: true,
+    crossDomain: true
     // proxyHeaders: false
   },
   css: ['~/node_modules/vue-js-modal/dist/styles.css',

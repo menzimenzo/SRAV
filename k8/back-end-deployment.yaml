@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (a74acad)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: back-end
+  name: back-end
+  namespace: srav
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: back-end
+    spec:
+      containers:
+      - env:
+        - name: DEBUG
+          value: express-session
+        - name: MAIL_URL
+          value: http://mail-server:3000
+        - name: FS_URL
+          value: http://srav-front.app.synaltic.eu
+        - name: FRONT_DOMAIN
+          value: .app.synaltic.eu
+        image: docker.app.synaltic.eu/savoirrouler/back-end
+        name: back-end
+        resources: {}
+        tty: true
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+
+
+status: {}

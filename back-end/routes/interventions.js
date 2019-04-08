@@ -161,9 +161,8 @@ router.get('/:id', async function (req, res) {
 });
 
 router.get('/', async function (req, res) {
-
-    if(!req.session.user){
-        return res.sendStatus(403)
+    if(!req.session.user){ 
+        return res.sendStatus(403) 
     }
 
     const user = req.session.user

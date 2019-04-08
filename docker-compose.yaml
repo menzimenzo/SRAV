@@ -18,6 +18,7 @@ services:
       - pg
     environment:
       - MAIL_URL=http://mail-server:3000
+      - DEBUG=express-session
   mail-server:
     build: ./mail-server
     restart: always
