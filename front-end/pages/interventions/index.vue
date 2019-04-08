@@ -19,7 +19,7 @@
                 </b-col>
               </b-form-row>
             </b-card-header>
-            <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
+            <b-collapse id="accordion1"  accordion="my-accordion" role="tabpanel">
                 <Intervention :intervention="interventionCourrante"/>
             </b-collapse>
           </b-card>
@@ -47,12 +47,15 @@
                             :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading"
                             :defaultSortField="{ key: 'dateIntervention', order: 'desc' }">
                             <template slot-scope="props" slot="actions">
-                              <div style="min-width: 100px;">
-                                <b-btn @click="editIntervention(props.data.id)" size="sm" class="mr-1" variant="primary">
-                                  <i class="material-icons" >edit</i>
+                              <div style="min-width: 147px;">
+                                <b-btn @click="editIntervention(props.data.id)" size="sm" class="ml-1" variant="primary" v-b-popover.hover="`Modifier l'intervention`">
+                                  <i class="material-icons">edit</i>
                                 </b-btn>
-                                <b-btn @click="downloadPdf(props.data.id)" v-if="props.data.blocId == '3'" size="sm" class="ml-1" variant="primary">
-                                  <i class="material-icons" >cloud_download</i>
+                                <b-btn @click="downloadPdf(props.data.id)" v-if="props.data.blocId == '3'" size="sm" class="ml-1" variant="primary" v-b-popover.hover="`Télécharger l'attestation`">
+                                  <i class="material-icons">cloud_download</i>
+                                </b-btn>
+                                <b-btn @click="deleteIntervention(props.data.id)" size="sm" class="ml-1" variant="danger" v-b-popover.hover="`Supprimer l'intervention`">
+                                  <i class="material-icons">delete_forever</i>
                                 </b-btn>
                               </div>
                             </template>
@@ -144,6 +147,32 @@ export default {
         .catch(error => {
           console.error('Une erreur est survenue lors de la récupération du détail de l\'intervention', error)
         })
+    },
+    deleteIntervention: function (idIntervention) {
+      console.info("Suppression d'une intervention : " + idIntervention);
+      //this.$dialog.confirm({ text: 'Confirmez-vous la suppression définitive d\'intervention', title: 'Suppression'});
+      if ( confirm( "Confirmez-vous la suppression définitive d'intervention" ) ) {
+        const url =
+          process.env.API_URL +
+          "/interventions/delete/" + idIntervention;
+        console.info(url);
+        return this.$axios
+          .$get(url)
+          .then(response => {
+              this.resetform();
+              this.clearIntervention();
+            this.$toast.success(`Intervention #${idIntervention} a bien été supprimée`, {
+
+            });
+
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la suppresion de l'intervention",
+              error
+            );
+          });
+      }       
     },
     downloadPdf: function(id) {
       this.$axios({
