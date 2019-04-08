@@ -6,13 +6,6 @@
         </b-col>
       </b-row>
       <b-row>
-          <div class="bv-example-row">
-            <p>Il convient de renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun du SRAV. 
-Au niveau du bloc 3 seulement, l’attestation SRAV est imprimable pour diffusion aux enfants ayant réalisé les 3 blocs du SRAV.
-</p>
-          </div>
-      </b-row>
-      <b-row>
           <b-col style="border-right: 1px solid #252195;"> 
             <div class="mb-3 mt-3">
               Nom :

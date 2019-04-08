@@ -51,6 +51,33 @@ const formatIntervention = intervention => {
     return result
 }
 
+
+router.get('/delete/:id', async function (req, res) {
+    const intervention = req.body.intervention;
+
+    const id = req.params.id;
+
+    //insert dans la table intervention
+    const requete = `DELETE FROM  intervention 
+        WHERE int_id = $1
+        RETURNING *
+        ;`;
+    
+    pgPool.query(requete, [id], (err, result) => {
+        if (err) {
+            console.log(requete);
+            console.log(err.stack);
+            return res.status(400).json('erreur lors de la suppression de l\'intervention ' + id);
+        }
+        else {
+            
+            // Suppression effectuée avec succès
+            return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
+
+        }
+    })
+})
+
 router.get('/csv/:utilisateurId', async function (req, res) {
 
     const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
