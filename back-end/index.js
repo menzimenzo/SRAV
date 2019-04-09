@@ -1,22 +1,18 @@
 const express = require('express');
-const app = express();
-const session = require('express-session');
-var cors = require('cors')
-const sessionstore = require('sessionstore');
-const connexion = require('./routes/connexion');
-const interventions = require('./routes/interventions');
-const listecommune = require('./routes/listecommune');
-const attestations = require('./routes/attestations');
-const structures = require('./routes/structures');
-const pdf = require('./routes/pdf');
-const user = require('./routes/user');
-const documents = require('./routes/documents');
+const app     = express();
+var   cors    = require('cors')
 
-var config = require('./config');
+
+const session   = require('express-session');
+const pgSession = require('connect-pg-simple')(session)
+const pgPool    = require('./pgpool').getPool();
+
+var config     = require('./config');
+app.locals.FCUrl = config.franceConnect.fcURL
 var bodyParser = require('body-parser');
 app.use(cors({
     credentials: true,
-    origin: config.franceConnect.FS_URL
+    origin     : config.franceConnect.FS_URL
 }))
 
 app.use(bodyParser.json());
@@ -31,9 +27,13 @@ app.use(bodyParser.urlencoded({
  * @see {@link https://github.com/expressjs/session/blob/master/README.md#compatible-session-stores}
  */
 app.use(session({
-    store : sessionstore.createSessionStore(),
+    store : new pgSession({
+        pool     : pgPool,          // Connection pool
+        tableName: 'user_sessions'  // Use another table-name than the default "session" one
+    }),
     secret: config.sessionSecret,
     cookie: {
+        // Session est valide 2 jours
         maxAge  : 2 * 24 * 60 * 60 * 1000,
         domain  : config.FRONT_DOMAIN,
         secure  : false,
@@ -44,7 +44,15 @@ app.use(session({
     proxy            : true
 }));
 
-app.locals.FCUrl = config.franceConnect.fcURL
+const connexion     = require('./routes/connexion');
+const interventions = require('./routes/interventions');
+const listecommune  = require('./routes/listecommune');
+const attestations  = require('./routes/attestations');
+const structures    = require('./routes/structures');
+const pdf           = require('./routes/pdf');
+const user          = require('./routes/user');
+const documents     = require('./routes/documents');
+
 // Route vers la page de connexion
 app.use('/api/connexion', connexion);
 
