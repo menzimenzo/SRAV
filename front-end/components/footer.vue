@@ -1,5 +1,5 @@
 <template>
-<div  class="appLabel mb-3 mt-5">
+<div  class="appLabel mb-2 mt-5 ">
     <b-container>
       <b-row>
           <b-col cols="12 text-center">
@@ -27,5 +27,10 @@
   border-bottom: 2px solid #aaa;
   padding: 15px 0px;
 
+}
+
+.material-icons{
+  position: relative;
+  top: 6px;
 }
 </style>
