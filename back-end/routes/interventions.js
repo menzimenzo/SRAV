@@ -51,6 +51,33 @@ const formatIntervention = intervention => {
     return result
 }
 
+
+router.get('/delete/:id', async function (req, res) {
+    const intervention = req.body.intervention;
+
+    const id = req.params.id;
+
+    //insert dans la table intervention
+    const requete = `DELETE FROM  intervention 
+        WHERE int_id = $1
+        RETURNING *
+        ;`;
+    
+    pgPool.query(requete, [id], (err, result) => {
+        if (err) {
+            console.log(requete);
+            console.log(err.stack);
+            return res.status(400).json('erreur lors de la suppression de l\'intervention ' + id);
+        }
+        else {
+            
+            // Suppression effectuée avec succès
+            return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
+
+        }
+    })
+})
+
 router.get('/csv/:utilisateurId', async function (req, res) {
 
     const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
@@ -134,9 +161,8 @@ router.get('/:id', async function (req, res) {
 });
 
 router.get('/', async function (req, res) {
-
-    if(!req.session.user){
-        return res.sendStatus(403)
+    if(!req.session.user){ 
+        return res.sendStatus(403) 
     }
 
     const user = req.session.user
@@ -146,7 +172,7 @@ router.get('/', async function (req, res) {
     var whereClause = ""
     // Utilisateur est partenaire => intervention de la structure
     if(user.pro_id == 2){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id}`
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id} and int_commentaire is not null and int_commentaire <> ''`
     // Utilisateur est intervenant => ses interventions
     } else if(user.pro_id == 3){
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `

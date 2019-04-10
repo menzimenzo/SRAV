@@ -1,0 +1,35 @@
+{
+    "apps": [
+        {
+            "name":"srav-back",
+            "script":"/data/services/web/srv-integ/back-end/index.js",
+            "cwd":"/data/services/web/srv-integ/back-end/",
+            "instances":1,
+            "exec_mode":"cluster",
+            "out_file":        "/data/log/pm2/srav-back.log",
+            "error_file":      "/data/log/pm2/srav-back.log",
+            "log_date_format": "YYYY-MM-DD HH:mm:ss",
+            "merge_logs":      true,
+            "env": {
+                "POSTGRES_URL" : "u_srv_integ",
+                "POSTGRES_HOST" : "127.0.0.1",
+                "POSTGRES_DB" : "srv_integ",
+                "POSTGRES_PWD" :"FUaxlxPRfpjMNI5C",
+                "POSTGRES_PORT" :5432,
+
+                "PATH_PDF_ATTESTATION" : "/data/services/web/srv-integ/pdf/",
+                "MAIL_URL": "http://localhost:3002",
+                "SENDER_EMAIL": "nepasrepondresrav@sports.gouv.fr",
+                "FRONT_DOMAIN": ".accelance.net", 
+
+                "FC_URL": "https://fcp.integ01.dev-franceconnect.fr",
+                "FS_URL": "https://mtsfp-vm-dsb5-srv-integ.accelance.net",
+            
+                "CLIENT_ID": "14a5bbbc66fd6ea4a525e5faadb38afec6bd07375d12dba2a42ffb7cab9ef49d",
+                "CLIENT_SECRET": "9154ebbc9f9243cc34899ee7fecbf17f55a4d8208f51f0317df414586b010132",
+
+                "NODE_ENV": "production"
+            }
+        }
+    ]
+}

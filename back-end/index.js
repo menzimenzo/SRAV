@@ -1,7 +1,48 @@
-const express       = require('express');
-const app           = express();
-const session       = require('express-session');
-const sessionstore  = require('sessionstore');
+const express = require('express');
+const app     = express();
+var   cors    = require('cors')
+
+
+const session   = require('express-session');
+const pgSession = require('connect-pg-simple')(session)
+const pgPool    = require('./pgpool').getPool();
+
+var config     = require('./config');
+app.locals.FCUrl = config.franceConnect.fcURL
+var bodyParser = require('body-parser');
+app.use(cors({
+    credentials: true,
+    origin     : config.franceConnect.FS_URL
+}))
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+
+/**
+ * Session config
+ * About the warning on connect.session()
+ * @see {@link https://github.com/expressjs/session/issues/556}
+ * @see {@link https://github.com/expressjs/session/blob/master/README.md#compatible-session-stores}
+ */
+app.use(session({
+    store : new pgSession({
+        pool     : pgPool,          // Connection pool
+        tableName: 'user_sessions'  // Use another table-name than the default "session" one
+    }),
+    secret: config.sessionSecret,
+    cookie: {
+        // Session est valide 2 jours
+        maxAge  : 2 * 24 * 60 * 60 * 1000,
+        domain  : config.FRONT_DOMAIN,
+        secure  : false,
+        httpOnly: false
+    },
+    saveUninitialized: false,
+    resave           : true,
+    proxy            : true
+}));
 
 const connexion     = require('./routes/connexion');
 const interventions = require('./routes/interventions');
@@ -11,48 +52,25 @@ const structures    = require('./routes/structures');
 const pdf           = require('./routes/pdf');
 const user          = require('./routes/user');
 const documents     = require('./routes/documents');
-const inter     = require('./routes/inter');
 
-var config     = require('./config');
-var bodyParser = require('body-parser');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-
-/**
- * Session config
- * About the warning on connect.session()
- * @see {@link https://github.com/expressjs/session/issues/556}
- * @see {@link https://github.com/expressjs/session/blob/master/README.md#compatible-session-stores}
- */
-app.use(session({
-    store            : sessionstore.createSessionStore(),
-    secret           : config.sessionSecret,
-    cookie           : {},
-    saveUninitialized: true,
-    resave           : true,
-}));
-
-app.locals.FCUrl = config.franceConnect.fcURL
 // Route vers la page de connexion
-app.use('/connexion', connexion);
+app.use('/api/connexion', connexion);
 
-app.use('/interventions', interventions);
+app.use('/api/interventions', interventions);
 
-app.use('/listecommune', listecommune);
+app.use('/api/listecommune', listecommune);
 
-app.use('/attestations', attestations);
+app.use('/api/attestations', attestations);
 
-app.use('/structures', structures);
+app.use('/api/structures', structures);
 
-app.use('/documents', documents);
+app.use('/api/documents', documents);
 
-app.use('/pdf', pdf);
+app.use('/api/pdf', pdf);
 
-app.use('/user', user);
+app.use('/api/user', user);
 
-app.use('/inter', inter);
-
-app.get('/', function (req, res) {
+app.get('/api', function (req, res) {
     res.send('Bienvenue sur le backend de Savoir Rouler à vélo');
 });
 

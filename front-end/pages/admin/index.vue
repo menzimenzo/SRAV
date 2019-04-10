@@ -44,6 +44,7 @@
                 :noDataLabel="''"
                 tableMaxHeight="none"
                 :loading="loading"
+                :defaultSortField="{ key: 'nom', order: 'asc' }"
               >
                 <template slot-scope="props" slot="actions">
                   <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
@@ -211,6 +212,7 @@
                 tableMaxHeight="none"
                 :loading="loading"
                 v-if="filteredInterventions.length > 0"
+                :defaultSortField="{ key: 'id', order: 'asc' }"
               >
                 <template slot-scope="props" slot="actions">{{props.data.id}}</template>
               </editable>

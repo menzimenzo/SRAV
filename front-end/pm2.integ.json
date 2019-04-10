@@ -1,0 +1,22 @@
+{
+    "apps": [
+        {
+            "name":"srav-front",
+            "script":"npm",
+            "args":"run start",
+            "cwd":"/data/services/web/srv-integ/front-end",
+            "instances":1,
+            "exec_mode":"cluster",
+            "out_file":        "/data/log/pm2/srav-front.log",
+            "error_file":      "/data/log/pm2/srav-front.log",
+            "log_date_format": "YYYY-MM-DD HH:mm:ss",
+            "merge_logs":      true,
+            "env": {
+                "API_URL": "https://mtsfp-vm-dsb5-srv-integ.accelance.net/api",
+                "API_SERVER_URL": "http://localhost:3001/api",
+                "HOST": "192.168.9.145",
+                "PORT": "3000"
+            }
+        }
+    ]
+}

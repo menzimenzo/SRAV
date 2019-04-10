@@ -1,39 +1,38 @@
 <template>
-  <section class="container">
-    <div>
-      <!--<app-logo/>-->
-      
-      <!--img  
-        border="0" 
-        style="max-width: 20rem; cursor: pointer;"
-        alt="Logo Savoir rouler à vélo / Connexion France Connect"
-        src="~assets/LogoSavoirRoulerAVelo.png"
-        v-on:click="connexionutilisateur"-->
-        <!--img  
-        border="0" 
-        style="max-width: 20rem; cursor: pointer;"
-        alt="Logo Savoir rouler à vélo / Connexion France Connect"
-        src="~assets/LogoSavoirRoulerAVelo.png"
-        v-on:click="connexionutilisateur"-->
-
-      <p class="text-primary" style="font-size: 1.5em;"><br>Je suis Intervenant Savoir Rouler à Vélo, <br>je m’identifie et renseigne mes interventions</p>
-      <div class="mb-3 mt-1">
-      <a @click="connexionutilisateur()" class="fcBtn"><br>
-        <img border="0" alt="Connexion France Connect" src="~assets/FCboutons-10.png">
-      </a>
-      </div>
-
-      <div class="links">
+  <b-container>
+  
+    <b-row class="text-center">
+      <b-col cols="3">
         
+        <b-img :src="require('assets/image_gauche.png')" style="width: 100%;  margin-top:15%; "/>
+      </b-col>
+      <b-col cols="6">
+        
+        <p  style=";font-size: 150%;text-transform: uppercase;color: rgb(0,0,128)"><br>Je suis Intervenant<br>Savoir Rouler à Vélo, <br>je m’identifie et renseigne<br>mes interventions</p>
+        <b-img class="fcBtn" @click="connexionutilisateur()"  fluid  :src="require('assets/FCboutons-10.png')" border="0" style="size: 100%;padding-top:10px" />
+        <br>
         <a
           href="https://franceconnect.gouv.fr/"
           target="_blank"
           class="button--green"
+          style="size: 100%;margin-top:10px;margin-bottom:10px" 
           >A propos de FranceConnect</a>
+      </b-col>
+      <b-col cols="3">
+        
+        <b-img :src="require('assets/‎image_droite.png')" style="width: 100%;margin-top:15%;" />
+      </b-col>
+    </b-row>
 
-      </div>
-    </div>
-  </section>
+    <b-row class="mt-3">
+      <b-col cols="12" class="text-center" >
+        
+        <b-img :src="require('assets/infographie.png')" style="width:75%" />
+      
+      </b-col>
+    </b-row>
+ 
+  </b-container>
 </template>
 
 
@@ -73,13 +72,6 @@ export default {
 
 
 <style>
-.container {
-
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
-}
 
 .subtitle {
   font-weight: 300;

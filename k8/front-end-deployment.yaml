@@ -1,0 +1,41 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert
+    kompose.version: 1.17.0 (a74acad)
+  creationTimestamp: null
+  labels:
+    io.kompose.service: front-end
+  name: front-end
+  namespace: srav
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        io.kompose.service: front-end
+    spec:
+      containers:
+      - env:
+        - name: HOST
+          value: 0.0.0.0
+        - name: PORT
+          value: "3000"
+        - name: API_URL
+          value: "http://srav-back.app.synaltic.eu/api"
+        - name: API_SERVER_URL
+          value: "http://srav-back.app.synaltic.eu/api"
+        image: docker.app.synaltic.eu/savoirrouler/front-end
+        ports:
+        - containerPort: 3000
+        name: front-end
+        resources: {}
+        tty: true
+      restartPolicy: Always
+      imagePullSecrets:
+      - name: regcred
+status: {}

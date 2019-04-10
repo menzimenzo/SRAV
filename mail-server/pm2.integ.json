@@ -1,7 +1,7 @@
 {
     "apps": [
         {
-            "name":"mailservice-server",
+            "name":"mail-server",
             "script":"/opt/mailservice/server/src/index.js",
             "cwd":"/opt/mailservice/server/",
             "instances":2,
@@ -12,14 +12,11 @@
             "merge_logs":      true,
             "env": {
                 "PORT":"3006",
-                "APP_URL":"http://localhost:3006",
-                "API_MANAGER_URL":"http://int075198sql001.ac.intranet.sante.gouv.fr/api-manager",
                 "SMTP_HOST":"164.131.87.8",
                 "SMTP_PORT":"25",
-                "SMTP_SENDER":"LeCompteAsso@sg.social.gouv.fr",
-		        "PROXY_USER": "sivadjepva@gmail.com", // pour rerouter les mails sur une adresse précise
-                "DEBUG":"mail-server:*",
-                "DEBUG_HIDE_DATE": true
+                "SMTP_SENDER":"srav@sg.social.gouv.fr",
+		        "PROXY_USER": "vincent.carcel@sg.social.gouv.fr",
+                "DEBUG":"mail-server:info:*"
             }
         }
     ]

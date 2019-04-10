@@ -24,6 +24,7 @@ module.exports = {
   pathAttestation: process.env.PATH_PDF_ATTESTATION || "../../tmp/",
   MAIL_URL: process.env.MAIL_URL,
   SENDER_EMAIL: process.env.SENDER_EMAIL || 'nepasrepondresrav@sports.gouv.fr',
+  FRONT_DOMAIN: process.env.FRONT_DOMAIN || 'localhost', 
   // FRANCE CONNECT
   franceConnect: {
     "FC_URL": process.env.FC_URL || "https://fcp.integ01.dev-franceconnect.fr",
@@ -42,8 +43,10 @@ module.exports = {
     "LOGOUT_FC_PATH": process.env.LOGOUT_FC_PATH || "/api/v1/logout",
 
     "SCOPES": "openid profile birth",
-    "state": "myTestServiceState",
-    "nonce": "timestamp123"
+
+    // Random values for security purpose
+    "state": "02XZ4MjSE0OAZ3JS",
+    "nonce": new Date().toISOString()
     
   }
 }

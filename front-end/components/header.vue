@@ -1,7 +1,7 @@
 <template>
-  <b-container class="mb-3 mt-3">
-    <b-row>
-        <b-col cols="12">
+  <b-container>
+    <b-row class="mt-3 mb-3">
+        <b-col cols="12" class="text-center">
           <a href="/" title="Afficher la page d'accueil" style="text-decoration: none" >
               <b-img fluid :src="require('assets/Gouvernement_PiloteMS.jpg')" blank-color="rgba(0,0,0,0.5)" />
             <!-- <b-img fluid :src="require('assets/header.png')" /> -->

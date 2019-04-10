@@ -12,8 +12,6 @@
             "merge_logs":      true,
             "env": {
                 "PORT":"3006",
-                "APP_URL": "http://localhost:3006",
-                "API_MANAGER_URL":"[PROXY_URL]/api-manager",
                 "SMTP_HOST":"[SMTP_HOST]",
                 "SMTP_PORT":"[SMTP_PORT]",
                 "SMTP_SENDER":"[SMTP_SENDER]",
