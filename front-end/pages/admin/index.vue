@@ -130,9 +130,14 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
-            <b-card-body style="width:30%;">
+            <b-row>
+            <b-col style="width:40%;">
               <graph/>
-            </b-card-body>
+            </b-col>
+            <b-col style="width:40%;">
+              <graph2/>
+            </b-col>
+            </b-row>
           </b-collapse>
         </b-card>
         <b-card no-body class="mb-3">
@@ -237,15 +242,16 @@ import Editable from "~/components/editable/index.vue";
 import user from "~/components/user.vue";
 import fileUpload from "~/components/fileUpload.vue";
 import struct from "~/components/struct.vue";
-import graph from "~/components/chart.vue";
-
+import graph from "~/components/barchart.vue";
+import graph2 from "~/components/barchart2.vue";
 export default {
   components: {
     Editable,
     user,
     fileUpload,
     struct,
-    graph
+    graph,
+    graph2
   },
   data() {
     return {

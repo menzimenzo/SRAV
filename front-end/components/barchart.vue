@@ -2,24 +2,27 @@
 <script>
 import Vue from "vue";
 import { mapState } from "vuex";
-import { Bar, Line } from "vue-chartjs";
+import { Bar } from "vue-chartjs";
 
 function CalcStat(interventions) {
       interventions.forEach(element => {
         let mois = element.dateIntervention.getMonth()
         let cai = element.cai 
-        //console.log('CAI' + cai)
+        console.log('CAI' + cai)
         switch (cai)
         {
           case '1':
             NbIntSco[mois]=NbIntSco[mois] + 1;
-            //console.log(mois + ' ' + cai + ' ' +NbIntSco[mois])
+            //console.log(mois + ' ' + cai + ' ' +NbIntSco[mois]);
+            break;
           case '2' :
             NbIntPer[mois]=NbIntPer[mois] + 1;
-            //console.log(mois + ' ' + cai + ' ' +NbIntPer[mois])
+            //console.log(mois + ' ' + cai + ' ' +NbIntPer[mois]);
+            break;
           case '3' :
             NbIntExt[mois]=NbIntExt[mois] + 1;
-            //console.log(mois + ' ' + cai + ' ' +NbIntExt[mois])
+            //console.log(mois + ' ' + cai + ' ' +NbIntExt[mois]);
+            break;
         }
       });
     }
@@ -55,7 +58,7 @@ export default {
       },
       { 
         responsive: true, 
-        //maintainAspectRatio: true,
+        maintainAspectRatio: true,
         scales: {
           xAxes: [{
             stacked: true,
