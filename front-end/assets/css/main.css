@@ -168,6 +168,10 @@ ul li {
     padding: 20px;
 }
 
+.noPadding{
+    padding: 0 !important;
+}
+
 /* !Formulaire */
 
 /* Mes interventions */
