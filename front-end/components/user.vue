@@ -2,7 +2,7 @@
     <b-container class="interventionModal">
       <b-row>
         <b-col cols="12" class="text-center">
-          <h2 class="mb-3 interventionTitle">Edition de l'utilisateur <br><b>{{formUser.mail}}</b></h2>
+          <h2 class="mb-3 interventionTitle">Edition de l'utilisateur <br><b>{{formUser.prenom}} {{formUser.nom}}</b></h2>
         </b-col>
       </b-row>
       <b-row>
@@ -147,7 +147,7 @@ export default {
       return this.$store.dispatch('put_user', this.formUser) 
         .then(message => {
           console.info(message)
-          this.$toast.success(`Utilisateur #${this.formUser.mail} mis à jour`, [])
+          this.$toast.success(`Utilisateur ${this.formUser.prenom} ${this.formUser.nom} mis à jour`, [])
           this.$store.dispatch('get_users') 
           this.$modal.hide('editUser')
         })

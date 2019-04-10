@@ -49,17 +49,17 @@ insert into STATUT_UTILISATEUR(STU_ID, STU_LIBELLE) VALUES(2,'Bloqué');
 /*==============================================================*/
 /* Table : [DEMO] STRUCTURE                                     */
 /*==============================================================*/
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('FFVélo',	'FFCyclotourisme', 'true', 'true');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('UFOLEP',	'Union Française des Œuvres Laïques d''Education Physique', 'true', 'true');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('USEP',	'Union Sportive de l''Enseignement du Premier Degré', 'true', 'true');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('MCF',	'Moniteurs Cyclistes Français', 'true', 'false');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('FUB',	'Fédération des Usagers de la Bicyclette', 'true', 'false');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('Mon vélo est une vie',	'Mon vélo est une Vie', 'true', 'false');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('Ass. Prév. routière',	'Association Prévention Routière', 'true', 'false');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('Prévention MaÏf',	'Prévention Maïf', 'true', 'false');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('EN - enseignant',	'Education Nationale – Enseignant scolaire', 'true', 'false');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('Jeunesse - animateur',	'Jeunesse – animateur périscolaire et extrascolaire', 'true', 'false');
-INSERT INTO structure(str_libelle, str_libellecourt, str_actif, str_federation) VALUES ('Sécurité routière',	'Sécurité routière', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('FFVélo',	'FFCyclotourisme', 'true', 'true');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('UFOLEP',	'Union Française des Œuvres Laïques d''Education Physique', 'true', 'true');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('USEP',	'Union Sportive de l''Enseignement du Premier Degré', 'true', 'true');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('MCF',	'Moniteurs Cyclistes Français', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('FUB',	'Fédération des Usagers de la Bicyclette', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('Mon vélo est une vie',	'Mon vélo est une Vie', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('Ass. Prév. routière',	'Association Prévention Routière', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('Prévention MaÏf',	'Prévention Maïf', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('EN - enseignant',	'Education Nationale – Enseignant scolaire', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('Jeunesse - animateur',	'Jeunesse – animateur périscolaire et extrascolaire', 'true', 'false');
+INSERT INTO structure(str_libellecourt, str_libelle, str_actif, str_federation) VALUES ('Sécurité routière',	'Sécurité routière', 'true', 'false');
 
 /*==============================================================*/
 /* Table : [DEMO] UTILISATEUR                                   */
