@@ -129,7 +129,7 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
-            <b-card-body>
+            <b-card-body style="width:30%;">
               <graph/>
             </b-card-body>
           </b-collapse>

@@ -4,10 +4,29 @@ import Vue from "vue";
 import { mapState } from "vuex";
 import { Bar, Line } from "vue-chartjs";
 
+function CalcStat(interventions) {
+      interventions.forEach(element => {
+        let mois = element.dateIntervention.getMonth()
+        let cai = element.cai 
+        //console.log('CAI' + cai)
+        switch (cai)
+        {
+          case '1':
+            NbIntSco[mois]=NbIntSco[mois] + 1;
+            //console.log(mois + ' ' + cai + ' ' +NbIntSco[mois])
+          case '2' :
+            NbIntPer[mois]=NbIntPer[mois] + 1;
+            //console.log(mois + ' ' + cai + ' ' +NbIntPer[mois])
+          case '3' :
+            NbIntExt[mois]=NbIntExt[mois] + 1;
+            //console.log(mois + ' ' + cai + ' ' +NbIntExt[mois])
+        }
+      });
+    }
 
 let NbIntSco = [0,0,0,0,0,0,0,0,0,0,0,0];
-let NbIntPer = [0,0,0,2,3,0,0,0,0,0,0,0];
-let NbIntExt = [0,0,0,0,1,0,0,0,0,0,0,0];
+let NbIntPer = [0,0,0,0,0,0,0,0,0,0,0,0];
+let NbIntExt = [0,0,0,0,0,0,0,0,0,0,0,0];
 
 export default {
   extends: Bar,
@@ -21,32 +40,11 @@ export default {
       default: null
     }
   },
-  methods:  {
-    CalcStat() {
-      this.$store.state.interventions.forEach(element => {
-        let mois = element.dateIntervention.getMonth()
-        let cai = element.cai -1
-        switch (cai)
-        {
-          case '0' :
-            NbIntSco[mois]=NbIntSco[mois] + 1;
-            console.log(Mois + ' ' + cai + ' ' +NbIntSco[mois])
-          case '1' :
-            NbIntPer[mois]=NbIntPer[mois] + 1;
-            console.log(Mois + ' ' + cai + ' ' +NbIntPer[mois])
-          case '2' :
-            console.log(Mois + ' ' + cai + ' ' +NbIntExt[mois])
-        }
-      });
-    }
-  },
-  async mounted() {
-    // Overwriting base render method with actual data.
-    await Promise.all([
-      this.$store.dispatch("get_interventions"), 
-    ])
-    //this.CalcStat()
-    this.renderChart(
+  watch: {
+    interventions() {
+      CalcStat(this.interventions);
+      console.log('SColaire'+NbIntSco + 'Peri'+ NbIntPer + 'Extra'+NbIntExt)
+      this.renderChart(
       {
         labels: ["Janvier","Février","Mars","Avril","Mai","Juin","Juillet","Aout","Septembre","Octobre","Novembre","Decembre" ],
         datasets: [
@@ -57,12 +55,12 @@ export default {
       },
       { 
         responsive: true, 
-        maintainAspectRatio: false,
+        //maintainAspectRatio: true,
         scales: {
           xAxes: [{
             stacked: true,
-            //categoryPercentage: 0.5,
-            //barPercentage: 1
+            categoryPercentage: 0.5,
+            barPercentage: 1
           }],
           yAxes: [{
             stacked: true
@@ -70,6 +68,10 @@ export default {
         }
       }
     );
+    }
+  },  
+  computed: {
+    ...mapState(["interventions"])
   }
 }
 </script>
