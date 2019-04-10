@@ -172,7 +172,7 @@ router.get('/', async function (req, res) {
     var whereClause = ""
     // Utilisateur est partenaire => intervention de la structure
     if(user.pro_id == 2){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id}`
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id} and int_commentaire is not null and int_commentaire <> ''`
     // Utilisateur est intervenant => ses interventions
     } else if(user.pro_id == 3){
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `

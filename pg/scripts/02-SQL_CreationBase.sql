@@ -245,8 +245,8 @@ create table STATUT_UTILISATEUR (
 /*==============================================================*/
 create table STRUCTURE (
    STR_ID               SERIAL               not null,
-   STR_LIBELLE          VARCHAR(150)         not null,
    STR_LIBELLECOURT     VARCHAR(100)          null,
+   STR_LIBELLE          VARCHAR(150)         not null,
    STR_ACTIF            BOOLEAN              not null,
    STR_FEDERATION       BOOLEAN              not null,
    constraint PK_STRUCTURE primary key (STR_ID)
@@ -290,6 +290,18 @@ create table UTILISATEUR (
    UTI_TOCKENFRANCECONNECT VARCHAR(100)          not null,
    constraint PK_UTILISATEUR primary key (UTI_ID)
 );
+
+/*==============================================================*/
+/* Table : user_sessions                                        */
+/* Stockage des sessions des utilisateurs                       */
+/*==============================================================*/
+CREATE TABLE "user_sessions" (
+  "sid" varchar NOT NULL COLLATE "default",
+	"sess" json NOT NULL,
+	"expire" timestamp(6) NOT NULL
+)
+WITH (OIDS=FALSE);
+ALTER TABLE "user_sessions" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE UTILISATEUR 
    ALTER COLUMN VALIDATED
