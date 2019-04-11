@@ -255,7 +255,7 @@ export default {
         { path: "prenom", title: "Prénom", type: "text", sortable: true },
         {
           path: "structureLibelleCourt",
-          title: "structure",
+          title: "Structure",
           type: "text",
           sortable: true
         },
@@ -294,15 +294,15 @@ export default {
         { path: "str_libelle", title: "Libellé", type: "text", sortable: true },
         {
           path: "str_libellecourt",
-          title: "libellé court",
+          title: "Libellé court",
           type: "text",
           sortable: true
         },
-        { path: "str_actif", title: "actif", type: "boolean", sortable: true },
+        { path: "str_actif_on", title: "Actif", type: "boolean", sortable: true },
         {
-          path: "str_federation",
-          title: "federation",
-          type: "boolean",
+          path: "str_federation_on",
+          title: "Fédération",
+          type: "text",
           sortable: true
         },
         {
