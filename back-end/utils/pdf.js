@@ -11,7 +11,8 @@ function generate(id,nbenfants,dateintervention) {
        idformate = "0" + idformate;
    }
     var doc = new PDFDocument({
-        size: 'legal',
+        size: 'A4',
+        'dpi':400,
         layout: 'landscape' // default is portrait
       });
 
@@ -22,11 +23,8 @@ function generate(id,nbenfants,dateintervention) {
 
     var indexpage;
     for (indexpage = 1; indexpage <= nbenfants; indexpage++) {
-        doc.image("./assets/FondSavoirRouler.png", 75,5,{
-            //fit: [950, 528],
-            width: 850,
-            align: 'center',
-            valign: 'center',
+        doc.image("./assets/FondSavoirRouler.png", 0,0, {
+            cover: [841.89 , 595.28],
             layout : 'landscape'
         });
         var numattestation = "";
@@ -43,8 +41,8 @@ function generate(id,nbenfants,dateintervention) {
         // Formatage de la date
         dateaffichee = dateintervention.substr(8,2)+"/"+dateintervention.substr(5,2)+"/"+dateintervention.substr(0,4);
         doc.fontSize(14);
-        doc.text(numattestation,592,358,{align:'center'});
-        doc.text(dateaffichee,410,430,{align:'center'});
+        doc.text(numattestation,590,350,{align:'center'});
+        doc.text(dateaffichee,410,420,{align:'center'});
         // dernière page ? pour ne pas ajouter de page vide
         if (indexpage <= nbenfants-1) {
             doc.addPage();
