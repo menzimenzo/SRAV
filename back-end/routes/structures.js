@@ -32,7 +32,7 @@ router.get('/',
         console.log('Getting structures');
         // La méthode get est appelée sans paramètre : On retourne la liste
         pgPool.query(
-            'SELECT * FROM structure order by str_libellecourt',
+            `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on FROM structure order by str_libellecourt`,
             function (err, result) {
                 if (err) {
                     console.log(err);
