@@ -73,6 +73,9 @@ module.exports = {
     API_SERVER_URL: process.env.API_SERVER_URL || 'http://proxy/backend/api'
 
   },
+  router: {
+    base: process.env.URL_PREFIX || '/'
+  },
   plugins: [
     { mode: 'all', src: '~/plugins/vee-validate' },
     { mode: 'all', src: '~/plugins/vue-js-modal' },

@@ -54,23 +54,23 @@ const user          = require('./routes/user');
 const documents     = require('./routes/documents');
 
 // Route vers la page de connexion
-app.use('/api/connexion', connexion);
+app.use(config.URL_PREFIX + '/connexion', connexion);
 
-app.use('/api/interventions', interventions);
+app.use(config.URL_PREFIX + '/interventions', interventions);
 
-app.use('/api/listecommune', listecommune);
+app.use(config.URL_PREFIX + '/listecommune', listecommune);
 
-app.use('/api/attestations', attestations);
+app.use(config.URL_PREFIX + '/attestations', attestations);
 
-app.use('/api/structures', structures);
+app.use(config.URL_PREFIX + '/structures', structures);
 
-app.use('/api/documents', documents);
+app.use(config.URL_PREFIX + '/documents', documents);
 
-app.use('/api/pdf', pdf);
+app.use(config.URL_PREFIX + '/pdf', pdf);
 
-app.use('/api/user', user);
+app.use(config.URL_PREFIX + '/user', user);
 
-app.get('/api', function (req, res) {
+app.get(config.URL_PREFIX + '', function (req, res) {
     res.send('Bienvenue sur le backend de Savoir Rouler à vélo');
 });
 
