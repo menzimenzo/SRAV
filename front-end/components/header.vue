@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <b-row class="mt-3 mb-3">
+    <b-row class="mt-4 mb-4">
         <b-col cols="12" class="text-center">
           <a href="/" title="Afficher la page d'accueil" style="text-decoration: none" >
               <b-img fluid :src="require('assets/Gouvernement_PiloteMS.jpg')" blank-color="rgba(0,0,0,0.5)" />
@@ -11,16 +11,16 @@
           </a>
         </b-col>
     </b-row>
-    <div class="accountMenu">
-      <div v-if="utilisateurCourant" >
+    <div class="accountMenu" v-if="utilisateurCourant">
+      <div >
         <nuxt-link to="/admin" >
-          <b-button variant="outline-primary" v-if="utilisateurCourant.profilId == 1" class=settingsBtn><i class="material-icons" >settings</i> Espace admin</b-button>
+          <b-button variant="outline-primary" v-if="utilisateurCourant.profilId == 1" class="settingsBtn"><i class="material-icons" >settings</i> Espace admin</b-button>
         </nuxt-link>
         <nuxt-link to="/partenaire" v-if="utilisateurCourant.profilId == 2">
-          <b-button variant="outline-primary" class=settingsBtn><i class="material-icons" >settings</i> Espace partenaire</b-button>
+          <b-button variant="outline-primary" class="settingsBtn"><i class="material-icons" >settings</i> Espace partenaire</b-button>
         </nuxt-link>
       </div>
-      <b-dropdown v-if="utilisateurCourant" id="accountBtn" >
+      <b-dropdown  id="accountBtn"  >
         <template slot="button-content">{{utilisateurCourant && utilisateurCourant.prenom}} {{utilisateurCourant && utilisateurCourant.nom}}</template>
         <b-dropdown-item href="/connexion/profil">Mon compte</b-dropdown-item>
         <b-dropdown-item href="#" @click="logout()">Se déconnecter</b-dropdown-item>
@@ -75,6 +75,7 @@ export default {
 
 .settingsBtn{
   margin-right: 10px;
+  background-color: white;
 }
 
 .settingsBtn i {
