@@ -3,7 +3,6 @@ const logedOutRoutes = ['/']
 const adminRoutes = ['/admin']
 const partenaireRoutes = ['/partenaire']
 
-
 export default async function({ env, route, store, req, res, redirect, app, isServer }) {
     // Transition states
     if (
@@ -11,10 +10,7 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
         route.path.indexOf('/connexion/logout') === 0 ){
         return
     }
-
     
-    
-    console.log(JSON.stringify(store.state))
     if(!store.state.utilisateurCourant || !store.state.utilisateurCourant.id){
         if(logedOutRoutes.indexOf(route.path) < 0){
             return redirect('/')

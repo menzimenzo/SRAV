@@ -12,7 +12,7 @@ app.locals.FCUrl = config.franceConnect.fcURL
 var bodyParser = require('body-parser');
 app.use(cors({
     credentials: true,
-    origin     : config.franceConnect.FS_URL
+    origin: new RegExp(config.FRONT_DOMAIN.replace('.', '\\.') + "$") 
 }))
 
 app.use(bodyParser.json());

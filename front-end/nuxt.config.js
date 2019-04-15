@@ -14,9 +14,6 @@ module.exports = {
       {href:"https://fonts.googleapis.com/icon?family=Material+Icons", rel:"stylesheet"}
     ]
   },
-  router: {
-    middleware: ['check-auth']
-  },
   /*
   ** Customize the progress bar color
   */
@@ -60,8 +57,8 @@ module.exports = {
     ]
   }, axios: {
     credentials: true,
-    crossDomain: true
-    // proxyHeaders: false
+    crossDomain: true,
+    proxyHeaders: true
   },
   css: ['~/node_modules/vue-js-modal/dist/styles.css',
         '~/node_modules/glyphicons-only-bootstrap/css/bootstrap.min.css'
@@ -74,7 +71,8 @@ module.exports = {
 
   },
   router: {
-    base: process.env.URL_PREFIX || '/'
+    base: process.env.URL_PREFIX || '/',
+    middleware: ['check-auth']
   },
   plugins: [
     { mode: 'all', src: '~/plugins/vee-validate' },
