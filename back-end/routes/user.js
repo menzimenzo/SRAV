@@ -25,6 +25,24 @@ const formatUser = user => {
 }
 
 
+const formatUserCSV = user => {
+
+    return {
+        id: user.uti_id,
+        profil: user.pro_id,
+        structure: user.str_id,
+        statut: user.stu_id,
+        validated: user.validated,
+        mail: user.uti_mail,
+        nom: user.uti_nom,
+        prenom: user.uti_prenom,
+        naissance: user.uti_datenaissance,
+        structureLocale: user.uti_structurelocale,
+        structureLibelleCourt: user.str_libellecourt,
+        proLibelle:user.pro_libelle
+    }
+}
+
 /* route d'extraction de la liste d'utilisateurs pour le CSV */
 /* Pas d'argument, on utilise la structure de l'utilisateur en session */
 router.get('/csv', async function (req, res) {
@@ -35,19 +53,25 @@ router.get('/csv', async function (req, res) {
     console.log("Profil de l'utilisateur : " + req.session.user.pro_id);
     // Je suis utilisateur "Administrateur" ==> Export de la liste des tous les utilisateurs
     if ( utilisateurCourant.pro_id == 1 ) {
-        requete =`SELECT  uti.*, str.str_libellecourt,pro.pro_libelle
+        requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
+        replace(replace(validated::text,'true','Validée'),'false','Non validée') Inscription , stu.stu_libelle Statut_Utilisateur,
+        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id 
-        order by uti.uti_nom,uti.uti_prenom asc`;
+        join statut_utilisateur  stu on stu.stu_id = uti.stu_id
+        order by 3,4 asc`;
     } 
     // Je suis utilisateur "Partenaire" ==> Export de la liste des interventants
     else {
-        requete =`SELECT  uti.*, str.str_libellecourt,pro.pro_libelle
+        requete =`SELECT uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
+        replace(replace(validated::text,'true','Validée'),'false','Non validée') Inscription , stu.stu_libelle Statut_Utilisateur,
+        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
-        where uti.str_id=${utilisateurCourant.str_id} order by uti.uti_nom,uti.uti_prenom asc`;
+        join statut_utilisateur  stu on stu.stu_id = uti.stu_id
+        where uti.str_id=${utilisateurCourant.str_id} order by 3,4 asc`;
     }
     console.log( requete);
 
@@ -58,7 +82,7 @@ router.get('/csv', async function (req, res) {
         }
         else {
             //console.info(result.rows)
-            const users = result.rows.map(formatUser);
+            const users = result.rows;//.map(formatUser);
             if (!users || !users.length) {
                 return res.status(400).json({ message: 'Utilisateurs inexistants' });
             }
