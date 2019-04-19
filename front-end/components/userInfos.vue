@@ -43,6 +43,7 @@
             name="struct"
             :state="validateState('struct')"
             aria-describedby="structFeedback"
+            :disabled="! checkLegal"
           >
             <option :value="null">Veuillez choisir votre structure...</option>
             <option
