@@ -77,6 +77,37 @@
               </b-card-body>
             </b-collapse>
           </b-card>
+          <!--  ACCORDEON -- DOCUMENTS -->
+          <b-card no-body class="mb-3">
+            <b-card-header header-tag="header" class="p-1" role="tab">
+              <b-form-row>
+                <b-col>
+                  <!-- IMAGE RAYEE BANNER INTERVENTION -->
+                  <b-img  :src="require('assets/banner_ray_blue.png')" blank-color="rgba(0,0,0,1)" />
+                  <b-btn class="accordionBtn" block href="#" v-b-toggle.accordion3 variant="Dark link"><h4>
+                    <i class="material-icons accordion-chevron" >chevron_right</i> <i class="material-icons ml-2 mr-2" >bookmarks</i>Documents utiles
+                  </h4></b-btn>
+                </b-col>
+              </b-form-row>
+            </b-card-header>
+            <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
+              <b-card-body>
+                <b-container >
+                  <b-row>
+                      <b-col cols="12">
+                        <h5 class="mb-3">Documents disponibles: </h5>
+                        <ul>
+                          <li v-for="doc in documents" :key="doc.doc_id" >
+                            {{doc.doc_libelle}}
+                            <b-img class="img-icon" fluid  @click="downloadDoc(doc)" :src="require('assets/pdf-240x240.png')" blank-color="rgba(0,0,0,0.5)" />
+                          </li>
+                        </ul>
+                      </b-col>
+                  </b-row>
+                </b-container>
+              </b-card-body>
+            </b-collapse>
+          </b-card>          
         </b-col>
     </b-row>
     <modal name="editUser" height="auto" width="900px" :scrollabe="true">
@@ -150,9 +181,32 @@ export default {
           console.log(JSON.stringify(err))
           this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
       })
+    },
+    downloadDoc: function(doc) {
+      this.$axios({
+        url: process.env.API_URL + '/documents/'+doc.doc_id,
+        method: 'GET',
+        responseType: 'blob'
+      }).then((response) => {
+          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+           // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          // Crée un lien caché pour télécharger le fichier
+          const link = document.createElement('a')
+          link.href = url
+          const fileName = doc.doc_filename
+          link.setAttribute('download', fileName)
+          // Télécharge le fichier
+          link.click()
+          link.remove()
+          console.log('Done - Download', {fileName})
+      }).catch(err => {
+          console.log(JSON.stringify(err))
+          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
+      })
     }
   },
-  computed: mapState(['interventions', 'users']),
+  computed: mapState(['interventions', 'users', 'documents']),
 
 //  CHARGEMENT ASYNCHRONE DES USERS
 //
@@ -170,8 +224,8 @@ export default {
           })
       , this.$store.dispatch('get_interventions')
     ])
-
-
+    // Chargement des documents utilses
+    this.$store.dispatch('get_documents')
     this.loading = false
   }
 };
