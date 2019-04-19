@@ -49,12 +49,12 @@
           <b-col>
               
             <div class="mb-3 mt-3">
-              Profil : <b-form-select v-model="formUser.profil" :options="listeprofil"/>
+              Profil : <b-form-select v-model="formUser.profil" :options="listeprofil" :disabled="!isAdmin()"/>
             </div>
             <div class="mb-3 mt-3">
               Structure : 
-              <b-form-select v-model="formUser.structure">
-                <option v-for="structure in structures" :key="structure.str_id" :value="structure.str_id">{{ structure.str_libelle}}</option>
+              <b-form-select v-model="formUser.structure" :disabled="!isAdmin()">
+                <option v-for="structure in structures" :key="structure.str_id"  :value="structure.str_id">{{ structure.str_libelle}} </option>
               </b-form-select>
             </div>
             <div class="mb-3 mt-3" v-if="isFederation(formUser.structure)">
@@ -163,11 +163,20 @@ export default {
        if(!structure){return false}
        return structure.str_federation
       
-    }
+    },
+    // true si l'utilisateur connecté est Admin, sinon false
+    isAdmin: function(){
+      //this.$toast.success(`Utilisateur ${this.$store.state.utilisateurCourant.nom} ${this.$store.state.utilisateurCourant.prenom} profil ${this.$store.state.utilisateurCourant.profilId}`, [])
+      if(this.$store.state.utilisateurCourant.profilId=="1")
+        return true;
+      else
+        return false;
+   }
   },
-  computed: {...mapState(['structures'])},
+  computed: {...mapState(['structures','utilisateurCourant'])},
   async mounted() {
     await this.$store.dispatch('get_structures')
+    await this.$store.dispatch('get_users') 
     this.loading = false
   }
 
