@@ -23,7 +23,7 @@ export default {
     this.$axios.$get(url)
     .then(async response => {
       await this.$store.dispatch('set_utilisateur', response.user);
-
+    
       this.$router.push(response.url)
     }).catch(err => {
       console.log(err)

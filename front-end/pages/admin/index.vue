@@ -120,7 +120,12 @@
                   v-b-toggle.accordion3
                   variant="Dark link"
                 >
-                  <h4>
+                  <h4 v-if="loading === false">
+                    <i class="material-icons accordion-chevron">chevron_right</i>
+                    <i class="material-icons ml-2 mr-2">poll</i>
+                    Accès aux indicateurs : {{NbAttestations}} attestations délivrées
+                  </h4>
+                  <h4 v-else>
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">poll</i>
                     Accès aux indicateurs
@@ -131,12 +136,44 @@
           </b-card-header>
           <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
             <b-row>
-            <b-col style="width:40%;">
-              <graph/>
-            </b-col>
-            <b-col style="width:40%;">
-              <graph2/>
-            </b-col>
+              <b-col>
+                <bar-chart
+                  v-if="loading === false"
+                  :chartdata="data1"
+                  :options="options1"
+                  :width="400"
+                  :height="400"
+                />
+              </b-col>
+              <b-col>                
+                <doughnut-chart
+                  v-if="loading === false"
+                  :chartdata="data2"
+                  :options="options2"
+                  :width="400"
+                  :height="400"
+                />
+              </b-col>
+            </b-row>
+            <b-row>
+              <b-col>
+                <bar-chart
+                  v-if="loading === false"
+                  :chartdata="data3"
+                  :options="options3"
+                  :width="400"
+                  :height="400"
+                />
+              </b-col>
+              <b-col>
+               <doughnut-chart
+                  v-if="loading === false"
+                  :chartdata="data4"
+                  :options="options2"
+                  :width="400"
+                  :height="400"
+                />
+              </b-col>
             </b-row>
           </b-collapse>
         </b-card>
@@ -242,19 +279,28 @@ import Editable from "~/components/editable/index.vue";
 import user from "~/components/user.vue";
 import fileUpload from "~/components/fileUpload.vue";
 import struct from "~/components/struct.vue";
-import graph from "~/components/barchart.vue";
-import graph2 from "~/components/barchart2.vue";
+import BarChart from "~/components/histogramme.vue";
+import DoughnutChart from "~/components/doughnut.vue";
+
 export default {
   components: {
     Editable,
     user,
     fileUpload,
     struct,
-    graph,
-    graph2
+    BarChart,
+    DoughnutChart
   },
   data() {
     return {
+      data1: null,
+      options1: null,
+      data2: null,
+      options2: null,
+      data3: null,
+      options3: null,
+      data4: null,
+      NbAttestations: null,
       loading: true,
       chartdata: null,
       headers: [
@@ -307,7 +353,12 @@ export default {
           type: "text",
           sortable: true
         },
-        { path: "str_actif_on", title: "Actif", type: "boolean", sortable: true },
+        {
+          path: "str_actif_on",
+          title: "Actif",
+          type: "boolean",
+          sortable: true
+        },
         {
           path: "str_federation_on",
           title: "Fédération",
@@ -355,6 +406,442 @@ export default {
             );
           });
       }
+    },
+    calcStat: function(intervention) {
+      let NbIntBloc1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbIntBloc2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbIntBloc3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbAtt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbIntSco = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbIntPer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbIntExt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let IntParBloc = [0, 0, 0];
+      let IntParBlocParCadre = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let IntParStructure = {};
+      let DataToDisplay = [];
+      let SubDataToDisplay = [];
+      let LabelsToDisplay = [];
+      let SubLabelsToDisplay = [];
+      let NbAttestations = 0;
+      let data1 = {};
+      let options1 = {};
+      let data2 = {};
+      let options2 = {};      
+      let data3 = {};
+      let options3 = {};
+      let data4 = {};
+
+      const nbMaxStructureAffichees = 14;
+
+        intervention.forEach(element => {
+        let mois = element.dateIntervention.getMonth();
+        let blocId = Number(element.blocId);
+        let nbEnfants = Number(element.nbEnfants);
+        let cai = Number(element.cai);
+        let structure = element.structure;
+        let indice = 0;
+
+        //G4
+        if (!IntParStructure[structure]) {
+          IntParStructure[structure] = { total: 0, bloc1: 0, bloc2: 0, bloc3: 0 };
+        }
+        IntParStructure[structure].total++;
+
+        //G2
+        IntParBloc[blocId-1] = IntParBloc[blocId-1] + 1;
+        indice = (blocId-1) * 3 + cai -1; 
+        IntParBlocParCadre[indice] = IntParBlocParCadre[indice] + 1;
+
+        if (blocId === 3) {
+          NbAtt[mois] = NbAtt[mois] + nbEnfants;
+          this.NbAttestations = this.NbAttestations + nbEnfants;
+        }
+        switch (blocId) {
+          case 1:
+            NbIntBloc1[mois] = NbIntBloc1[mois] + 1;
+            IntParStructure[structure].bloc1++;
+            break;
+          case 2:
+            NbIntBloc2[mois] = NbIntBloc2[mois] + 1;
+            IntParStructure[structure].bloc2++;
+            break;
+          case 3:
+            NbIntBloc3[mois] = NbIntBloc3[mois] + 1;
+            IntParStructure[structure].bloc3++;
+            break;
+        }
+        switch (cai) {
+          case 1:
+            NbIntSco[mois] = NbIntSco[mois] + 1;
+            break;
+          case 2:
+            NbIntPer[mois] = NbIntPer[mois] + 1;
+            break;
+          case 3:
+            NbIntExt[mois] = NbIntExt[mois] + 1;
+            break;
+        }
+      });
+
+      //on passe de valeures absolues en pourcentage
+        for (var i = 0; i < IntParBloc.length; i++) {
+          IntParBloc[i] = Math.round((IntParBloc[i] / intervention.length) * 100);
+        }
+        for (var i = 0; i < IntParBlocParCadre.length; i++) {
+          IntParBlocParCadre[i] = Math.round((IntParBlocParCadre[i] / intervention.length) * 100);
+        }
+      
+      // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
+  var keys = Object.keys(IntParStructure);
+  keys.sort(function(a, b) {
+    return IntParStructure[b] - IntParStructure[a];
+  });
+
+  if (keys.length > nbMaxStructureAffichees) {
+    console.log("on regroupe");
+    let nbAutre = { total: 0, bloc1: 0, bloc2: 0, bloc3: 0 };
+    let i = 0;
+    keys.forEach(function(k) {
+      i++;
+      if (i > nbMaxStructureAffichees) {
+        nbAutre.total = nbAutre.total + IntParStructure[k].total;
+        nbAutre.bloc1 = nbAutre.bloc1 + IntParStructure[k].bloc1;
+        nbAutre.bloc2 = nbAutre.bloc2 + IntParStructure[k].bloc2;
+        nbAutre.bloc3 = nbAutre.bloc3 + IntParStructure[k].bloc3;
+      } else {
+        DataToDisplay.push(
+          Math.round(
+            (Number(IntParStructure[k].total) / intervention.length) * 100
+          )
+        );
+        SubDataToDisplay.push(
+          Math.round(
+            (Number(IntParStructure[k].bloc1) / intervention.length) * 100
+          )
+        );
+        SubDataToDisplay.push(
+          Math.round(
+            (Number(IntParStructure[k].bloc2) / intervention.length) * 100
+          )
+        );
+        SubDataToDisplay.push(
+          Math.round(
+            (Number(IntParStructure[k].bloc3) / intervention.length) * 100
+          )
+        );
+        LabelsToDisplay.push(k);
+        SubLabelsToDisplay.push(k + " / bloc 1");
+        SubLabelsToDisplay.push(k + " / bloc 2");
+        SubLabelsToDisplay.push(k + " / bloc 3");
+      }
+    });
+    DataToDisplay.push(
+      Math.round((nbAutre.total / intervention.length) * 100)
+    );
+    SubDataToDisplay.push(
+      Math.round((nbAutre.bloc1 / intervention.length) * 100)
+    );
+    SubDataToDisplay.push(
+      Math.round((nbAutre.bloc2 / intervention.length) * 100)
+    );
+    SubDataToDisplay.push(
+      Math.round((nbAutre.bloc3 / intervention.length) * 100)
+    );
+    LabelsToDisplay.push("Autre");
+    SubLabelsToDisplay.push("Autre / bloc 1");
+    SubLabelsToDisplay.push("Autre / bloc 2");
+    SubLabelsToDisplay.push("Autre / bloc 3");
+  } else {
+    keys.forEach(function(k) {
+      DataToDisplay.push(
+        Math.round(
+          (Number(IntParStructure[k].total) / intervention.length) * 100
+        )
+      );
+      SubDataToDisplay.push(
+        Math.round(
+          (Number(IntParStructure[k].bloc1) / intervention.length) * 100
+        )
+      );
+      SubDataToDisplay.push(
+        Math.round(
+          (Number(IntParStructure[k].bloc2) / intervention.length) * 100
+        )
+      );
+      SubDataToDisplay.push(
+        Math.round(
+          (Number(IntParStructure[k].bloc3) / intervention.length) * 100
+        )
+      );
+      LabelsToDisplay.push(k);
+      SubLabelsToDisplay.push(k + " / bloc 1");
+      SubLabelsToDisplay.push(k + " / bloc 2");
+      SubLabelsToDisplay.push(k + " / bloc 3");
+    });
+  }
+      
+      // Définition de l'objet Data envoyé au 1er graphique
+      (this.data1 = {
+        labels: [
+          "Janvier",
+          "Février",
+          "Mars",
+          "Avril",
+          "Mai",
+          "Juin",
+          "Juillet",
+          "Aout",
+          "Septembre",
+          "Octobre",
+          "Novembre",
+          "Decembre"
+        ],
+        datasets: [
+            {
+              type: "line",
+              fill: false,
+              label: "Nb attestation",
+              pointBackgroundColor: "#a23b45",
+              borderColor: "#a23b45",
+              backgroundColor: "#a23b45",
+              yAxisID: "B",
+              data: NbAtt
+            },
+            {
+              label: "scolaire",
+              backgroundColor: "#f87979",
+              yAxisID: "A",
+              data: NbIntSco
+            },
+            {
+              label: "péri-scolaire",
+              backgroundColor: "#3D5B96",
+              yAxisID: "A",
+              data: NbIntPer
+            },
+            {
+              label: "extra scolaire",
+              backgroundColor: "#1EFFFF",
+              yAxisID: "A",
+              data: NbIntExt
+            }
+          ]
+      }
+      ),
+        // Définition des options du 1er grahique
+        (this.options1 = {
+          responsive: true,
+          maintainAspectRatio: true,
+          title: {
+            display: true,
+            text:
+              "Nombre interventions par cadre d'intervention, nombre d'attestations délivrées :"
+          },
+          scales: {
+            xAxes: [
+              {
+                stacked: true,
+                categoryPercentage: 0.5,
+                barPercentage: 1
+              }
+            ],
+            yAxes: [
+              {
+                id: "A",
+                type: "linear",
+                display: true,
+                position: "left",
+                min: 0,
+                stacked: true,
+                labels: "Nb interventions"
+              },
+              {
+                id: "B",
+                type: "linear",
+                position: "right",
+                min: 0,
+                label: "Nb attetsations"
+              }
+            ]
+          }
+        }
+        );
+
+      // Définition de l'objet Data envoyé au 2eme graphique
+      (this.data2 = {
+        datasets: [
+            {
+              backgroundColor: ["#66ff66", "#996633", "#ffcc00"],
+              data: [IntParBloc[0], IntParBloc[1], IntParBloc[2]],
+              labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
+            },
+            {
+              backgroundColor: [
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF",
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF",
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF"
+              ],
+              labels: [
+                "Bloc 1 / scolaire",
+                "Bloc 1 / péri-scolaire",
+                "Bloc 1 / extra-scolaire",
+                "Bloc 2 / scolaire",
+                "Bloc 2 / péri-scolaire",
+                "Bloc 2 / extra-scolaire",
+                "Bloc 3 / scolaire",
+                "Bloc 3 / péri-scolaire",
+                "Bloc 3 / extra-scolaire"
+              ],
+              data: [
+                IntParBlocParCadre[0],
+                IntParBlocParCadre[1],
+                IntParBlocParCadre[2],
+                IntParBlocParCadre[3],
+                IntParBlocParCadre[4],
+                IntParBlocParCadre[5],
+                IntParBlocParCadre[6],
+                IntParBlocParCadre[7],
+                IntParBlocParCadre[8]
+              ]
+            }
+          ]
+      }
+      ),
+        // Définition des options du 2eme grahique
+        (this.options2 = {
+          responsive: false,
+          maintainAspectRatio: true,
+          legend: {
+            position: "top"
+          },
+          title: {
+            display: true,
+            text:
+              "Répartition interventions par Bloc et par Cadre d'intervention"
+          },
+          animation: {
+            animateScale: true,
+            animateRotate: true
+          },
+          pieceLabel: {
+            mode: "percentage",
+            precision: 1
+          },
+          tooltips: {
+            callbacks: {
+              label: function(tooltipItem, data) {
+                var dataset = data.datasets[tooltipItem.datasetIndex];
+                var index = tooltipItem.index;
+                return dataset.labels[index] + ": " + dataset.data[index] + "%";
+              }
+            }
+          }
+        }
+        );
+
+      // Définition de l'objet Data envoyé au 3eme graphique
+      (this.data3 = {
+        labels: [
+          "Janvier",
+          "Février",
+          "Mars",
+          "Avril",
+          "Mai",
+          "Juin",
+          "Juillet",
+          "Aout",
+          "Septembre",
+          "Octobre",
+          "Novembre",
+          "Decembre"
+        ],
+        datasets: [
+          { label: "bloc 1", backgroundColor: "#66ff66", data: NbIntBloc1 },
+          { label: "bloc 2", backgroundColor: "#996633", data: NbIntBloc2 },
+          { label: "bloc 3", backgroundColor: "#ffcc00", data: NbIntBloc3 }
+        ]
+      }),
+        // Définition des options du 3eme grahique
+        (this.options3 = {
+          responsive: true,
+          maintainAspectRatio: true,
+          title: {
+            display: true,
+            text: "Nombre interventions par type de bloc: "
+          },
+          scales: {
+            xAxes: [
+              {
+                stacked: true,
+                categoryPercentage: 0.5,
+                barPercentage: 1
+              }
+            ],
+            yAxes: [
+              {
+                stacked: true
+              }
+            ]
+          }
+        });
+
+      // Définition de l'objet Data envoyé au 2eme graphique
+      (this.data4 = {
+        datasets: [
+            {
+              backgroundColor: [
+                "#0074D9",
+                "#FF4136",
+                "#2ECC40",
+                "#FF851B",
+                "#7FDBFF",
+                "#B10DC9",
+                "#FFDC00",
+                "#001f3f",
+                "#39CCCC",
+                "#01FF70",
+                "#85144b",
+                "#F012BE",
+                "#3D9970",
+                "#111111",
+                "#AAAAAA"
+              ],
+              data: DataToDisplay,
+              labels: LabelsToDisplay
+            },
+            {
+              labels: SubLabelsToDisplay,
+              backgroundColor: [
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF",
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF",
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF",
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF",
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF",
+                "#f87979",
+                "#3D5B96",
+                "#1EFFFF"
+              ],
+              data: SubDataToDisplay
+            }
+          ]
+      }
+      );
     },
     //
     // Export CSV des utilisateurs
@@ -413,7 +900,7 @@ export default {
     }
   },
   async mounted() {
-  
+    this.loading = true;
     await Promise.all([
       this.$store.dispatch("get_users").catch(error => {
         console.error(
@@ -427,11 +914,10 @@ export default {
           error
         );
       }),
-      this.$store.dispatch("get_interventions"), 
-
+      this.$store.dispatch("get_interventions")
     ]);
-    
-
+    // Calcul des stats
+    this.calcStat(this.interventions);
     this.loading = false;
   }
 };

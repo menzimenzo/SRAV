@@ -38,6 +38,8 @@ const formatIntervention = intervention => {
 
     if(intervention.uti_nom){
         result.nom = intervention.uti_prenom + ' ' + intervention.uti_nom
+        result.structure = intervention.str_libellecourt
+        result.structureId = intervention.str_id
     }
 
     if(intervention.blo_libelle){
@@ -47,6 +49,7 @@ const formatIntervention = intervention => {
     if(intervention.cai_libelle){
         result.caiLib = intervention.cai_libelle
     }
+
 
     return result
 }
@@ -178,7 +181,7 @@ router.get('/', async function (req, res) {
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
     // Utilisateur Administrateur : Exclusion des interventions sans commentaires
     } else if(user.pro_id == 1){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id`
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id LEFT JOIN structure ON structure.str_id = utilisateur.str_id `
     }
 
     const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
