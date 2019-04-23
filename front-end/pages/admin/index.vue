@@ -135,41 +135,47 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
+            <b-row></b-row>&nbsp;
             <b-row>
               <b-col>
+                <h6>Interventions par Cadre d'intervention / Nombre d'attestations délivrées par mois</h6>
                 <bar-chart
                   v-if="loading === false"
                   :chartdata="data1"
-                  :options="options1"
+                  :options="optionsHisto"
                   :width="400"
                   :height="400"
                 />
               </b-col>
-              <b-col>                
+              <b-col>
+                <h6>Répartition des interventions par bloc et par Cadre d'intervention</h6>
                 <doughnut-chart
                   v-if="loading === false"
                   :chartdata="data2"
-                  :options="options2"
+                  :options="optionsDoughnut"
                   :width="400"
                   :height="400"
                 />
               </b-col>
             </b-row>
+            <b-row>&nbsp;</b-row>
             <b-row>
               <b-col>
+                <h6>Interventions par bloc</h6>
                 <bar-chart
                   v-if="loading === false"
                   :chartdata="data3"
-                  :options="options3"
+                  :options="optionsHisto"
                   :width="400"
                   :height="400"
                 />
               </b-col>
               <b-col>
-               <doughnut-chart
+                <h6>Répartition des interventions par structure et par bloc</h6>
+                <doughnut-chart
                   v-if="loading === false"
                   :chartdata="data4"
-                  :options="options2"
+                  :options="optionsDoughnut"
                   :width="400"
                   :height="400"
                 />
@@ -411,10 +417,11 @@ export default {
       let NbIntBloc1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let NbIntBloc2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let NbIntBloc3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbAtt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let NbIntSco = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let NbIntPer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let NbIntExt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbAtt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbAttCumule = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       let IntParBloc = [0, 0, 0];
       let IntParBlocParCadre = [0, 0, 0, 0, 0, 0, 0, 0, 0];
       let IntParStructure = {};
@@ -424,16 +431,16 @@ export default {
       let SubLabelsToDisplay = [];
       let NbAttestations = 0;
       let data1 = {};
-      let options1 = {};
       let data2 = {};
-      let options2 = {};      
       let data3 = {};
-      let options3 = {};
       let data4 = {};
+      let optionsHisto = {};
+      let optionsDoughnut = {};
+      // nb de structures affichées sur le 4eme graphique. 
+      // S'il y a plus de nbMaxStructureAffichees structures on affiches les nbMaxStructureAffichees premieres + "Autres"
+      const nbMaxStructureAffichees = 2 ;
 
-      const nbMaxStructureAffichees = 14;
-
-        intervention.forEach(element => {
+      intervention.forEach(element => {
         let mois = element.dateIntervention.getMonth();
         let blocId = Number(element.blocId);
         let nbEnfants = Number(element.nbEnfants);
@@ -443,13 +450,18 @@ export default {
 
         //G4
         if (!IntParStructure[structure]) {
-          IntParStructure[structure] = { total: 0, bloc1: 0, bloc2: 0, bloc3: 0 };
+          IntParStructure[structure] = {
+            total: 0,
+            bloc1: 0,
+            bloc2: 0,
+            bloc3: 0
+          };
         }
         IntParStructure[structure].total++;
 
         //G2
-        IntParBloc[blocId-1] = IntParBloc[blocId-1] + 1;
-        indice = (blocId-1) * 3 + cai -1; 
+        IntParBloc[blocId - 1] = IntParBloc[blocId - 1] + 1;
+        indice = (blocId - 1) * 3 + cai - 1;
         IntParBlocParCadre[indice] = IntParBlocParCadre[indice] + 1;
 
         if (blocId === 3) {
@@ -483,103 +495,111 @@ export default {
         }
       });
 
-      //on passe de valeures absolues en pourcentage
-        for (var i = 0; i < IntParBloc.length; i++) {
-          IntParBloc[i] = Math.round((IntParBloc[i] / intervention.length) * 100);
-        }
-        for (var i = 0; i < IntParBlocParCadre.length; i++) {
-          IntParBlocParCadre[i] = Math.round((IntParBlocParCadre[i] / intervention.length) * 100);
-        }
-      
-      // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
-  var keys = Object.keys(IntParStructure);
-  keys.sort(function(a, b) {
-    return IntParStructure[b] - IntParStructure[a];
-  });
-
-  if (keys.length > nbMaxStructureAffichees) {
-    console.log("on regroupe");
-    let nbAutre = { total: 0, bloc1: 0, bloc2: 0, bloc3: 0 };
-    let i = 0;
-    keys.forEach(function(k) {
-      i++;
-      if (i > nbMaxStructureAffichees) {
-        nbAutre.total = nbAutre.total + IntParStructure[k].total;
-        nbAutre.bloc1 = nbAutre.bloc1 + IntParStructure[k].bloc1;
-        nbAutre.bloc2 = nbAutre.bloc2 + IntParStructure[k].bloc2;
-        nbAutre.bloc3 = nbAutre.bloc3 + IntParStructure[k].bloc3;
-      } else {
-        DataToDisplay.push(
-          Math.round(
-            (Number(IntParStructure[k].total) / intervention.length) * 100
-          )
-        );
-        SubDataToDisplay.push(
-          Math.round(
-            (Number(IntParStructure[k].bloc1) / intervention.length) * 100
-          )
-        );
-        SubDataToDisplay.push(
-          Math.round(
-            (Number(IntParStructure[k].bloc2) / intervention.length) * 100
-          )
-        );
-        SubDataToDisplay.push(
-          Math.round(
-            (Number(IntParStructure[k].bloc3) / intervention.length) * 100
-          )
-        );
-        LabelsToDisplay.push(k);
-        SubLabelsToDisplay.push(k + " / bloc 1");
-        SubLabelsToDisplay.push(k + " / bloc 2");
-        SubLabelsToDisplay.push(k + " / bloc 3");
+      // Calcul des interventions cumulees
+      for(var i = 0; i < NbAtt.length;i++) {
+        if (i === 1 ) {NbAttCumule[i]=NbAtt[i] }
+        else { NbAttCumule[i]=NbAttCumule[i-1]+NbAtt[i]}
       }
-    });
-    DataToDisplay.push(
-      Math.round((nbAutre.total / intervention.length) * 100)
-    );
-    SubDataToDisplay.push(
-      Math.round((nbAutre.bloc1 / intervention.length) * 100)
-    );
-    SubDataToDisplay.push(
-      Math.round((nbAutre.bloc2 / intervention.length) * 100)
-    );
-    SubDataToDisplay.push(
-      Math.round((nbAutre.bloc3 / intervention.length) * 100)
-    );
-    LabelsToDisplay.push("Autre");
-    SubLabelsToDisplay.push("Autre / bloc 1");
-    SubLabelsToDisplay.push("Autre / bloc 2");
-    SubLabelsToDisplay.push("Autre / bloc 3");
-  } else {
-    keys.forEach(function(k) {
-      DataToDisplay.push(
-        Math.round(
-          (Number(IntParStructure[k].total) / intervention.length) * 100
-        )
-      );
-      SubDataToDisplay.push(
-        Math.round(
-          (Number(IntParStructure[k].bloc1) / intervention.length) * 100
-        )
-      );
-      SubDataToDisplay.push(
-        Math.round(
-          (Number(IntParStructure[k].bloc2) / intervention.length) * 100
-        )
-      );
-      SubDataToDisplay.push(
-        Math.round(
-          (Number(IntParStructure[k].bloc3) / intervention.length) * 100
-        )
-      );
-      LabelsToDisplay.push(k);
-      SubLabelsToDisplay.push(k + " / bloc 1");
-      SubLabelsToDisplay.push(k + " / bloc 2");
-      SubLabelsToDisplay.push(k + " / bloc 3");
-    });
-  }
-      
+
+      //on passe de valeures absolues en pourcentage
+      for (var i = 0; i < IntParBloc.length; i++) {
+        IntParBloc[i] = Math.round((IntParBloc[i] / intervention.length) * 100);
+      }
+      for (var i = 0; i < IntParBlocParCadre.length; i++) {
+        IntParBlocParCadre[i] = Math.round(
+          (IntParBlocParCadre[i] / intervention.length) * 100
+        );
+      }
+
+      // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
+      var keys = Object.keys(IntParStructure);
+      keys.sort(function(a, b) {
+        return IntParStructure[b] - IntParStructure[a];
+      });
+
+      if (keys.length >= nbMaxStructureAffichees) {
+        console.log("on regroupe");
+        let nbAutre = { total: 0, bloc1: 0, bloc2: 0, bloc3: 0 };
+        let i = 0;
+        keys.forEach(function(k) {
+          i++;
+          if (i > nbMaxStructureAffichees) {
+            nbAutre.total = nbAutre.total + IntParStructure[k].total;
+            nbAutre.bloc1 = nbAutre.bloc1 + IntParStructure[k].bloc1;
+            nbAutre.bloc2 = nbAutre.bloc2 + IntParStructure[k].bloc2;
+            nbAutre.bloc3 = nbAutre.bloc3 + IntParStructure[k].bloc3;
+          } else {
+            DataToDisplay.push(
+              Math.round(
+                (Number(IntParStructure[k].total) / intervention.length) * 100
+              )
+            );
+            SubDataToDisplay.push(
+              Math.round(
+                (Number(IntParStructure[k].bloc1) / intervention.length) * 100
+              )
+            );
+            SubDataToDisplay.push(
+              Math.round(
+                (Number(IntParStructure[k].bloc2) / intervention.length) * 100
+              )
+            );
+            SubDataToDisplay.push(
+              Math.round(
+                (Number(IntParStructure[k].bloc3) / intervention.length) * 100
+              )
+            );
+            LabelsToDisplay.push(k);
+            SubLabelsToDisplay.push(k + " / bloc 1");
+            SubLabelsToDisplay.push(k + " / bloc 2");
+            SubLabelsToDisplay.push(k + " / bloc 3");
+          }
+        });
+        DataToDisplay.push(
+          Math.round((nbAutre.total / intervention.length) * 100)
+        );
+        SubDataToDisplay.push(
+          Math.round((nbAutre.bloc1 / intervention.length) * 100)
+        );
+        SubDataToDisplay.push(
+          Math.round((nbAutre.bloc2 / intervention.length) * 100)
+        );
+        SubDataToDisplay.push(
+          Math.round((nbAutre.bloc3 / intervention.length) * 100)
+        );
+        LabelsToDisplay.push("Autre");
+        SubLabelsToDisplay.push("Autre / bloc 1");
+        SubLabelsToDisplay.push("Autre / bloc 2");
+        SubLabelsToDisplay.push("Autre / bloc 3");
+      } else {
+        keys.forEach(function(k) {
+          DataToDisplay.push(
+            Math.round(
+              (Number(IntParStructure[k].total) / intervention.length) * 100
+            )
+          );
+          SubDataToDisplay.push(
+            Math.round(
+              (Number(IntParStructure[k].bloc1) / intervention.length) * 100
+            )
+          );
+          SubDataToDisplay.push(
+            Math.round(
+              (Number(IntParStructure[k].bloc2) / intervention.length) * 100
+            )
+          );
+          SubDataToDisplay.push(
+            Math.round(
+              (Number(IntParStructure[k].bloc3) / intervention.length) * 100
+            )
+          );
+          LabelsToDisplay.push(k);
+          SubLabelsToDisplay.push(k + " / bloc 1");
+          SubLabelsToDisplay.push(k + " / bloc 2");
+          SubLabelsToDisplay.push(k + " / bloc 3");
+        });
+      }
+
       // Définition de l'objet Data envoyé au 1er graphique
       (this.data1 = {
         labels: [
@@ -597,79 +617,39 @@ export default {
           "Decembre"
         ],
         datasets: [
-            {
-              type: "line",
-              fill: false,
-              label: "Nb attestation",
-              pointBackgroundColor: "#a23b45",
-              borderColor: "#a23b45",
-              backgroundColor: "#a23b45",
-              yAxisID: "B",
-              data: NbAtt
-            },
-            {
-              label: "scolaire",
-              backgroundColor: "#f87979",
-              yAxisID: "A",
-              data: NbIntSco
-            },
-            {
-              label: "péri-scolaire",
-              backgroundColor: "#3D5B96",
-              yAxisID: "A",
-              data: NbIntPer
-            },
-            {
-              label: "extra scolaire",
-              backgroundColor: "#1EFFFF",
-              yAxisID: "A",
-              data: NbIntExt
-            }
-          ]
-      }
-      ),
-        // Définition des options du 1er grahique
-        (this.options1 = {
-          responsive: true,
-          maintainAspectRatio: true,
-          title: {
-            display: true,
-            text:
-              "Nombre interventions par cadre d'intervention, nombre d'attestations délivrées :"
+          {
+            type: "line",
+            fill: false,
+            label: "Nb attestations",
+            pointBackgroundColor: "#a23b45",
+            borderColor: "#a23b45",
+            backgroundColor: "#a23b45",
+            yAxisID: "B",
+            data: NbAtt
           },
-          scales: {
-            xAxes: [
-              {
-                stacked: true,
-                categoryPercentage: 0.5,
-                barPercentage: 1
-              }
-            ],
-            yAxes: [
-              {
-                id: "A",
-                type: "linear",
-                display: true,
-                position: "left",
-                min: 0,
-                stacked: true,
-                labels: "Nb interventions"
-              },
-              {
-                id: "B",
-                type: "linear",
-                position: "right",
-                min: 0,
-                label: "Nb attetsations"
-              }
-            ]
+          {
+            label: "scolaire",
+            backgroundColor: "#f87979",
+            yAxisID: "A",
+            data: NbIntSco
+          },
+          {
+            label: "péri-scolaire",
+            backgroundColor: "#3D5B96",
+            yAxisID: "A",
+            data: NbIntPer
+          },
+          {
+            label: "extra scolaire",
+            backgroundColor: "#1EFFFF",
+            yAxisID: "A",
+            data: NbIntExt
           }
-        }
-        );
-
-      // Définition de l'objet Data envoyé au 2eme graphique
-      (this.data2 = {
-        datasets: [
+        ]
+      }),
+        // Définition de l'objet Data envoyé au 2eme graphique
+        (this.data2 = {
+          datasets: [
             {
               backgroundColor: ["#66ff66", "#996633", "#ffcc00"],
               data: [IntParBloc[0], IntParBloc[1], IntParBloc[2]],
@@ -711,89 +691,42 @@ export default {
               ]
             }
           ]
-      }
-      ),
-        // Définition des options du 2eme grahique
-        (this.options2 = {
-          responsive: false,
-          maintainAspectRatio: true,
-          legend: {
-            position: "top"
+        }),
+        // Définition de l'objet Data envoyé au 3eme graphique
+        (this.data3 = {
+          labels: [
+            "Janvier",
+            "Février",
+            "Mars",
+            "Avril",
+            "Mai",
+            "Juin",
+            "Juillet",
+            "Aout",
+            "Septembre",
+            "Octobre",
+            "Novembre",
+            "Decembre"
+          ],
+          datasets: [
+            {
+            type: "line",
+            fill: false,
+            label: "Cumul attestations",
+            pointBackgroundColor: "#a23b45",
+            borderColor: "#a23b45",
+            backgroundColor: "#a23b45",
+            yAxisID: "B",
+            data: NbAttCumule
           },
-          title: {
-            display: true,
-            text:
-              "Répartition interventions par Bloc et par Cadre d'intervention"
-          },
-          animation: {
-            animateScale: true,
-            animateRotate: true
-          },
-          pieceLabel: {
-            mode: "percentage",
-            precision: 1
-          },
-          tooltips: {
-            callbacks: {
-              label: function(tooltipItem, data) {
-                var dataset = data.datasets[tooltipItem.datasetIndex];
-                var index = tooltipItem.index;
-                return dataset.labels[index] + ": " + dataset.data[index] + "%";
-              }
-            }
-          }
-        }
-        );
-
-      // Définition de l'objet Data envoyé au 3eme graphique
-      (this.data3 = {
-        labels: [
-          "Janvier",
-          "Février",
-          "Mars",
-          "Avril",
-          "Mai",
-          "Juin",
-          "Juillet",
-          "Aout",
-          "Septembre",
-          "Octobre",
-          "Novembre",
-          "Decembre"
-        ],
-        datasets: [
-          { label: "bloc 1", backgroundColor: "#66ff66", data: NbIntBloc1 },
-          { label: "bloc 2", backgroundColor: "#996633", data: NbIntBloc2 },
-          { label: "bloc 3", backgroundColor: "#ffcc00", data: NbIntBloc3 }
-        ]
-      }),
-        // Définition des options du 3eme grahique
-        (this.options3 = {
-          responsive: true,
-          maintainAspectRatio: true,
-          title: {
-            display: true,
-            text: "Nombre interventions par type de bloc: "
-          },
-          scales: {
-            xAxes: [
-              {
-                stacked: true,
-                categoryPercentage: 0.5,
-                barPercentage: 1
-              }
-            ],
-            yAxes: [
-              {
-                stacked: true
-              }
-            ]
-          }
-        });
-
-      // Définition de l'objet Data envoyé au 2eme graphique
-      (this.data4 = {
-        datasets: [
+            { label: "bloc 1", backgroundColor: "#66ff66",  yAxisID: "A", data: NbIntBloc1 },
+            { label: "bloc 2", backgroundColor: "#996633",  yAxisID: "A", data: NbIntBloc2 },
+            { label: "bloc 3", backgroundColor: "#ffcc00",  yAxisID: "A", data: NbIntBloc3 }
+          ]
+        }),
+        // Définition de l'objet Data envoyé au 4eme graphique
+        (this.data4 = {
+          datasets: [
             {
               backgroundColor: [
                 "#0074D9",
@@ -840,8 +773,63 @@ export default {
               data: SubDataToDisplay
             }
           ]
-      }
-      );
+        });
+
+      // Définition des options du 1er et 3eme grahiques
+      this.optionsHisto = {
+        responsive: true,
+        maintainAspectRatio: true,
+        scales: {
+          xAxes: [
+            {
+              stacked: true,
+              categoryPercentage: 0.5,
+              barPercentage: 1
+            }
+          ],
+          yAxes: [
+            {
+              id: "A",
+              type: "linear",
+              display: true,
+              position: "left",
+              min: 0,
+              stacked: true
+            },
+            {
+              id: "B",
+              type: "linear",
+              position: "right",
+              min: 0
+            }
+          ]
+        }
+      };
+      // Définition des options du 2eme et 4eme grahiques
+      this.optionsDoughnut = {
+        responsive: false,
+        maintainAspectRatio: true,
+        legend: {
+          position: "top"
+        },
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        },
+        pieceLabel: {
+          mode: "percentage",
+          precision: 1
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var dataset = data.datasets[tooltipItem.datasetIndex];
+              var index = tooltipItem.index;
+              return dataset.labels[index] + ": " + dataset.data[index] + "%";
+            }
+          }
+        }
+      };
     },
     //
     // Export CSV des utilisateurs
@@ -884,6 +872,7 @@ export default {
         if (this.nameFilter != "") {
           isMatch =
             isMatch &&
+            intervention.commentaire != "" &&
             intervention.nom
               .toLowerCase()
               .indexOf(this.nameFilter.toLowerCase()) > -1;
@@ -894,6 +883,12 @@ export default {
             intervention.commune.com_libellemaj
               .toLowerCase()
               .indexOf(this.placeFilter.toLowerCase()) > -1;
+        }
+        // Suppression des interventions sans commentaire
+        if (this.placeFilter == "" && this.nameFilter == "") {
+          isMatch =
+            isMatch &&
+            intervention.commentaire != ""  
         }
         return isMatch;
       });
