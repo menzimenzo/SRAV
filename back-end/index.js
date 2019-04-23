@@ -34,7 +34,9 @@ app.use(session({
     secret: config.sessionSecret,
     cookie: {
         // Session est valide 2 jours
-        maxAge  : 2 * 24 * 60 * 60 * 1000,
+        //maxAge  : 2 * 24 * 60 * 60 * 1000,
+        // Session maintenue pour 10 heures
+        maxAge  : 8 * 60 * 60 * 1000,
         domain  : config.FRONT_DOMAIN,
         secure  : false,
         httpOnly: false
