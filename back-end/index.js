@@ -54,6 +54,7 @@ const structures    = require('./routes/structures');
 const pdf           = require('./routes/pdf');
 const user          = require('./routes/user');
 const documents     = require('./routes/documents');
+const batch         = require('./routes/batch');
 
 // Route vers la page de connexion
 app.use(config.URL_PREFIX + '/connexion', connexion);
@@ -75,6 +76,8 @@ app.use(config.URL_PREFIX + '/user', user);
 app.get(config.URL_PREFIX + '', function (req, res) {
     res.send('Bienvenue sur le backend de Savoir Rouler à vélo');
 });
+
+app.use(config.URL_PREFIX + '/batch', batch);
 
 app.listen(3001, function () {
     console.log('Example app listening on port 3001!')
