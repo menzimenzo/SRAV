@@ -919,11 +919,6 @@ export default {
           }
         }
       };
-      console.log(this.data1.labels)
-      console.log(this.data1.datasets[0].data)
-      console.log(this.data1.datasets[1].data)
-      console.log(this.data1.datasets[2].data)
-      console.log(this.data1.datasets[3].data)
     },
     //
     // Export CSV des utilisateurs

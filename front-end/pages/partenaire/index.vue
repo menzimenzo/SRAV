@@ -624,11 +624,6 @@ export default {
           }
         }
       };
-      console.log(this.data1.labels)
-      console.log(this.data1.datasets[0].data)
-      console.log(this.data1.datasets[1].data)
-      console.log(this.data1.datasets[2].data)
-      console.log(this.data1.datasets[3].data)
     }
   },
   computed: mapState(["interventions", "users"]),
@@ -642,8 +637,7 @@ export default {
     await Promise.all([
       this.$store
         .dispatch("get_users")
-        .then(response => {
-        })
+        .then(response => {})
         .catch(error => {
           console.error(
             "Une erreur est survenue lors de la récupération des users",
