@@ -123,7 +123,7 @@
                   <h4 v-if="loading === false">
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">poll</i>
-                    Accès aux indicateurs : {{NbAttestations}} attestations délivrées
+                    Accès aux indicateurs : {{NbAttestations}} attestations enregistrées
                   </h4>
                   <h4 v-else>
                     <i class="material-icons accordion-chevron">chevron_right</i>
@@ -300,15 +300,13 @@ export default {
   data() {
     return {
       data1: null,
-      options1: null,
       data2: null,
-      options2: null,
       data3: null,
-      options3: null,
       data4: null,
+      optionsHisto: null,
+      optionsDoughnut: null,
       NbAttestations: null,
       loading: true,
-      chartdata: null,
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
         { path: "proLibelle", title: "Rôle", type: "text", sortable: true },
@@ -414,14 +412,15 @@ export default {
       }
     },
     calcStat: function(intervention) {
-      let NbIntBloc1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbIntBloc2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbIntBloc3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbIntSco = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbIntPer = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbIntExt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbAtt = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
-      let NbAttCumule = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      let NbIntBloc1 = [];
+      let NbIntBloc2 = [];
+      let NbIntBloc3 = [];
+      let NbIntSco = [];
+      let NbIntPer = [];
+      let NbIntExt = [];
+      let labelsHisto = [];
+      let NbAtt = [];
+      let NbAttCumule = [];
       let IntParBloc = [0, 0, 0];
       let IntParBlocParCadre = [0, 0, 0, 0, 0, 0, 0, 0, 0];
       let IntParStructure = {};
@@ -436,17 +435,22 @@ export default {
       let data4 = {};
       let optionsHisto = {};
       let optionsDoughnut = {};
-      // nb de structures affichées sur le 4eme graphique. 
+      // nb de structures affichées sur le 4eme graphique.
       // S'il y a plus de nbMaxStructureAffichees structures on affiches les nbMaxStructureAffichees premieres + "Autres"
-      const nbMaxStructureAffichees = 2 ;
+      const nbMaxStructureAffichees = 8;
+      const moisRef = 1;
+      const anneeRef = 118;
 
       intervention.forEach(element => {
         let mois = element.dateIntervention.getMonth();
+        let annee = element.dateIntervention.getYear();
         let blocId = Number(element.blocId);
         let nbEnfants = Number(element.nbEnfants);
         let cai = Number(element.cai);
         let structure = element.structure;
         let indice = 0;
+        let indiceMensuel =
+          Number(annee - anneeRef) * 12 + Number(mois - moisRef + 1);
 
         //G4
         if (!IntParStructure[structure]) {
@@ -458,50 +462,115 @@ export default {
           };
         }
         IntParStructure[structure].total++;
-
         //G2
         IntParBloc[blocId - 1] = IntParBloc[blocId - 1] + 1;
         indice = (blocId - 1) * 3 + cai - 1;
         IntParBlocParCadre[indice] = IntParBlocParCadre[indice] + 1;
 
+        // Si blocid = 3 alors il y a attestation
         if (blocId === 3) {
-          NbAtt[mois] = NbAtt[mois] + nbEnfants;
+          if (!NbAtt[indiceMensuel]) {
+            NbAtt[indiceMensuel] = 0;
+          }
+          NbAtt[indiceMensuel] = NbAtt[indiceMensuel] + nbEnfants;
           this.NbAttestations = this.NbAttestations + nbEnfants;
         }
+
+        // incrementation du tableau des etiquettes d'abscisses
+        if (mois + 1 < 10) {
+          labelsHisto[indiceMensuel] =
+            Number(1900 + annee) + "-0" + Number(mois + 1);
+        } else {
+          labelsHisto[indiceMensuel] =
+            Number(1900 + annee) + "-" + Number(mois + 1);
+        }
+
         switch (blocId) {
           case 1:
-            NbIntBloc1[mois] = NbIntBloc1[mois] + 1;
+            if (!NbIntBloc1[indiceMensuel]) {
+              NbIntBloc1[indiceMensuel] = 1;
+            } else {
+              NbIntBloc1[indiceMensuel]++;
+            }
             IntParStructure[structure].bloc1++;
             break;
           case 2:
-            NbIntBloc2[mois] = NbIntBloc2[mois] + 1;
+            if (!NbIntBloc2[indiceMensuel]) {
+              NbIntBloc2[indiceMensuel] = 1;
+            } else {
+              NbIntBloc2[indiceMensuel]++;
+            }
             IntParStructure[structure].bloc2++;
             break;
           case 3:
-            NbIntBloc3[mois] = NbIntBloc3[mois] + 1;
+            if (!NbIntBloc3[indiceMensuel]) {
+              NbIntBloc3[indiceMensuel] = 1;
+            } else {
+              NbIntBloc3[indiceMensuel]++;
+            }
             IntParStructure[structure].bloc3++;
             break;
         }
+
         switch (cai) {
           case 1:
-            NbIntSco[mois] = NbIntSco[mois] + 1;
+            if (!NbIntSco[indiceMensuel]) {
+              NbIntSco[indiceMensuel] = 1;
+            } else {
+              NbIntSco[indiceMensuel]++;
+            }
             break;
           case 2:
-            NbIntPer[mois] = NbIntPer[mois] + 1;
+            if (!NbIntPer[indiceMensuel]) {
+              NbIntPer[indiceMensuel] = 1;
+            } else {
+              NbIntPer[indiceMensuel]++;
+            }
             break;
           case 3:
-            NbIntExt[mois] = NbIntExt[mois] + 1;
+            if (!NbIntExt[indiceMensuel]) {
+              NbIntExt[indiceMensuel] = 1;
+            } else {
+              NbIntExt[indiceMensuel]++;
+            }
             break;
         }
       });
 
-      // Calcul des interventions cumulees
-      for(var i = 0; i < NbAtt.length;i++) {
-        if (i === 1 ) {NbAttCumule[i]=NbAtt[i] }
-        else { NbAttCumule[i]=NbAttCumule[i-1]+NbAtt[i]}
+      for (var i = 0; i < labelsHisto.length; i++) {
+        // initialisation des mois "vides"
+        if (!NbAtt[i]) {
+          NbAtt[i] = 0;
+        }
+        if (!NbAttCumule[i]) {
+          NbAttCumule[i] = 0;
+        }
+        if (!NbIntBloc1[i]) {
+          NbIntBloc1[i] = 0;
+        }
+        if (!NbIntBloc2[i]) {
+          NbIntBloc2[i] = 0;
+        }
+        if (!NbIntBloc3[i]) {
+          NbIntBloc3[i] = 0;
+        }
+        if (!NbIntSco[i]) {
+          NbIntSco[i] = 0;
+        }
+        if (!NbIntExt[i]) {
+          NbIntExt[i] = 0;
+        }
+        if (!NbIntPer[i]) {
+          NbIntPer[i] = 0;
+        }
+        // Calcul des interventions cumulees
+        if (i == 0) {
+          NbAttCumule[i] = NbAtt[i];
+        } else {
+          NbAttCumule[i] = NbAttCumule[i - 1] + NbAtt[i];
+        }
       }
-
-      //on passe de valeures absolues en pourcentage
+      //on passe des valeurs absolues en pourcentage
       for (var i = 0; i < IntParBloc.length; i++) {
         IntParBloc[i] = Math.round((IntParBloc[i] / intervention.length) * 100);
       }
@@ -600,22 +669,40 @@ export default {
         });
       }
 
+      // pour les graph 1 et 3, on ne garde que 14 mois (12 avant le mois courant et 2 apres le mois courant)
+      const today = new Date();
+      const moisCourant = today.getMonth();
+      const anneeCourant = today.getYear();
+      let indiceCourant =
+        Number(anneeCourant - anneeRef) * 12 +
+        Number(moisCourant - moisRef + 1);
+      // on efface tous les mois inférieurs au mois courant -12
+      for (var i = 0; i < indiceCourant - 12; i++) {
+        NbIntSco.shift();
+        NbAtt.shift();
+        NbIntPer.shift();
+        NbIntExt.shift();
+        NbAttCumule.shift();
+        NbIntBloc1.shift();
+        NbIntBloc2.shift();
+        NbIntBloc3.shift();
+        labelsHisto.shift();
+      }
+      // on efface tous les mois supérieurs au mois courant +2
+      while (labelsHisto.length > 15) {
+        NbIntSco.pop();
+        NbAtt.pop();
+        NbIntPer.pop();
+        NbIntExt.pop();
+        NbAttCumule.pop();
+        NbIntBloc1.pop();
+        NbIntBloc2.pop();
+        NbIntBloc3.pop();
+        labelsHisto.pop();
+      }
       // Définition de l'objet Data envoyé au 1er graphique
       (this.data1 = {
-        labels: [
-          "Janvier",
-          "Février",
-          "Mars",
-          "Avril",
-          "Mai",
-          "Juin",
-          "Juillet",
-          "Aout",
-          "Septembre",
-          "Octobre",
-          "Novembre",
-          "Decembre"
-        ],
+        labels: labelsHisto,
         datasets: [
           {
             type: "line",
@@ -694,34 +781,36 @@ export default {
         }),
         // Définition de l'objet Data envoyé au 3eme graphique
         (this.data3 = {
-          labels: [
-            "Janvier",
-            "Février",
-            "Mars",
-            "Avril",
-            "Mai",
-            "Juin",
-            "Juillet",
-            "Aout",
-            "Septembre",
-            "Octobre",
-            "Novembre",
-            "Decembre"
-          ],
+          labels: labelsHisto,
           datasets: [
             {
-            type: "line",
-            fill: false,
-            label: "Cumul attestations",
-            pointBackgroundColor: "#a23b45",
-            borderColor: "#a23b45",
-            backgroundColor: "#a23b45",
-            yAxisID: "B",
-            data: NbAttCumule
-          },
-            { label: "bloc 1", backgroundColor: "#66ff66",  yAxisID: "A", data: NbIntBloc1 },
-            { label: "bloc 2", backgroundColor: "#996633",  yAxisID: "A", data: NbIntBloc2 },
-            { label: "bloc 3", backgroundColor: "#ffcc00",  yAxisID: "A", data: NbIntBloc3 }
+              type: "line",
+              fill: false,
+              label: "Cumul attestations",
+              pointBackgroundColor: "#a23b45",
+              borderColor: "#a23b45",
+              backgroundColor: "#a23b45",
+              yAxisID: "B",
+              data: NbAttCumule
+            },
+            {
+              label: "bloc 1",
+              backgroundColor: "#66ff66",
+              yAxisID: "A",
+              data: NbIntBloc1
+            },
+            {
+              label: "bloc 2",
+              backgroundColor: "#996633",
+              yAxisID: "A",
+              data: NbIntBloc2
+            },
+            {
+              label: "bloc 3",
+              backgroundColor: "#ffcc00",
+              yAxisID: "A",
+              data: NbIntBloc3
+            }
           ]
         }),
         // Définition de l'objet Data envoyé au 4eme graphique
@@ -830,6 +919,11 @@ export default {
           }
         }
       };
+      console.log(this.data1.labels)
+      console.log(this.data1.datasets[0].data)
+      console.log(this.data1.datasets[1].data)
+      console.log(this.data1.datasets[2].data)
+      console.log(this.data1.datasets[3].data)
     },
     //
     // Export CSV des utilisateurs
@@ -886,9 +980,7 @@ export default {
         }
         // Suppression des interventions sans commentaire
         if (this.placeFilter == "" && this.nameFilter == "") {
-          isMatch =
-            isMatch &&
-            intervention.commentaire != ""  
+          isMatch = isMatch && intervention.commentaire != "";
         }
         return isMatch;
       });
