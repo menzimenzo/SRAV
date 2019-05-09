@@ -48,6 +48,10 @@ const formatIntervention = intervention => {
         result.caiLib = intervention.cai_libelle
     }
 
+    result.structureCode = intervention.str_libellecourt;
+    result.structureLibelle = intervention.str_libelle;
+    result.StructureLocaleUtilisateur = intervention.uti_structurelocale;
+
     return result
 }
 
@@ -130,6 +134,13 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 newIntervention.dateIntervention = newIntervention.dateIntervention.toISOString(),
                 newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
                 newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                delete newIntervention.structureCode;
+                delete newIntervention.structureLibelle;
+                delete newIntervention.StructureLocaleUtilisateur;
+                newIntervention.structureCode = intervention.str_libellecourt;
+                newIntervention.structureLibelle = intervention.str_libelle;
+                newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;                
+                
                 return newIntervention
             })
             if (!interventions || !interventions.length) {
@@ -175,7 +186,7 @@ router.get('/commentaires/', async function (req, res) {
         whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id `
     }
 
-    const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
+    const requete = `SELECT * from intervention ${whereClause} INNER JOIN structure on structure.str_id = utilisateur.str_id order by int_dateintervention desc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
