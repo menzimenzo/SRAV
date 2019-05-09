@@ -177,16 +177,16 @@ router.get('/commentaires/', async function (req, res) {
     var whereClause = ""
     // Utilisateur est partenaire => intervention de la structure
     if(user.pro_id == 2){
-        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id} and int_commentaire is not null and int_commentaire <> ''`
+        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id where utilisateur.str_id=${user.str_id} and int_commentaire is not null and int_commentaire <> '' `
     // Utilisateur Administrateur : Exclusion des interventions sans commentaires
     } else if(user.pro_id == 1){
-        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id WHERE int_commentaire is not null and int_commentaire <> ''`
+        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id WHERE int_commentaire is not null and int_commentaire <> ''`
     } else if(user.pro_id == 3){
         // Cet url ne doit pas être appelée par ce type de profil
-        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id `
+        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id `
     }
 
-    const requete = `SELECT * from intervention ${whereClause} INNER JOIN structure on structure.str_id = utilisateur.str_id order by int_dateintervention desc`;
+    const requete = `SELECT * from intervention  ${whereClause}  order by int_dateintervention desc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
