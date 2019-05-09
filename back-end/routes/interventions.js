@@ -80,10 +80,19 @@ router.get('/delete/:id', async function (req, res) {
 
 router.get('/csv/:utilisateurId', async function (req, res) {
 
-    const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
+    //const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
     // Where condition is here for security reasons.
 
-    /* MANTIS 68203 Pour un profil Admin, on exporte toutes les interventions */
+   /* MANTIS 68203 Erreur lors de l'export par un Admin */
+   // Modification de la récupération de l'utilisateur courant 
+   if(!req.session.user){
+    return res.sendStatus(403)
+    }
+    const id = req.params.id
+    const user = req.session.user
+    const utilisateurId = user.uti_id
+
+    /* Pour un profil Admin, on exporte toutes les interventions */
     var whereClause = ""
     if(user.pro_id == 3){
         whereClause += ` and uti_id=${utilisateurId} `
