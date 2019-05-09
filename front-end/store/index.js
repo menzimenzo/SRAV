@@ -99,6 +99,30 @@ export const actions = {
       console.log(err)
     })
   },
+  async get_interventionscommentaires({ commit, state }) {
+    console.info("get_interventions");
+    const url = process.env.API_URL + "/interventions/commentaires";
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        response.interventions.forEach(intervention => {
+          intervention.dateCreation     = new Date(intervention.dateCreation)
+          intervention.dateIntervention = new Date(intervention.dateIntervention)
+        })
+        commit("set_interventionCourrantes", response.interventions);
+        console.info("fetched interventions - done", {
+          interventions: this.interventions
+        });
+        // this.interventions = response.interventions
+      })
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération des commentaires interventions",
+          error
+        );
+        //this.$store.commit("clean_interventions");
+      });
+  },
   async get_interventions({ commit, state }) {
     console.info("get_interventions");
     const url = process.env.API_URL + "/interventions";

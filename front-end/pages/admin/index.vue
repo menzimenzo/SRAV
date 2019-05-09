@@ -418,7 +418,7 @@ export default {
           error
         );
       }),
-      this.$store.dispatch("get_interventions")
+      this.$store.dispatch("get_interventionscommentaires")
     ]);
     this.loading = false;
   }

@@ -222,7 +222,7 @@ export default {
           .catch(error => {
             console.error('Une erreur est survenue lors de la récupération des users', error)
           })
-      , this.$store.dispatch('get_interventions')
+      , this.$store.dispatch('get_interventionscommentaires')
     ])
     // Chargement des documents utilses
     this.$store.dispatch('get_documents')
