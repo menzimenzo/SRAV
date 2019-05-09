@@ -81,12 +81,19 @@ router.get('/delete/:id', async function (req, res) {
 router.get('/csv/:utilisateurId', async function (req, res) {
 
     const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
+    // Where condition is here for security reasons.
 
+    /* MANTIS 68203 Pour un profil Admin, on exporte toutes les interventions */
+    var whereClause = ""
+    if(user.pro_id == 3){
+        whereClause += ` and uti_id=${utilisateurId} `
+    }
+    // Remplacement Clause Where en remplacant utilisateur par clause dynamique
     const requete =`SELECT * from intervention 
     LEFT JOIN bloc ON bloc.blo_id = intervention.blo_id 
     LEFT JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
     LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
-    where utilisateur.uti_id=${utilisateurId} order by int_id asc`;
+    ${whereClause} order by int_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
