@@ -59,11 +59,10 @@
           id="structLocaleGroup"
           label="Structure locale :"
           required
-          v-if="isFederation(user.structureId)"
           label-for="structLocaleInput"
         >
           <b-form-input
-            v-validate="{required: isFederation(user.structureId)}"
+            v-validate="{required: true}"
             name="structLoc"
             :state="validateState('structLoc')"
             aria-describedby="structLocFeedback"
@@ -72,7 +71,7 @@
             text=""
             v-model="user.structureLocale"
             required
-            placeholder="Nom de la structure"
+            placeholder="Nom de la structure locale"
           />
           <b-form-invalid-feedback id="structLocFeedback">La structure locale est obligatoire.</b-form-invalid-feedback>
         </b-form-group>

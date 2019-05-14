@@ -48,6 +48,10 @@ const formatIntervention = intervention => {
         result.caiLib = intervention.cai_libelle
     }
 
+    result.structureCode = intervention.str_libellecourt;
+    result.structureLibelle = intervention.str_libelle;
+    result.StructureLocaleUtilisateur = intervention.uti_structurelocale;
+
     return result
 }
 
@@ -80,13 +84,37 @@ router.get('/delete/:id', async function (req, res) {
 
 router.get('/csv/:utilisateurId', async function (req, res) {
 
-    const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
+    //const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
+    // Where condition is here for security reasons.
 
+   /* MANTIS 68203 Erreur lors de l'export par un Admin */
+   // Modification de la récupération de l'utilisateur courant 
+    if(!req.session.user){
+        return res.sendStatus(403)
+    }
+    const id = req.params.id
+    const user = req.session.user
+    const utilisateurId = user.uti_id
+    const stru = user.uti_id
+
+    /* Pour un profil Admin, on exporte toutes les interventions */
+    var whereClause = ""
+    /* Pour un profil Intervenant on exporte que ces interventions */
+    if(user.pro_id == 3){
+        whereClause += ` and utilisateur.uti_id=${utilisateurId} `
+    }
+    /* Pour un profil Partenaire, on exporte les interventions de sa structure*/
+    if(user.pro_id == 2){
+        whereClause += ` and utilisateur.str_id=${user.str_id} `
+    }
+    // Remplacement Clause Where en remplacant utilisateur par clause dynamique
     const requete =`SELECT * from intervention 
-    LEFT JOIN bloc ON bloc.blo_id = intervention.blo_id 
-    LEFT JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
-    LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
-    where utilisateur.uti_id=${utilisateurId} order by int_id asc`;
+    INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
+    INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
+    INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
+    ${whereClause} 
+    INNER JOIN structure ON structure.str_id = utilisateur.str_id 
+    order by int_id asc`;
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
@@ -106,6 +134,13 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 newIntervention.dateIntervention = newIntervention.dateIntervention.toISOString(),
                 newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
                 newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                delete newIntervention.structureCode;
+                delete newIntervention.structureLibelle;
+                delete newIntervention.StructureLocaleUtilisateur;
+                newIntervention.structureCode = intervention.str_libellecourt;
+                newIntervention.structureLibelle = intervention.str_libelle;
+                newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;                
+                
                 return newIntervention
             })
             if (!interventions || !interventions.length) {
@@ -123,6 +158,46 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                     return res.send(csvContent)
                 }
             })
+        }
+    })
+});
+
+/* Séparation de la partie de recherche commentaire qui interfère avec l'écran "Mes interventions" initialement pas prévu */
+/* On ajoute donc cette partie pour répondre à l'affichage des commentaires en Admin et Partenaire sans effet de bord sur l'écran d'intervention  */
+/* Correction MANTIS 68438  */
+router.get('/commentaires/', async function (req, res) {
+    if(!req.session.user){ 
+        return res.sendStatus(403) 
+    }
+
+    const user = req.session.user
+    const utilisateurId = user.uti_id
+
+    // Get subset of interventions depending on user profile
+    var whereClause = ""
+    // Utilisateur est partenaire => intervention de la structure
+    if(user.pro_id == 2){
+        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id where utilisateur.str_id=${user.str_id} and int_commentaire is not null and int_commentaire <> '' `
+    // Utilisateur Administrateur : Exclusion des interventions sans commentaires
+    } else if(user.pro_id == 1){
+        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id WHERE int_commentaire is not null and int_commentaire <> ''`
+    } else if(user.pro_id == 3){
+        // Cet url ne doit pas être appelée par ce type de profil
+        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id `
+    }
+
+    const requete = `SELECT * from intervention  ${whereClause}  order by int_dateintervention desc`;
+    console.log(requete)
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            console.log(err.stack);
+            return res.status(400).json('erreur lors de la récupération des interventions');
+        }
+        else {
+            console.info(result.rows)
+            const interventions = result.rows.map(formatIntervention);
+            res.json({ interventions });
         }
     })
 });
@@ -172,13 +247,13 @@ router.get('/', async function (req, res) {
     var whereClause = ""
     // Utilisateur est partenaire => intervention de la structure
     if(user.pro_id == 2){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id} and int_commentaire is not null and int_commentaire <> ''`
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.str_id=${user.str_id} `
     // Utilisateur est intervenant => ses interventions
     } else if(user.pro_id == 3){
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
     // Utilisateur Administrateur : Exclusion des interventions sans commentaires
     } else if(user.pro_id == 1){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id WHERE int_commentaire is not null and int_commentaire <> ''`
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id `
     }
 
     const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
