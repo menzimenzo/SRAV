@@ -153,6 +153,7 @@
                   :width="400"
                   :height="400"
                 />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
               <b-col align-self="center">
                 <doughnut-chart
@@ -162,6 +163,7 @@
                   :width="400"
                   :height="400"
                 />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
@@ -182,6 +184,7 @@
                   :width="400"
                   :height="400"
                 />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
               <b-col align-self="center">
                 <doughnut-chart
@@ -191,6 +194,7 @@
                   :width="400"
                   :height="400"
                 />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
             </b-row>
           </b-collapse>

@@ -183,20 +183,19 @@ export default {
             }
             //on passe des valeurs absolues en pourcentage
             for (var i = 0; i < IntParBloc.length; i++) {
-                IntParBloc[i] = Math.round((IntParBloc[i] / NbIntervention) * 100*100)/100;
+                IntParBloc[i] = Math.round((IntParBloc[i] / NbIntervention) * 100 * 100) / 100;
             }
             for (var i = 0; i < IntParBlocParCadre.length; i++) {
                 IntParBlocParCadre[i] = Math.round(
-                    (IntParBlocParCadre[i] /NbIntervention) * 10000
-                )/100;
+                    (IntParBlocParCadre[i] / NbIntervention) * 10000
+                ) / 100;
             }
             // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
             var keys = Object.keys(IntParStructure);
             keys.sort(function (a, b) {
-                return IntParStructure[b] - IntParStructure[a];
+                return IntParStructure[b].total - IntParStructure[a].total;
             });
             if (keys.length >= nbMaxStructureAffichees) {
-                console.log("on regroupe");
                 let nbAutre = { total: 0, bloc1: 0, bloc2: 0, bloc3: 0 };
                 let i = 0;
                 keys.forEach(function (k) {
@@ -210,22 +209,22 @@ export default {
                         DataToDisplay.push(
                             Math.round(
                                 (Number(IntParStructure[k].total) / NbIntervention) * 10000
-                            )/100
+                            ) / 100
                         );
                         SubDataToDisplay.push(
                             Math.round(
                                 (Number(IntParStructure[k].bloc1) / NbIntervention) * 10000
-                            )/100
+                            ) / 100
                         );
                         SubDataToDisplay.push(
                             Math.round(
                                 (Number(IntParStructure[k].bloc2) / NbIntervention) * 10000
-                            )/100
+                            ) / 100
                         );
                         SubDataToDisplay.push(
                             Math.round(
                                 (Number(IntParStructure[k].bloc3) / NbIntervention) * 10000
-                            )/100
+                            ) / 100
                         );
                         LabelsToDisplay.push(k);
                         SubLabelsToDisplay.push(k + " / bloc 1");
@@ -234,16 +233,16 @@ export default {
                     }
                 });
                 DataToDisplay.push(
-                    Math.round((nbAutre.total / NbIntervention) * 10000)/100
+                    Math.round((nbAutre.total / NbIntervention) * 10000) / 100
                 );
                 SubDataToDisplay.push(
-                    Math.round((nbAutre.bloc1 / NbIntervention) * 10000)/100
+                    Math.round((nbAutre.bloc1 / NbIntervention) * 10000) / 100
                 );
                 SubDataToDisplay.push(
-                    Math.round((nbAutre.bloc2 / NbIntervention) * 10000)/100
+                    Math.round((nbAutre.bloc2 / NbIntervention) * 10000) / 100
                 );
                 SubDataToDisplay.push(
-                    Math.round((nbAutre.bloc3 / NbIntervention) * 10000)/100
+                    Math.round((nbAutre.bloc3 / NbIntervention) * 10000) / 100
                 );
                 LabelsToDisplay.push("Autre");
                 SubLabelsToDisplay.push("Autre / bloc 1");
@@ -254,22 +253,22 @@ export default {
                     DataToDisplay.push(
                         Math.round(
                             (Number(IntParStructure[k].total) / NbIntervention) * 10000
-                        )/100
+                        ) / 100
                     );
                     SubDataToDisplay.push(
                         Math.round(
                             (Number(IntParStructure[k].bloc1) / NbIntervention) * 10000
-                        )/100
+                        ) / 100
                     );
                     SubDataToDisplay.push(
                         Math.round(
                             (Number(IntParStructure[k].bloc2) / NbIntervention) * 10000
-                        )/100
+                        ) / 100
                     );
                     SubDataToDisplay.push(
                         Math.round(
                             (Number(IntParStructure[k].bloc3) / NbIntervention) * 10000
-                        )/100
+                        ) / 100
                     );
                     LabelsToDisplay.push(k);
                     SubLabelsToDisplay.push(k + " / bloc 1");
