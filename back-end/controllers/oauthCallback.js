@@ -67,9 +67,11 @@ const oauthCallback = async (req, res, next) => {
           if (result.rows.length === 0) {
             console.log("L'utilisateur n'existe pas");
             url = "/connexion/inscription"
+            console.log('Nom de naissance' + userInfo.preferred_username);
+            console.log('Nom d\'usage' + userInfo.family_name);
 
             // recuperation du nom d'usage plutot que du nom de naissance
-            if (userInfo.preferred_username != '') { 
+            if (userInfo.preferred_username != undefined) { 
               console.log('utilisation préférentielle du nom d\'usage plutot que de naissance')
               nom = userInfo.preferred_username
             }
@@ -78,10 +80,9 @@ const oauthCallback = async (req, res, next) => {
               console.log('utilisation préférentielle du nom de naissance')
               nom = userInfo.family_name
             }
-
             const { rows } = await pgPool.query(
               'INSERT INTO utilisateur(pro_id, stu_id, str_id, uti_mail, uti_nom, uti_prenom, uti_datenaissance,\
-                uti_tockenfranceconnect) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *'
+                uti_tockenfranceconnect) VALUES($1, $2, $3, $4, upper($5), $6, $7, $8) RETURNING *'
               , [3, 1, 1, userInfo.email, nom, userInfo.given_name, userInfo.birthdate, userInfo.sub]
             ).catch(err => {
               console.log(err)

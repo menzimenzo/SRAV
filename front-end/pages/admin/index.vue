@@ -471,7 +471,7 @@ export default {
         if (this.nameFilter != "") {
           isMatch =
             isMatch &&
-            intervention.commentaire != "" &&
+            String(intervention.commentaire) != "null" &&
             intervention.nom
               .toLowerCase()
               .indexOf(this.nameFilter.toLowerCase()) > -1;
@@ -479,13 +479,14 @@ export default {
         if (this.placeFilter != "") {
           isMatch =
             isMatch &&
+            String(intervention.commentaire) != "null" &&
             intervention.commune.com_libellemaj
               .toLowerCase()
               .indexOf(this.placeFilter.toLowerCase()) > -1;
         }
         // Suppression des interventions sans commentaire
         if (this.placeFilter == "" && this.nameFilter == "") {
-          isMatch = isMatch && intervention.commentaire != "";
+          isMatch = isMatch && String(intervention.commentaire) != "null";
         }
         return isMatch;
       });

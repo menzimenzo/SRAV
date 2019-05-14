@@ -162,7 +162,7 @@
             <b-card-body>
               <editable
                 :columns="headersCom"
-                :data="interventions"
+                :data="commentaires"
                 :removable="false"
                 :creable="false"
                 :editable="false"
@@ -207,6 +207,7 @@ export default {
       optionsDoughnut: null,
       NbAttestations: null,
       loading: true,
+      commentaires : null,
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
         { path: "proLibelle", title: "Rôle", type: "date", sortable: true },
@@ -281,17 +282,39 @@ export default {
           const fileName = "Savoir Rouler - Intervenants.csv";
           link.setAttribute("download", fileName);
           // Télécharge le fichier
-          link.click();
-          link.remove();
-          console.log("Done - Download", { fileName });
-        })
-        .catch(err => {
-          console.log(JSON.stringify(err));
-          this.$toasted.error("Erreur lors du téléchargement: " + err.message);
-        });
+          link.click()
+          link.remove()
+          console.log('Done - Download', {fileName})
+      }).catch(err => {
+          console.log(JSON.stringify(err))
+          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
+      })
+    },
+    downloadDoc: function(doc) {
+      this.$axios({
+        url: process.env.API_URL + '/documents/'+doc.doc_id,
+        method: 'GET',
+        responseType: 'blob'
+      }).then((response) => {
+          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+           // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]))
+          // Crée un lien caché pour télécharger le fichier
+          const link = document.createElement('a')
+          link.href = url
+          const fileName = doc.doc_filename
+          link.setAttribute('download', fileName)
+          // Télécharge le fichier
+          link.click()
+          link.remove()
+          console.log('Done - Download', {fileName})
+      }).catch(err => {
+          console.log(JSON.stringify(err))
+          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
+      })
     }
   },
-  computed: mapState(["interventions", "users"]),
+  computed: mapState(['interventions', 'users', 'documents']),
 
   //  CHARGEMENT ASYNCHRONE DES USERS
   //
@@ -314,6 +337,12 @@ export default {
     // Calcul des stats définies dans le mixins stat.js
     this.calcStat(this.interventions);
     this.loading = false;
+    // suppression des interventions sans commentaires
+    this.commentaires = this.interventions.filter(intervention => {
+        var isMatch = true;
+        isMatch = isMatch && String(intervention.commentaire) != "null";
+        return isMatch;
+    })
   }
 };
 </script>

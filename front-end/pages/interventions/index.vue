@@ -124,6 +124,7 @@ export default {
       headers: [
         
         { path: 'id', title: 'N° d\'intervention', type: 'text', sortable:true},
+        { path: 'blocId', title: 'Bloc', type: 'text', sortable:true},
         { path: 'commune.com_libellemaj', title: 'Commune', type: 'text', sortable:true},
         { path: 'dateIntervention', title: 'Date d\'intervention', type: 'date', sortable:true, filter:"date"},
         { path: 'dateCreation', title: 'Création', type: 'date', sortable:true, filter:"timestamp"},

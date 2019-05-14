@@ -139,6 +139,16 @@
             :rows="3"
           ></b-form-textarea>
         </div>
+        <div class="mb-3 mt-3"  v-if="! formIntervention.dateMaj">
+          <p class="text-info">
+            Après mon intervention, je complète ou modifie les champs "nombre d'enfants", "genre" et "classe d'âge"
+          </p>
+        </div>
+        <div class="mb-3 mt-3"  v-if="formIntervention.dateMaj < formIntervention.dateIntervention">
+          <p class="text-info">
+            Après mon intervention, je complète ou modifie les champs "nombre d'enfants", "genre" et "classe d'âge"
+          </p>
+        </div>
         <div
           class="mb-3 mt-3"
           v-if="formIntervention.dateMaj"

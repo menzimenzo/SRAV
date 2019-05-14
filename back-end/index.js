@@ -12,7 +12,7 @@ app.locals.FCUrl = config.franceConnect.fcURL
 var bodyParser = require('body-parser');
 app.use(cors({
     credentials: true,
-    origin     : config.franceConnect.FS_URL
+    origin: new RegExp(config.FRONT_DOMAIN.replace('.', '\\.') + "$") 
 }))
 
 app.use(bodyParser.json());
@@ -34,7 +34,9 @@ app.use(session({
     secret: config.sessionSecret,
     cookie: {
         // Session est valide 2 jours
-        maxAge  : 2 * 24 * 60 * 60 * 1000,
+        //maxAge  : 2 * 24 * 60 * 60 * 1000,
+        // Session maintenue pour 10 heures
+        maxAge  : 8 * 60 * 60 * 1000,
         domain  : config.FRONT_DOMAIN,
         secure  : false,
         httpOnly: false
@@ -52,27 +54,30 @@ const structures    = require('./routes/structures');
 const pdf           = require('./routes/pdf');
 const user          = require('./routes/user');
 const documents     = require('./routes/documents');
+const batch         = require('./routes/batch');
 
 // Route vers la page de connexion
-app.use('/api/connexion', connexion);
+app.use(config.URL_PREFIX + '/connexion', connexion);
 
-app.use('/api/interventions', interventions);
+app.use(config.URL_PREFIX + '/interventions', interventions);
 
-app.use('/api/listecommune', listecommune);
+app.use(config.URL_PREFIX + '/listecommune', listecommune);
 
-app.use('/api/attestations', attestations);
+app.use(config.URL_PREFIX + '/attestations', attestations);
 
-app.use('/api/structures', structures);
+app.use(config.URL_PREFIX + '/structures', structures);
 
-app.use('/api/documents', documents);
+app.use(config.URL_PREFIX + '/documents', documents);
 
-app.use('/api/pdf', pdf);
+app.use(config.URL_PREFIX + '/pdf', pdf);
 
-app.use('/api/user', user);
+app.use(config.URL_PREFIX + '/user', user);
 
-app.get('/api', function (req, res) {
+app.get(config.URL_PREFIX + '', function (req, res) {
     res.send('Bienvenue sur le backend de Savoir Rouler à vélo');
 });
+
+app.use(config.URL_PREFIX + '/batch', batch);
 
 app.listen(3001, function () {
     console.log('Example app listening on port 3001!')
