@@ -20,6 +20,7 @@ export default {
             let LabelsToDisplay = [];
             let SubLabelsToDisplay = [];
             let NbAttestations = 0;
+            let NbIntervention = 0;
             let data1 = {};
             let data2 = {};
             let data3 = {};
@@ -28,7 +29,7 @@ export default {
             let optionsDoughnut = {};
             // nb de structures affichées sur le 4eme graphique.
             // S'il y a plus de nbMaxStructureAffichees structures on affiches les nbMaxStructureAffichees premieres + "Autres"
-            const nbMaxStructureAffichees = 5;
+            const nbMaxStructureAffichees = 7;
             const today = new Date();
             const moisCourant = Number(today.getMonth()) + 1;
             const anneeCourant = Number(today.getYear());
@@ -65,6 +66,7 @@ export default {
                     (indiceMensuel >= 0) &
                     (indiceMensuel <= 14)
                 ) {
+                    NbIntervention++
                     if (blocId === 3) {
                         if (!NbAtt[indiceMensuel]) {
                             NbAtt[indiceMensuel] = 0;
@@ -181,12 +183,12 @@ export default {
             }
             //on passe des valeurs absolues en pourcentage
             for (var i = 0; i < IntParBloc.length; i++) {
-                IntParBloc[i] = Math.round((IntParBloc[i] / intervention.length) * 100);
+                IntParBloc[i] = Math.round((IntParBloc[i] / NbIntervention) * 100*100)/100;
             }
             for (var i = 0; i < IntParBlocParCadre.length; i++) {
                 IntParBlocParCadre[i] = Math.round(
-                    (IntParBlocParCadre[i] / intervention.length) * 100
-                );
+                    (IntParBlocParCadre[i] /NbIntervention) * 10000
+                )/100;
             }
             // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
             var keys = Object.keys(IntParStructure);
@@ -207,23 +209,23 @@ export default {
                     } else {
                         DataToDisplay.push(
                             Math.round(
-                                (Number(IntParStructure[k].total) / intervention.length) * 100
-                            )
+                                (Number(IntParStructure[k].total) / NbIntervention) * 10000
+                            )/100
                         );
                         SubDataToDisplay.push(
                             Math.round(
-                                (Number(IntParStructure[k].bloc1) / intervention.length) * 100
-                            )
+                                (Number(IntParStructure[k].bloc1) / NbIntervention) * 10000
+                            )/100
                         );
                         SubDataToDisplay.push(
                             Math.round(
-                                (Number(IntParStructure[k].bloc2) / intervention.length) * 100
-                            )
+                                (Number(IntParStructure[k].bloc2) / NbIntervention) * 10000
+                            )/100
                         );
                         SubDataToDisplay.push(
                             Math.round(
-                                (Number(IntParStructure[k].bloc3) / intervention.length) * 100
-                            )
+                                (Number(IntParStructure[k].bloc3) / NbIntervention) * 10000
+                            )/100
                         );
                         LabelsToDisplay.push(k);
                         SubLabelsToDisplay.push(k + " / bloc 1");
@@ -232,16 +234,16 @@ export default {
                     }
                 });
                 DataToDisplay.push(
-                    Math.round((nbAutre.total / intervention.length) * 100)
+                    Math.round((nbAutre.total / NbIntervention) * 10000)/100
                 );
                 SubDataToDisplay.push(
-                    Math.round((nbAutre.bloc1 / intervention.length) * 100)
+                    Math.round((nbAutre.bloc1 / NbIntervention) * 10000)/100
                 );
                 SubDataToDisplay.push(
-                    Math.round((nbAutre.bloc2 / intervention.length) * 100)
+                    Math.round((nbAutre.bloc2 / NbIntervention) * 10000)/100
                 );
                 SubDataToDisplay.push(
-                    Math.round((nbAutre.bloc3 / intervention.length) * 100)
+                    Math.round((nbAutre.bloc3 / NbIntervention) * 10000)/100
                 );
                 LabelsToDisplay.push("Autre");
                 SubLabelsToDisplay.push("Autre / bloc 1");
@@ -251,23 +253,23 @@ export default {
                 keys.forEach(function (k) {
                     DataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].total) / intervention.length) * 100
-                        )
+                            (Number(IntParStructure[k].total) / NbIntervention) * 10000
+                        )/100
                     );
                     SubDataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].bloc1) / intervention.length) * 100
-                        )
+                            (Number(IntParStructure[k].bloc1) / NbIntervention) * 10000
+                        )/100
                     );
                     SubDataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].bloc2) / intervention.length) * 100
-                        )
+                            (Number(IntParStructure[k].bloc2) / NbIntervention) * 10000
+                        )/100
                     );
                     SubDataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].bloc3) / intervention.length) * 100
-                        )
+                            (Number(IntParStructure[k].bloc3) / NbIntervention) * 10000
+                        )/100
                     );
                     LabelsToDisplay.push(k);
                     SubLabelsToDisplay.push(k + " / bloc 1");
@@ -398,11 +400,14 @@ export default {
                     datasets: [
                         {
                             backgroundColor: [
-                                "#66A182",
-                                "#CAFFB9",
-                                "#AEF78E",
-                                "#COD461",
-                                "#FFDAB5"
+                                "#7D94FF",
+                                "#D7FFB2",
+                                "#7DFF76",
+                                "#10AE2C",
+                                "#FCFF51",
+                                "#FF7138",
+                                "#EA7CEB",
+                                "#0400FF"
                             ],
                             data: DataToDisplay,
                             labels: LabelsToDisplay
@@ -410,24 +415,33 @@ export default {
                         {
                             labels: SubLabelsToDisplay,
                             backgroundColor: [
-                                "#f9c34b",
-                                "#d99694",
-                                "#6897cf",
-                                "#f9c34b",
-                                "#d99694",
-                                "#6897cf",
-                                "#f9c34b",
-                                "#d99694",
-                                "#6897cf",
-                                "#f9c34b",
-                                "#d99694",
-                                "#6897cf",
-                                "#f9c34b",
-                                "#d99694",
-                                "#6897cf",
-                                "#f9c34b",
-                                "#d99694",
-                                "#6897cf"
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD",
+                                "#FF9914",
+                                "#F21B3F",
+                                "#08BDBD"
                             ],
                             data: SubDataToDisplay
                         }
