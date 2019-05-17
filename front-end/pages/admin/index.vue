@@ -338,6 +338,12 @@ export default {
           sortable: true
         },
         {
+          path: "inscription",
+          title: "Inscription",
+          type: "text",
+          sortable: true
+        },
+        {
           path: "__slot:actions",
           title: "Actions",
           type: "__slot:actions",
@@ -471,7 +477,7 @@ export default {
         if (this.nameFilter != "") {
           isMatch =
             isMatch &&
-            String(intervention.commentaire) != "null" &&
+            (String(intervention.commentaire) != "null" && String(intervention.commentaire) != "") &&
             intervention.nom
               .toLowerCase()
               .indexOf(this.nameFilter.toLowerCase()) > -1;
@@ -479,14 +485,14 @@ export default {
         if (this.placeFilter != "") {
           isMatch =
             isMatch &&
-            String(intervention.commentaire) != "null" &&
+            (String(intervention.commentaire) != "null" && String(intervention.commentaire) != "") &&
             intervention.commune.com_libellemaj
               .toLowerCase()
               .indexOf(this.placeFilter.toLowerCase()) > -1;
         }
         // Suppression des interventions sans commentaire
         if (this.placeFilter == "" && this.nameFilter == "") {
-          isMatch = isMatch && String(intervention.commentaire) != "null";
+          isMatch = isMatch && (String(intervention.commentaire) != "null" && String(intervention.commentaire) != "");
         }
         return isMatch;
       });

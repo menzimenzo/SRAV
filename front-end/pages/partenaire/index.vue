@@ -220,6 +220,12 @@ export default {
           sortable: true
         },
         {
+          path: "inscription",
+          title: "Inscription",
+          type: "text",
+          sortable: true
+        },
+        {
           path: "__slot:actions",
           title: "Actions",
           type: "__slot:actions",
@@ -340,7 +346,7 @@ export default {
     // suppression des interventions sans commentaires
     this.commentaires = this.interventions.filter(intervention => {
         var isMatch = true;
-        isMatch = isMatch && String(intervention.commentaire) != "null";
+        isMatch = isMatch && String(intervention.commentaire) != "null" && String(intervention.commentaire) != "";
         return isMatch;
     })
   }

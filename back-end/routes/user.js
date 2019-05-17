@@ -20,7 +20,8 @@ const formatUser = user => {
         naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
-        proLibelle:user.pro_libelle
+        proLibelle:user.pro_libelle,
+        inscription: user.inscription
     }
 }
 
@@ -39,7 +40,8 @@ const formatUserCSV = user => {
         naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
-        proLibelle:user.pro_libelle
+        proLibelle:user.pro_libelle,
+        inscription: user.inscription
     }
 }
 
@@ -54,7 +56,7 @@ router.get('/csv', async function (req, res) {
     // Je suis utilisateur "Administrateur" ==> Export de la liste des tous les utilisateurs
     if ( utilisateurCourant.pro_id == 1 ) {
         requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
-        replace(replace(validated::text,'true','Validée'),'false','Non validée') Inscription , stu.stu_libelle Statut_Utilisateur,
+        replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
         str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
@@ -65,7 +67,7 @@ router.get('/csv', async function (req, res) {
     // Je suis utilisateur "Partenaire" ==> Export de la liste des interventants
     else {
         requete =`SELECT uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
-        replace(replace(validated::text,'true','Validée'),'false','Non validée') Inscription , stu.stu_libelle Statut_Utilisateur,
+        replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
         str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
@@ -109,7 +111,7 @@ router.get('/:id', async function (req, res) {
     const utilisateurCourant = req.session.user
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
-        requete = `SELECT uti.*, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} order by uti_id asc`;
@@ -117,7 +119,7 @@ router.get('/:id', async function (req, res) {
     else 
     {
         // si on est partenaire, on affiche l'utilisateur s'il appartient à ma structure
-        requete = `SELECT uti.*, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} and uti.str_id = ${utilisateurCourant.str_id}
@@ -148,7 +150,7 @@ router.get('/', async function (req, res) {
     
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche tous les utilisateurs
-        requete = `SELECT uti.*,str.str_libellecourt,pro.pro_libelle
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
@@ -158,7 +160,7 @@ router.get('/', async function (req, res) {
     {
         // si on est partenaire, on affiche seulements les utilisateurs de la structure
         // Sauf les Admin créés sur structure
-        requete = `SELECT uti.*,str.str_libellecourt,pro.pro_libelle
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
