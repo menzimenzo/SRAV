@@ -35,15 +35,36 @@
               <b-btn @click="exportCsv()" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
               </b-btn>
+              <div class="mb-3">
+                <b-form inline>
+                  <label for="nomFilter">Nom:</label>
+                  <b-input
+                    class="ml-2"
+                    id="nomFilter"
+                    v-model="nomFilter"
+                    placeholder="Nom"
+                  />
+                  <label class="ml-3" for="prenomFilter">Prénom:</label>
+                  <b-input class="ml-2" id="prenomFilter" v-model="prenomFilter" placeholder="Prénom"/>
+                  <label class="ml-3"  for="inscriptionFilter"> Validité Inscription :</label><b-form-select class="ml-3"  v-model="inscriptionFilter" :options="listeValidInscrip"/>
+                </b-form>
+                <!--
+                <b-form inline>
+                  <label class="ml-3"  for="profilFilter"> Profil :</label><b-form-select class="ml-3"  v-model="profilFilter" :options="listeprofil"/>
+                  <label class="ml-3"  for="inscriptionFilter"> Validité Inscription :</label><b-form-select class="ml-3"  v-model="inscriptionFilter" :options="listeValidInscrip"/>
+                </b-form>
+                -->
+              </div>              
               <editable
                 :columns="headers"
-                :data="users"
+                :data="filteredUtilisateurs"
                 :removable="false"
                 :creable="false"
                 :editable="false"
                 :noDataLabel="''"
                 tableMaxHeight="none"
                 :loading="loading"
+                v-if="filteredUtilisateurs.length > 0"
                 :defaultSortField="{ key: 'nom', order: 'asc' }"
               >
                 <template slot-scope="props" slot="actions">
@@ -374,6 +395,12 @@ export default {
       ],
       nameFilter: "",
       placeFilter: "",
+      nomFilter: "",
+      prenomFilter: "",
+      inscriptionFilter: "",
+      profilFilter: "",
+      statusFilter: "",
+      structureFilter: "",
       headersRef: [
         { path: "str_libelle", title: "Libellé", type: "text", sortable: true },
         {
@@ -400,7 +427,24 @@ export default {
           type: "__slot:actions",
           sortable: false
         }
-      ]
+      ],
+      listeValidInscrip: [
+         { text: 'Validée', value: 'Validée' },
+         { text: 'Non validée', value: 'Non validée' },
+         { text: 'Tous', value: 'Tous' }
+       ],
+      listeprofil: [
+         { text: 'Administrateur', value: 'Administrateur' },
+         { text: 'Partenaire', value: 'Partenaire' },
+         { text: 'Intervenant', value: 'Intervenant' },
+         { text: 'Tous', value: 'Tous' }
+       ],
+       liststatus: [
+         { text: 'Actif', value: 'Actif' },
+         { text: 'Bloqué', value: 'Actif' },
+         { text: 'Tous', value: 'Tous' }
+       ]
+
     };
   },
 
@@ -494,6 +538,34 @@ export default {
         if (this.placeFilter == "" && this.nameFilter == "") {
           isMatch = isMatch && (String(intervention.commentaire) != "null" && String(intervention.commentaire) != "");
         }
+        return isMatch;
+      });
+    },
+    filteredUtilisateurs: function() {
+      return this.users.filter(user => {
+        var isMatch = true;
+        console.log(this.nomFilter)
+        if (this.nomFilter !="") {
+          isMatch =
+            isMatch && user.nom
+              .toLowerCase()
+              .indexOf(this.nomFilter.toLowerCase()) > -1;
+
+        }
+        if (this.prenomFilter !="") {
+          isMatch =
+            isMatch && user.prenom
+              .toLowerCase()
+              .indexOf(this.prenomFilter.toLowerCase()) > -1;
+
+        }        
+        if (this.inscriptionFilter != "Tous" && this.inscriptionFilter != undefined && this.inscriptionFilter != "") {
+          isMatch =
+            isMatch && user.inscription
+              .indexOf(this.inscriptionFilter) > -1;
+
+        }   
+
         return isMatch;
       });
     }
