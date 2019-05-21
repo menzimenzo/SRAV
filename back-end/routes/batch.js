@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pgPool = require('../pgpool').getPool();
 var moment = require('moment');
+var fs = require('fs');
 const config = require('../config');
 const {sendEmail} = require('../utils/mail-service');
 moment().format();
@@ -74,23 +75,48 @@ router.get('/mailrelance', async function (req, res) {
     var dateaffichee;
     var dernierEnregistrement;
     var compteInterventions;
+    var startTime = new Date();
+    const clauseWhere =  `where 
+                        int_dateintervention <= current_date 
+                        AND
+                        (
+                            -- Conditions de départ pour savoir si l’intervention n’a pas été modifiée à postériori
+                            (to_char(int_datecreation,'DD/MM/YYYY') = to_char(int_dateintervention ,'DD/MM/YYYY')
+                            AND to_char(int_datemaj,'DD/MM/YYYY') =  to_char(int_dateintervention ,'DD/MM/YYYY'))
+                            OR
+                            (int_datecreation < int_dateintervention 
+                            AND int_datemaj < int_dateintervention)
+                        )
+                        AND
+                        (
+                            (
+                            -- Condition relance fait sur le premier jour : 0 : La relance n’a pas été faite
+                            intervention.int_relancemail = 0
+                            AND to_char(int_dateintervention,'YYYMMDD') <= to_char(current_date,'YYYMMDD')
+                            )
+                            OR
+                            (
+                            -- Condition relance fait sur au bout de 7 jours : 1 : La relance n’a pas été faite
+                            intervention.int_relancemail = 1
+                            AND 
+                            (int_dateintervention + INTERVAL '7 day') <= current_date
+                            )
+                        )`;
 
-    // const requete =`SELECT utilisateur.uti_id,int_id,sin_id, int_dateintervention, int_datemaj, int_commentaire
     const requete =`SELECT *
-        from intervention 
-        LEFT JOIN bloc ON bloc.blo_id = intervention.blo_id 
-        LEFT JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
-        LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
-        where (intervention.int_relancemail = 0)
-        and intervention.int_datemaj < intervention.int_dateintervention
-        and (intervention.int_dateintervention + INTERVAL '7 day') < current_date 
-        order by utilisateur.uti_id, intervention.int_dateintervention`;
+            from intervention 
+            LEFT JOIN bloc ON bloc.blo_id = intervention.blo_id 
+            LEFT JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
+            LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id ` + clauseWhere 
+            + ` order by utilisateur.uti_id, intervention.int_dateintervention`;
+
     console.log(requete)
 
     pgPool.query(requete, (err, result) => {
         if (err) {
             console.log(err.stack);
-            return res.status(400).json('erreur lors de la récupération des interventions');
+            logTrace('srav-mailrelance',2,startTime);
+            return res.status(400).json('[BATCH-RELANCEMAIL] erreur lors de la récupération des interventions');
         }
         else {
             
@@ -114,7 +140,6 @@ router.get('/mailrelance', async function (req, res) {
                 //intervention.dateIntervention = intervention.dateIntervention.toISOString();
                 dateaffichee = intervention.dateIntervention.toISOString().substr(8,2)+"/"+intervention.dateIntervention.toISOString().substr(5,2)+"/"+intervention.dateIntervention.toISOString().substr(0,4);
 
-
                 if (premierUtilisateur == true) {
                     console.info(`Premier enregistrement`);
                     idUtilisateurCourant = intervention.utiId;
@@ -128,9 +153,6 @@ router.get('/mailrelance', async function (req, res) {
                     console.info(`Dernier enregistrement`);
                     dernierEnregistrement = true;
                 }
-
-
-
 
                 if (idUtilisateurCourant == intervention.utiId) {
                     nbIntervention = nbIntervention + 1;
@@ -225,11 +247,87 @@ router.get('/mailrelance', async function (req, res) {
                 }                                    
 
             })
-
-
+/*
+Afin de superviser le batch, celui-ci doit retourner dans un fichier /var/tmp/batch.nombatch.txt une réponse au format:
+timestamp|codederetour|log|ExecTime
+Exemple:
+1520510369|0|Check log file /var/log/srv-batch/srv-batch.log|ExecTime=48
+Voici les différents codes de retour possible:
+STATE_OK=0
+STATE_WARNING=1
+STATE_CRITICAL=2
+STATE_UNKNOWN=3
+STATE_DEPENDENT=4
+*/
+            // Mise à jour des interventions relancemail = 1 ou 2 en fonction de son état précédent
+            const requete = `UPDATE intervention 
+            SET int_relancemail = int_relancemail + 1 `
+            + clauseWhere  + ` RETURNING * ;`    
+            console.log(requete);
+            pgPool.query(requete, (err, result) => {
+                if (err) {
+                    console.log(requete);
+                    console.log(err.stack);
+                    logTrace('srav-mailrelance',1,startTime);
+                    return res.status(400).json('[BATCH-RELANCEMAIL] erreur lors de la mise à jour de la relance mail');
+                }
+            })
+            logTrace('srav-mailrelance',0,startTime);
             res.json({ interventions });
         }
     })
 });
+
+router.get('/testmail', function (req, res) {
+
+    var startTime = new Date();
+    v_email = req.query.email;
+    console.log ('EMail  : ' + v_email);
+    // Lancement du batch http://localhost:3001/api/batch/mailrelance
+    sendEmail({
+        to: v_email,
+        subject: '[SRAV] Mail de test',
+        body: `<p>Bonjour,</p>
+            <p>Ce mail est un mail de test.<br/><br/>
+            <p>Si vous le recevez et que vous ne deviez pas en être destinataire, alors merci de l'ignorer</p>`
+    });
+    //return res.statusCode(400).json({ message: 'erreur sur la requete de listcommune' });
+    logTrace('srav--testmail',0,startTime)
+
+    return res.send(formatDate());
+});
+
+function logTrace(batch,codeerreur,startTime) {
+    var execTime = new Date() - startTime;
+    var fichierSupervision = config.PATH_SUPERVISION_BATCH;
+    var checkLog;
+    if (codeerreur == 0) {
+        checkLog = '';
+    }
+    else
+    {
+        checkLog = 'Check log Backend SRAV';
+    }    
+    var contenu = formatDate() + '|' + codeerreur + '|' + checkLog + '|ExecTime=' + execTime;
+
+    console.log(contenu + ' - Path Supervision');
+    fs.writeFile(fichierSupervision + '\\batch.' + batch + '.txt', contenu, function (err) {
+        if (err) throw err;
+        console.log(contenu + ' - Saved!');
+      });    
+ } 
+
+
+ function formatDate() { // Renvoi la date et heure actuelle formatée AAAAMMJJHHMM
+    const now = new Date();
+    var jour = now.getDate().toString().padStart(2, "0");
+    var mois = now.getMonth().toString().padStart(2, "0");
+    var annee = now.getFullYear();
+    var heure = now.getHours().toString().padStart(2, "0");
+    var minute = now.getMinutes().toString().padStart(2, "0");
+    var dateTimeFormate = annee + mois + jour + heure + minute;
+    return dateTimeFormate;
+}
+
 
 module.exports = router;

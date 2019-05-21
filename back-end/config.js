@@ -22,6 +22,7 @@ module.exports = {
   },
   sessionSecret: "vB2P+i@/Uz>+yK%@LK@g9Vb93gZ^c<",
   pathAttestation: process.env.PATH_PDF_ATTESTATION || "../../tmp/",
+  PATH_SUPERVISION_BATCH: process.env.PATH_SUPERVISION_BATCH || "/var/tmp/",
   MAIL_URL: process.env.MAIL_URL,
   URL_PREFIX: process.env.URL_PREFIX || '/api',
   SENDER_EMAIL: process.env.SENDER_EMAIL || 'nepasrepondresrav@sports.gouv.fr',
