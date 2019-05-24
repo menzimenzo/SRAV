@@ -30,7 +30,7 @@ const formatIntervention = intervention => {
         nbsixhuit:intervention.int_nombresixhuit,
         nbneufdix:intervention.int_nombreneufdix,
         nbplusdix:intervention.int_nombreplusdix,
-        dateIntervention: new Date(intervention.int_dateintervention),
+        dateIntervention: intervention.dateintervention,
         dateCreation: new Date(intervention.int_datecreation),
         dateMaj: intervention.int_datemaj,
         commentaire: intervention.int_commentaire,
@@ -103,7 +103,7 @@ router.get('/mailrelance', async function (req, res) {
                             )
                         )`;
 
-    const requete =`SELECT *
+    const requete =`SELECT *, to_char(int_dateintervention,'DD/MM/YYYY') as dateintervention
             from intervention 
             LEFT JOIN bloc ON bloc.blo_id = intervention.blo_id 
             LEFT JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
@@ -126,6 +126,7 @@ router.get('/mailrelance', async function (req, res) {
             const interventions = result.rows.map(formatIntervention);
             premierUtilisateur = true;
             corpsMail = '';
+            corpsMailTemp = '';
             dernierEnregistrement = false;
             compteInterventions = 0;
             nbIntervention = 0;
@@ -136,9 +137,7 @@ router.get('/mailrelance', async function (req, res) {
                 compteInterventions = compteInterventions + 1;
                 console.info(`Traitement de l'enregistrement N°` + compteInterventions);
 
-                //intervention.dateCreation     = new Date(intervention.dateCreation);
-                //intervention.dateIntervention = intervention.dateIntervention.toISOString();
-                dateaffichee = intervention.dateIntervention.toISOString().substr(8,2)+"/"+intervention.dateIntervention.toISOString().substr(5,2)+"/"+intervention.dateIntervention.toISOString().substr(0,4);
+                dateaffichee = intervention.dateIntervention;
 
                 if (premierUtilisateur == true) {
                     console.info(`Premier enregistrement`);
@@ -154,83 +153,47 @@ router.get('/mailrelance', async function (req, res) {
                     dernierEnregistrement = true;
                 }
 
+                nbIntervention = nbIntervention + 1;
+                corpsMailTemp = corpsMailTemp + `Intervention N°` + intervention.id + ` réalisée le ` + dateaffichee + `. Bloc d’intervention ` + intervention.blocId + ` à ` + intervention.commune.com_libellemaj + `<br/>`;
+                // Envoi d'un mail pour chaque utilisateur avec le résumé de ce qui l'attend
+                if (intervention.nbFilles == null ||
+                    intervention.nbGarcons == null ||
+                    intervention.nbmoinssix == null ||
+                    intervention.nbsixhuit == null ||
+                    intervention.nbneufdix == null ||
+                    intervention.nbplusdix == null ||
+                    intervention.siteintervention == null ||
+                    intervention.commentaire == null) 
+                {
+                    corpsMailTemp = corpsMailTemp + `Merci de compléter les informations manquantes et d'enregistrer<br/>`
+                    if (intervention.nbFilles == null) { corpsMailTemp = corpsMailTemp + `- Nombre de garçons<br/>` }
+                    if (intervention.nbGarcons == null) { corpsMailTemp = corpsMailTemp + `- Nombre de filles<br/>` }
+                    if (intervention.nbmoinssix == null) { corpsMailTemp = corpsMailTemp + `- Nombre d’enfants -6 ans<br/>` }
+                    if (intervention.nbsixhuit == null) { corpsMailTemp = corpsMailTemp + `- Nombre d’enfants 6-7-8 ans<br/>` }
+                    if (intervention.nbneufdix == null) { corpsMailTemp = corpsMailTemp + `- Nombre d'enfants 9-10 ans<br/>` }
+                    if (intervention.nbplusdix == null) { corpsMailTemp = corpsMailTemp + `- Nombre d’enfants plus de 10 ans<br/>` }
+                    if (intervention.siteintervention == null) { corpsMailTemp = corpsMailTemp + `- Site d’intervention<br/>` }
+                    if (intervention.commentaire == null) { corpsMailTemp = corpsMailTemp + `- Commentaires<br/>` }
+                    interventionACompleter = true;
+                    intervention.interventionACompleter = true;
+                }
+                else
+                {
+                    console.log('interventionAVerifier',interventionAVerifier);
+                    interventionAVerifier = true;
+                    intervention.interventionAVerifier = true;
+                }
+                corpsMailTemp = corpsMailTemp + `<br/>`;
+
+                traitementdernierentregistrement:
                 if (idUtilisateurCourant == intervention.utiId) {
-                    nbIntervention = nbIntervention + 1;
-                    corpsMail = corpsMail + `Intervention N°` + intervention.id + ` réalisée le ` + dateaffichee + `. Bloc d’intervention ` + intervention.blocId + ` à ` + intervention.commune.com_libellemaj + `<br/>`;
-                    // Envoi d'un mail pour chaque utilisateur avec le résumé de ce qui l'attend
-                    if (intervention.nbFilles == null ||
-                        intervention.nbGarcons == null ||
-                        intervention.nbmoinssix == null ||
-                        intervention.nbsixhuit == null ||
-                        intervention.nbneufdix == null ||
-                        intervention.nbplusdix == null ||
-                        intervention.siteintervention == null ||
-                        intervention.commentaire == null) 
-                    {
-                        corpsMail = corpsMail + `Merci de compléter les informations manquantes et d'enregistrer<br/>`
-                        if (intervention.nbFilles == null) { corpsMail = corpsMail + `- Nombre de garçons<br/>` }
-                        if (intervention.nbGarcons == null) { corpsMail = corpsMail + `- Nombre de filles<br/>` }
-                        if (intervention.nbmoinssix == null) { corpsMail = corpsMail + `- Nombre d’enfants -6 ans<br/>` }
-                        if (intervention.nbsixhuit == null) { corpsMail = corpsMail + `- Nombre d’enfants 6-7-8 ans<br/>` }
-                        if (intervention.nbneufdix == null) { corpsMail = corpsMail + `- Nombre d'enfants 9-10 ans<br/>` }
-                        if (intervention.nbplusdix == null) { corpsMail = corpsMail + `- Nombre d’enfants plus de 10 ans<br/>` }
-                        if (intervention.siteintervention == null) { corpsMail = corpsMail + `- Site d’intervention<br/>` }
-                        if (intervention.commentaire == null) { corpsMail = corpsMail + `- Commentaires<br/>` }
-                        interventionACompleter = true;
-                        intervention.interventionACompleter = true;
-                    }
-                    else
-                    {
-                        console.log('interventionAVerifier',interventionAVerifier);
-                        interventionAVerifier = true;
-                        intervention.interventionAVerifier = true;
-                    }
-                    corpsMail = corpsMail + `<br/>`;
+                    corpsMail = corpsMail + corpsMailTemp;
+                    corpsMailTemp = '';
                 }
 
-                
                 // Si l'utilisateur a changé ou que c'est le dernier enregistrement alors on envoi le mail
-                if (idUtilisateurCourant != intervention.utiId || dernierEnregistrement == true) {
-            
-                    objetMail = `[SRAV] Intervention`;
-                    var EnteteMail; 
-                    EnteteMail = `Bonjour ` + nomUtilisateurCourant + `<br/><br/>`;
-                    EnteteMail = EnteteMail + `Vous êtes intervenu(e) sur le site du programme « Savoir rouler à vélo » pour la déclaration`;
-                    // Ajout du "s" s'il y a plusieurs internentions
-                    if (nbIntervention > 1) {
-                        objetMail = objetMail + `s à `;
-                        EnteteMail = EnteteMail + ` d’interventions</br>`;
-                    }
-                    else {
-                        objetMail = objetMail + ` à `;
-                        EnteteMail = EnteteMail + ` d’une intervention</br>`;
-                    }
-                    if (interventionACompleter == true) {
-                        objetMail = objetMail + `compléter`
-                        if (interventionAVerifier == true) {
-                            objetMail = objetMail + `/`;
-                        }
-                    } 
-                    if (interventionAVerifier == true) {
-                        objetMail = objetMail + `vérifier`;
-                    }
-                    EnteteMail = EnteteMail + `Afin de disposer d’indicateurs sur le public formé, nous vous invitons à vérifier/compléter vos données sur https://savoirrouleravelo.fr/intervenant`; 
-
-                    corpsMail = EnteteMail + `<br/><br/>` + corpsMail;
-                    corpsMail = corpsMail + `<br/>`;
-                    corpsMail = corpsMail + `Cordialement,<br/><br/>`;
-                    corpsMail = corpsMail + `L’équipe « Savoir rouler à vélo »`;
-                    intervention.corpsMail = corpsMail;
-    
-                    sendEmail({
-                        to: mailUtilisateurCourant,
-                        subject: objetMail,
-                        body: corpsMail
-                        /*`<p>Bonjour,</p>
-                            <p>Votre compte « Intervenant Savoir Rouler à Vélo » a bien été créé. <br/><br/>
-                            Nous vous invitons à y renseigner les informations relatives à la mise en œuvre de chacun des 3 blocs du socle commun du SRAV.<br/>
-                            Le site <a href="www.savoirrouleravelo.fr">www.savoirrouleravelo.fr</a> est à votre disposition pour toute information sur le programme Savoir Rouler à Vélo.<br/></p>`*/
-                    })
+                if (idUtilisateurCourant != intervention.utiId) {
+                    EnvoyerMail(idUtilisateurCourant,intervention.utiId,nomUtilisateurCourant,mailUtilisateurCourant,nbIntervention,interventionACompleter,interventionAVerifier,corpsMail);
                 }                
 
 
@@ -242,9 +205,13 @@ router.get('/mailrelance', async function (req, res) {
                     nbIntervention = 0;
                     interventionACompleter = false;
                     interventionAVerifier = false;
-                    corpsMail = ``;
+                    corpsMail = corpsMailTemp;
+                    corpsMailTemp = '';
                     EnteteMail = ``;
-                }                                    
+                }   
+                if (dernierEnregistrement == true) {
+                    EnvoyerMail(idUtilisateurCourant,intervention.utiId,nomUtilisateurCourant,mailUtilisateurCourant,nbIntervention,interventionACompleter,interventionAVerifier,corpsMail);
+                }
 
             })
 /*
@@ -278,6 +245,51 @@ STATE_DEPENDENT=4
     })
 });
 
+// Fonction de formatage et d'envoi du Mail
+function EnvoyerMail(idUtilisateurCourant,IdUtilisateurIntervention,nomUtilisateurCourant,mailUtilisateurCourant,nbIntervention,interventionACompleter,interventionAVerifier,corpsMail) {
+    var objetMail = '';
+    var EnteteMail  = '';
+    objetMail = `[SRAV] Intervention`;
+    var EnteteMail; 
+    EnteteMail = `Bonjour ` + nomUtilisateurCourant + `<br/><br/>`;
+    EnteteMail = EnteteMail + `Vous êtes intervenu(e) sur le site du programme « Savoir rouler à vélo » pour la déclaration`;
+    // Ajout du "s" s'il y a plusieurs internentions
+    if (nbIntervention > 1) {
+        objetMail = objetMail + `s à `;
+        EnteteMail = EnteteMail + ` d’interventions<br/>`;
+    }
+    else {
+        objetMail = objetMail + ` à `;
+        EnteteMail = EnteteMail + ` d’une intervention<br/>`;
+    }
+    if (interventionACompleter == true) {
+        objetMail = objetMail + `compléter`
+        if (interventionAVerifier == true) {
+            objetMail = objetMail + `/`;
+        }
+    } 
+    if (interventionAVerifier == true) {
+        objetMail = objetMail + `vérifier`;
+    }
+    EnteteMail = EnteteMail + `Afin de disposer d’indicateurs sur le public formé, nous vous invitons à vérifier/compléter vos données sur https://savoirrouleravelo.fr/intervenant`; 
+
+    corpsMail = EnteteMail + `<br/><br/>` + corpsMail;
+    corpsMail = corpsMail + `<br/>`;
+    corpsMail = corpsMail + `Cordialement,<br/><br/>`;
+    corpsMail = corpsMail + `L’équipe « Savoir rouler à vélo »`;
+    //fs.writeFile(config.PATH_SUPERVISION_BATCH + '/' + idUtilisateurCourant + '.html', 'idUtilisateurCourant : ' + idUtilisateurCourant + '<br/><br>intervention.utiId : ' + IdUtilisateurIntervention + '<br/><br>' + corpsMail, function (err) {
+
+        
+    //  });    
+
+    sendEmail({
+        to: mailUtilisateurCourant,
+        subject: objetMail,
+        body: corpsMail
+    })
+    return 1;
+};
+
 router.get('/testmail', function (req, res) {
 
     var startTime = new Date();
@@ -292,7 +304,7 @@ router.get('/testmail', function (req, res) {
             <p>Si vous le recevez et que vous ne deviez pas en être destinataire, alors merci de l'ignorer</p>`
     });
     //return res.statusCode(400).json({ message: 'erreur sur la requete de listcommune' });
-    logTrace('srav--testmail',0,startTime)
+    logTrace('srav-testmail',0,startTime)
 
     return res.send(formatDate());
 });
@@ -311,7 +323,7 @@ function logTrace(batch,codeerreur,startTime) {
     var contenu = formatDate() + '|' + codeerreur + '|' + checkLog + '|ExecTime=' + execTime;
 
     console.log(contenu + ' - Path Supervision');
-    fs.writeFile(fichierSupervision + '\\batch.' + batch + '.txt', contenu, function (err) {
+    fs.writeFile(fichierSupervision + '/batch.' + batch + '.txt', contenu, function (err) {
         if (err) throw err;
         console.log(contenu + ' - Saved!');
       });    
