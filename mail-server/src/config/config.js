@@ -9,7 +9,7 @@ const smtpSettings = {
   port: process.env.SMTP_SERVICE ? null : process.env.SMTP_PORT,
   user: process.env.SMTP_USER ? process.env.SMTP_USER: null,
   pass: process.env.SMTP_PASSWORD ? process.env.SMTP_PASSWORD: null,
-  sender: process.env.SMTP_SENDER || process.env.SMTP_USER,
+  sender: process.env.SENDER_EMAIL ? process.env.SENDER_EMAIL: null,
   proxy_user: process.env.PROXY_USER ? process.env.PROXY_USER : null
 }
 
