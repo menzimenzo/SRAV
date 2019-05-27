@@ -21,9 +21,9 @@ module.exports = ({repo}, app) => {
             </ul>
           <hr/>`
           payload.body = header + payload.body
-          payload.from = process.env.PROXY_USER
+          payload.from = process.env.SENDER_EMAIL
           payload.to = process.env.PROXY_USER
-          payload.replyTo = process.env.PROXY_USER
+          payload.replyTo = process.env.SENDER_EMAIL
           log.d({ payload })
         } else if (process.env.NODE_ENV !== 'production') {
           return
