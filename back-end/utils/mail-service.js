@@ -7,6 +7,7 @@ const sendNotificationUrl = MAIL_URL + '/notification/sendEmail'
 module.exports = {
     sendEmail: function(payload){
         payload.from = SENDER_EMAIL
+        payload.replyTo = SENDER_EMAIL
         return  axios.post(sendNotificationUrl,  payload).then(() => {
             console.log('sendStatusNotification - Done', {payload})
         })

@@ -38,7 +38,8 @@ const formatIntervention = intervention => {
         mailrelance: intervention.int_relancemail,
         interventionACompleter: false,
         interventionAVerifier: false,
-        corpsMail: null
+        corpsMail: null,
+        uti_mail: intervention.uti_mail
     }
 
     if(intervention.uti_nom){
@@ -141,6 +142,7 @@ router.get('/mailrelance', async function (req, res) {
 
                 if (premierUtilisateur == true) {
                     console.info(`Premier enregistrement`);
+                    console.info(`Premier enregistrement ! ` + intervention.uti_mail);
                     idUtilisateurCourant = intervention.utiId;
                     nomUtilisateurCourant = intervention.nom;
                     mailUtilisateurCourant = intervention.uti_mail;
@@ -281,6 +283,7 @@ function EnvoyerMail(idUtilisateurCourant,IdUtilisateurIntervention,nomUtilisate
 
         
     //  });    
+    console.log ('EMail to  : ' + mailUtilisateurCourant);
 
     sendEmail({
         to: mailUtilisateurCourant,
