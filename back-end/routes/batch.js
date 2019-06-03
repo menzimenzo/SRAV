@@ -165,25 +165,28 @@ router.get('/mailrelance', async function (req, res) {
                     intervention.nbneufdix == null ||
                     intervention.nbplusdix == null ||
                     intervention.siteintervention == null ||
-                    intervention.commentaire == null) 
+                    intervention.siteintervention == '' ||
+                    intervention.commentaire == null ||
+                    intervention.commentaire == '') 
                 {
                     corpsMailTemp = corpsMailTemp + `Merci de compléter les informations manquantes et d'enregistrer<br/>`
-                    if (intervention.nbFilles == null) { corpsMailTemp = corpsMailTemp + `- Nombre de garçons<br/>` }
-                    if (intervention.nbGarcons == null) { corpsMailTemp = corpsMailTemp + `- Nombre de filles<br/>` }
+                    if (intervention.nbFilles == null) { corpsMailTemp = corpsMailTemp + `- Nombre de filles<br/>` }
+                    if (intervention.nbGarcons == null) { corpsMailTemp = corpsMailTemp + `- Nombre de garçons<br/>` }
                     if (intervention.nbmoinssix == null) { corpsMailTemp = corpsMailTemp + `- Nombre d’enfants -6 ans<br/>` }
                     if (intervention.nbsixhuit == null) { corpsMailTemp = corpsMailTemp + `- Nombre d’enfants 6-7-8 ans<br/>` }
                     if (intervention.nbneufdix == null) { corpsMailTemp = corpsMailTemp + `- Nombre d'enfants 9-10 ans<br/>` }
                     if (intervention.nbplusdix == null) { corpsMailTemp = corpsMailTemp + `- Nombre d’enfants plus de 10 ans<br/>` }
-                    if (intervention.siteintervention == null) { corpsMailTemp = corpsMailTemp + `- Site d’intervention<br/>` }
-                    if (intervention.commentaire == null) { corpsMailTemp = corpsMailTemp + `- Commentaires<br/>` }
+                    if (intervention.siteintervention == null || intervention.siteintervention == '') { corpsMailTemp = corpsMailTemp + `- Site d’intervention<br/>` }
+                    if (intervention.commentaire == null || intervention.commentaire == '') { corpsMailTemp = corpsMailTemp + `- Commentaires<br/>` }
                     interventionACompleter = true;
                     intervention.interventionACompleter = true;
+                    console.log('interventionAVerifier',interventionAVerifier);
                 }
                 else
                 {
                     console.log('interventionAVerifier',interventionAVerifier);
                     interventionAVerifier = true;
-                    intervention.interventionAVerifier = true;
+                    //intervention.interventionAVerifier = true;
                 }
                 corpsMailTemp = corpsMailTemp + `<br/>`;
 
@@ -279,10 +282,13 @@ function EnvoyerMail(idUtilisateurCourant,IdUtilisateurIntervention,nomUtilisate
     corpsMail = corpsMail + `<br/>`;
     corpsMail = corpsMail + `Cordialement,<br/><br/>`;
     corpsMail = corpsMail + `L’équipe « Savoir rouler à vélo »`;
-    //fs.writeFile(config.PATH_SUPERVISION_BATCH + '/' + idUtilisateurCourant + '.html', 'idUtilisateurCourant : ' + idUtilisateurCourant + '<br/><br>intervention.utiId : ' + IdUtilisateurIntervention + '<br/><br>' + corpsMail, function (err) {
+    /* Mode test pour écriture mail local*/
+    /*
+    fs.writeFile(config.PATH_SUPERVISION_BATCH + '/' + idUtilisateurCourant + '.html', 'idUtilisateurCourant : ' + idUtilisateurCourant + '<br/><br>intervention.utiId : ' + IdUtilisateurIntervention + '<br/><br>Objet : ' + objetMail+ '<br/><br>' + corpsMail, function (err) {
 
         
-    //  });    
+      });    
+      */
     console.log ('EMail to  : ' + mailUtilisateurCourant);
 
     sendEmail({
