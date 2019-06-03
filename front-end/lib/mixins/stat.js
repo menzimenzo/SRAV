@@ -122,13 +122,13 @@ export default {
                             IntParStructure[structure].bloc3++;
                             break;
                     }
-
+                    // Mantis 68934 ! Inversion case 1 => Sco  et case 3 => ExtraSco
                     switch (cai) {
                         case 1:
-                            if (!NbIntSco[indiceMensuel]) {
-                                NbIntSco[indiceMensuel] = 1;
+                            if (!NbIntExt[indiceMensuel]) {
+                                NbIntExt[indiceMensuel] = 1;
                             } else {
-                                NbIntSco[indiceMensuel]++;
+                                NbIntExt[indiceMensuel]++;
                             }
                             break;
                         case 2:
@@ -139,10 +139,10 @@ export default {
                             }
                             break;
                         case 3:
-                            if (!NbIntExt[indiceMensuel]) {
-                                NbIntExt[indiceMensuel] = 1;
+                            if (!NbIntSco[indiceMensuel]) {
+                                NbIntSco[indiceMensuel] = 1;
                             } else {
-                                NbIntExt[indiceMensuel]++;
+                                NbIntSco[indiceMensuel]++;
                             }
                             break;
                     }
