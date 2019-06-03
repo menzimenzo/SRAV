@@ -184,6 +184,8 @@ router.get('/mailrelance', async function (req, res) {
                 }
                 else
                 {
+                    corpsMailTemp = corpsMailTemp + `Merci de retourner sur l’intervention et de vérifier les informations saisies<br/>`
+                    corpsMailTemp = corpsMailTemp + `Enregistrez l’intervention même si aucune information n’est modifiée<br/>`
                     console.log('interventionAVerifier',interventionAVerifier);
                     interventionAVerifier = true;
                     //intervention.interventionAVerifier = true;
