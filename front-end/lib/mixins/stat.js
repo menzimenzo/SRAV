@@ -125,17 +125,17 @@ export default {
                     // Mantis 68934 ! Inversion case 1 => Sco  et case 3 => ExtraSco
                     switch (cai) {
                         case 1:
-                            if (!NbIntExt[indiceMensuel]) {
-                                NbIntExt[indiceMensuel] = 1;
-                            } else {
-                                NbIntExt[indiceMensuel]++;
-                            }
-                            break;
-                        case 2:
                             if (!NbIntPer[indiceMensuel]) {
                                 NbIntPer[indiceMensuel] = 1;
                             } else {
                                 NbIntPer[indiceMensuel]++;
+                            }
+                            break;
+                        case 2:
+                            if (!NbIntExt[indiceMensuel]) {
+                                NbIntExt[indiceMensuel] = 1;
+                            } else {
+                                NbIntExt[indiceMensuel]++;
                             }
                             break;
                         case 3:
@@ -321,7 +321,6 @@ export default {
                         },
                         {
                             backgroundColor: [
-                                "#E4FC2E",
                                 "#29BF12",
                                 "#9543D8",
                                 "#E4FC2E",
@@ -329,18 +328,19 @@ export default {
                                 "#9543D8",
                                 "#E4FC2E",
                                 "#29BF12",
-                                "#9543D8"
+                                "#9543D8",
+                                "#E4FC2E"
                             ],
                             labels: [
-                                "Bloc 1 / scolaire",
                                 "Bloc 1 / péri-scolaire",
                                 "Bloc 1 / extra-scolaire",
-                                "Bloc 2 / scolaire",
+                                "Bloc 1 / scolaire",
                                 "Bloc 2 / péri-scolaire",
                                 "Bloc 2 / extra-scolaire",
-                                "Bloc 3 / scolaire",
+                                "Bloc 2 / scolaire",
                                 "Bloc 3 / péri-scolaire",
-                                "Bloc 3 / extra-scolaire"
+                                "Bloc 3 / extra-scolaire",
+                                "Bloc 3 / scolaire"
                             ],
                             data: [
                                 IntParBlocParCadre[0],
