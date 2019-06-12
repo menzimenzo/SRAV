@@ -43,7 +43,7 @@
                       <b-col cols="12">
                         <div v-if="interventions.length > 0">
                           <b-btn @click="exportCsv()" class="mb-2" variant="primary"><i class="material-icons" style="font-size: 18px; top: 4px;" >import_export</i> Export CSV</b-btn>
-                          <editable :columns="headers" :data="interventions" :removable="false" :creable="false" 
+                          <editable :columns="headers" :data="interventionsToDisplay" :removable="false" :creable="false" 
                             :editable="false" :noDataLabel="''" tableMaxHeight="none" :loading="loading"
                             :defaultSortField="{ key: 'dateIntervention', order: 'desc' }">
                             <template slot-scope="props" slot="actions">
@@ -121,6 +121,7 @@ export default {
   data() {
     return {
       loading: true,
+      interventionsToDisplay: null,
       headers: [
         
         { path: 'id', title: 'N° d\'intervention', type: 'text', sortable:true},
@@ -261,8 +262,24 @@ export default {
       this.$store.dispatch('get_interventions'),
       this.$store.dispatch('get_documents')
     ])
-    this.loading = false
     console.info("mounted", { interventions: this.interventions});
+    // on supprime les interventions ne relevant pas de la structure si prod_id = 2 (partenaire)
+    if (this.utilisateurCourant.profilId == 2)
+    {
+        console.info('suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
+        console.info('nb inter avant: '+ this.interventions.length)
+        this.interventionsToDisplay = this.interventions.filter(x => {
+        var isMatch = true;
+        isMatch = isMatch && String(x.structureId) == this.utilisateurCourant.structureId
+        return isMatch;
+        })  
+        console.log('nb inter apres filtrage structure: '+ this.interventionsToDisplay.length)
+    }
+    else
+    {
+      this.interventionsToDisplay = this.interventions
+    }
+    this.loading = false
   }
 };
 </script>
