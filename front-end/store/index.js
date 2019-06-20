@@ -8,11 +8,15 @@ export const state = () => ({
   users                 : [],
   structures            : [],
   structureSelectionnee : [],
-  documents             : []
+  documents             : [],
+  statStructure         : []
 
 });
 
 export const mutations = {
+  set_statStructure(state, statStructure) {
+    state.statStructure = statStructure;
+  },
   set_interventionCourrantes(state, interventions) {
     state.interventions = interventions;
   },

@@ -588,7 +588,7 @@ export default {
       this.$store.dispatch("get_interventions")
     ]);
     // Calcul des stats définies dans le mixins stat.js
-    this.calcStat(this.interventions)
+    this.statCal(this.interventions)
     this.loading = false;
   }
 };

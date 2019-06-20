@@ -83,6 +83,31 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel">
+            <b-card-header header-tag="header" class="p-1" role="tab">
+              <b-row></b-row>&nbsp;
+              <b-form-row>
+                <b-col>
+                  Structure 1 :
+                  <span class="liste-deroulante">
+                    <b-form-select
+                      v-model="structure1"
+                      :options="listeStructure"
+                      v-on:change="viewGraph(structure1,structure2)"
+                    />
+                  </span>
+                </b-col>
+                <b-col>
+                  Structure 2 :
+                  <span class="liste-deroulante">
+                    <b-form-select
+                      v-model="structure2"
+                      :options="listeStructure"
+                      v-on:change="viewGraph(structure1,structure2)"
+                    />
+                  </span>
+                </b-col>
+              </b-form-row>
+            </b-card-header>
             <b-row></b-row>&nbsp;
             <b-row align="center">
               <b-col>
@@ -101,7 +126,7 @@
                   :width="400"
                   :height="400"
                 />
-                <b-img fluid v-else :src="require('assets/giphy.gif')" />
+                <b-img fluid v-else :src="require('assets/giphy.gif')"/>
               </b-col>
               <b-col align-self="center">
                 <doughnut-chart
@@ -111,7 +136,7 @@
                   :width="400"
                   :height="400"
                 />
-                <b-img fluid v-else :src="require('assets/giphy.gif')" />
+                <b-img fluid v-else :src="require('assets/giphy.gif')"/>
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
@@ -119,6 +144,7 @@
               <b-col>
                 <h6>Interventions par Cadre d'intervention / Nombre d'attestations délivrées par mois</h6>
               </b-col>
+              <b-col></b-col>
             </b-row>
             <b-row align="center">
               <b-col align-self="center">
@@ -129,10 +155,9 @@
                   :width="400"
                   :height="400"
                 />
-                <b-img fluid v-else :src="require('assets/giphy.gif')" />
+                <b-img fluid v-else :src="require('assets/giphy.gif')"/>
               </b-col>
-              <b-col align-self="center">
-              </b-col>
+              <b-col align-self="center"></b-col>
             </b-row>
           </b-collapse>
         </b-card>
@@ -188,10 +213,10 @@ import Editable from "~/components/editable/index.vue";
 import user from "~/components/user.vue";
 import BarChart from "~/components/histogramme.vue";
 import DoughnutChart from "~/components/doughnut.vue";
-import stat from '~/lib/mixins/stat';
+import stat from "~/lib/mixins/stat";
 
 export default {
-   mixins: [stat],
+  mixins: [stat],
   components: {
     Editable,
     user,
@@ -200,6 +225,9 @@ export default {
   },
   data() {
     return {
+      statStructure: null,
+      structure1: "FUB",
+      structure2: "nationale",
       data1: null,
       data2: null,
       data3: null,
@@ -207,7 +235,21 @@ export default {
       optionsDoughnut: null,
       NbAttestations: null,
       loading: true,
-      commentaires : null,
+      commentaires: null,
+      listeStructure: [
+        { text: "Tous", value: "nationale" },
+        { text: "Ass. Prév. routière", value: "Ass. Prév. routière" },
+        { text: "EN - enseignant", value: "EN - enseignant" },
+        { text: "FFVélo", value: "FFVélo" },
+        { text: "FUB", value: "FUB" },
+        { text: "Jeunesse - animateur", value: "Jeunesse - animateur" },
+        { text: "MCF", value: "MCF" },
+        { text: "Mon vélo est une vie", value: "Mon vélo est une vie" },
+        { text: "Prévention MaÏf", value: "Prévention MaÏf" },
+        { text: "Sécurité routière", value: "Sécurité routière" },
+        { text: "UFOLEP", value: "UFOLEP" },
+        { text: "USEP", value: "USEP" }
+      ],
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
         { path: "proLibelle", title: "Rôle", type: "date", sortable: true },
@@ -258,6 +300,275 @@ export default {
   },
 
   methods: {
+    viewGraph(str1, str2) {
+      this.loading = true;
+      this.data1 = {
+        labels: this.$store.state.statStructure["nationale"].labelsHisto,
+        datasets: [
+          {
+            type: "line",
+            fill: false,
+            label: "Nb attestations",
+            pointBackgroundColor: "#444444",
+            borderColor: "#888888",
+            backgroundColor: "#888888",
+            yAxisID: "B",
+            data: this.$store.state.statStructure[str1].nbAtt
+          },
+          {
+            type: "line",
+            fill: false,
+            label: "Nb attestations structure",
+            pointBackgroundColor: "#444444",
+            borderColor: "#9543D8",
+            backgroundColor: "#9543D8",
+            yAxisID: "B",
+            data: this.$store.state.statStructure[str2].nbAtt
+          },
+          {
+            label: "scolaire",
+            backgroundColor: "#29BF12",
+            yAxisID: "A",
+            stack: "st1",
+            data: this.$store.state.statStructure[str1].nbIntSco
+          },
+          {
+            label: "péri-scolaire",
+            backgroundColor: "#9543D8",
+            yAxisID: "A",
+            stack: "st1",
+            data: this.$store.state.statStructure[str1].nbIntPer
+          },
+          {
+            label: "extra scolaire",
+            backgroundColor: "#E4FC2E",
+            yAxisID: "A",
+            stack: "st1",
+            data: this.$store.state.statStructure[str1].nbIntExt
+          },
+          {
+            label: "scolaire",
+            backgroundColor: "#9AB9A7",
+            yAxisID: "A",
+            stack: "st2",
+            data: this.$store.state.statStructure[str2].nbIntSco
+          },
+          {
+            label: "péri-scolaire",
+            backgroundColor: "#4A5759",
+            yAxisID: "A",
+            stack: "st2",
+            data: this.$store.state.statStructure[str2].nbIntPer
+          },
+          {
+            label: "extra scolaire",
+            backgroundColor: "#B6B4AC",
+            yAxisID: "A",
+            stack: "st2",
+            data: this.$store.state.statStructure[str2].nbIntExt
+          }
+        ]
+      };
+      // Définition de l'objet Data envoyé au 2eme graphique
+      this.data2 = {
+        datasets: [
+          {
+            backgroundColor: ["#FF9914", "#F21B3F", "#08BDBD"],
+            data: [
+              this.$store.state.statStructure[str1].nbBloc1,
+              this.$store.state.statStructure[str1].nbBloc2,
+              this.$store.state.statStructure[str1].nbBloc3
+            ],
+            labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
+          },
+          {
+            backgroundColor: [
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E",
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E",
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E"
+            ],
+            labels: [
+              "Bloc 1 / scolaire",
+              "Bloc 1 / péri-scolaire",
+              "Bloc 1 / extra-scolaire",
+              "Bloc 2 / scolaire",
+              "Bloc 2 / péri-scolaire",
+              "Bloc 2 / extra-scolaire",
+              "Bloc 3 / scolaire",
+              "Bloc 3 / péri-scolaire",
+              "Bloc 3 / extra-scolaire"
+            ],
+            data: [
+              this.$store.state.statStructure[str1].IntParBlocParCadre[0],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[1],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[2],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[3],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[4],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[5],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[6],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[7],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[8]
+            ]
+          }
+        ],
+        labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
+      };
+      // Définition de l'objet Data envoyé au 3eme graphique
+      this.data3 = {
+        labels: this.$store.state.statStructure["nationale"].labelsHisto,
+        datasets: [
+          {
+            type: "line",
+            fill: false,
+            label: "Cumul attestations",
+            pointBackgroundColor: "#444444",
+            borderColor: "#888888",
+            backgroundColor: "#888888",
+            yAxisID: "B",
+            data: this.$store.state.statStructure[str1].nbAttCumule
+          },
+          {
+            type: "line",
+            fill: false,
+            label: "Cumul attestations",
+            pointBackgroundColor: "#444444",
+            borderColor: "#888888",
+            backgroundColor: "#888888",
+            yAxisID: "B",
+            data: this.$store.state.statStructure[str2].nbAttCumule
+          },
+          {
+            label: "bloc 1",
+            backgroundColor: "#FF9914",
+            yAxisID: "A",
+            stack: "st1",
+            data: this.$store.state.statStructure[str2].nbIntBloc1
+          },
+          {
+            label: "bloc 2",
+            backgroundColor: "#F21B3F",
+            yAxisID: "A",
+            stack: "st1",
+            data: this.$store.state.statStructure[str1].nbIntBloc2
+          },
+          {
+            label: "bloc 3",
+            backgroundColor: "#08BDBD",
+            yAxisID: "A",
+            stack: "st1",
+            data: this.$store.state.statStructure[str1].nbIntBloc3
+          },
+          {
+            label: "bloc 1",
+            backgroundColor: "#9AB9A7",
+            yAxisID: "A",
+            stack: "st2",
+            data: this.$store.state.statStructure[str2].nbIntBloc1
+          },
+          {
+            label: "bloc 2",
+            backgroundColor: "#4A5759",
+            yAxisID: "A",
+            stack: "st2",
+            data: this.$store.state.statStructure[str2].nbIntBloc2
+          },
+          {
+            label: "bloc 3",
+            backgroundColor: "#B6B4AC",
+            yAxisID: "A",
+            stack: "st2",
+            data: this.$store.state.statStructure[str2].nbIntBloc3
+          }
+        ]
+      };
+      // Définition des options du 1er et 3eme grahiques
+      this.optionsHisto = {
+        responsive: true,
+        maintainAspectRatio: true,
+        legend: {
+          display: true
+        },
+        scales: {
+          xAxes: [
+            {
+              id: "st1",
+              stacked: true,
+              categoryPercentage: 0.7,
+              barPercentage: 1
+            },
+            {
+              id: "st2",
+              stacked: true,
+              categoryPercentage: 0.7,
+              display: false,
+              barPercentage: 1
+            }
+          ],
+          yAxes: [
+            {
+              id: "A",
+              type: "linear",
+              display: true,
+              position: "left",
+              min: 0,
+              stacked: true
+            },
+            {
+              id: "B",
+              type: "linear",
+              position: "right",
+              min: 0
+            }
+          ]
+        }
+      };
+      // Définition des options du 2eme et 4eme grahiques
+      this.optionsDoughnut = {
+        responsive: false,
+        maintainAspectRatio: true,
+        legend: {
+          position: "top",
+          onClick: function(e, legendItem) {
+            var ci = this.chart;
+            var bloc = ci.getDatasetMeta(0);
+            var cai = ci.getDatasetMeta(1);
+            if (bloc.data[legendItem.index].hidden) {
+              bloc.data[legendItem.index].hidden = false;
+              cai.data[3 * legendItem.index].hidden = false;
+              cai.data[3 * legendItem.index + 1].hidden = false;
+              cai.data[3 * legendItem.index + 2].hidden = false;
+            } else {
+              bloc.data[legendItem.index].hidden = true;
+              cai.data[3 * legendItem.index].hidden = true;
+              cai.data[3 * legendItem.index + 1].hidden = true;
+              cai.data[3 * legendItem.index + 2].hidden = true;
+            }
+            ci.update();
+          }
+        },
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var dataset = data.datasets[tooltipItem.datasetIndex];
+              var index = tooltipItem.index;
+              return dataset.labels[index] + ": " + dataset.data[index] + "%";
+            }
+          }
+        }
+      };
+
+      this.loading = false;
+    },
     editUser: function(id) {
       return this.$store
         .dispatch("get_user", id)
@@ -288,39 +599,42 @@ export default {
           const fileName = "Savoir Rouler - Intervenants.csv";
           link.setAttribute("download", fileName);
           // Télécharge le fichier
-          link.click()
-          link.remove()
-          console.log('Done - Download', {fileName})
-      }).catch(err => {
-          console.log(JSON.stringify(err))
-          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
-      })
+          link.click();
+          link.remove();
+          console.log("Done - Download", { fileName });
+        })
+        .catch(err => {
+          console.log(JSON.stringify(err));
+          this.$toasted.error("Erreur lors du téléchargement: " + err.message);
+        });
     },
     downloadDoc: function(doc) {
       this.$axios({
-        url: process.env.API_URL + '/documents/'+doc.doc_id,
-        method: 'GET',
-        responseType: 'blob'
-      }).then((response) => {
-          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
-           // Crée un objet blob avec le contenue du CSV et un lien associé
-          const url = window.URL.createObjectURL(new Blob([response.data]))
-          // Crée un lien caché pour télécharger le fichier
-          const link = document.createElement('a')
-          link.href = url
-          const fileName = doc.doc_filename
-          link.setAttribute('download', fileName)
-          // Télécharge le fichier
-          link.click()
-          link.remove()
-          console.log('Done - Download', {fileName})
-      }).catch(err => {
-          console.log(JSON.stringify(err))
-          this.$toasted.error('Erreur lors du téléchargement: ' + err.message )
+        url: process.env.API_URL + "/documents/" + doc.doc_id,
+        method: "GET",
+        responseType: "blob"
       })
+        .then(response => {
+          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+          // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          // Crée un lien caché pour télécharger le fichier
+          const link = document.createElement("a");
+          link.href = url;
+          const fileName = doc.doc_filename;
+          link.setAttribute("download", fileName);
+          // Télécharge le fichier
+          link.click();
+          link.remove();
+          console.log("Done - Download", { fileName });
+        })
+        .catch(err => {
+          console.log(JSON.stringify(err));
+          this.$toasted.error("Erreur lors du téléchargement: " + err.message);
+        });
     }
   },
-  computed: mapState(['interventions', 'users', 'documents']),
+  computed: mapState(["interventions", "users", "documents"]),
 
   //  CHARGEMENT ASYNCHRONE DES USERS
   //
@@ -338,17 +652,23 @@ export default {
             error
           );
         }),
-      this.$store.dispatch("get_interventions")
+      this.$store.dispatch("get_interventions"),
+      this.$store.dispatch("get_structures")
     ]);
     // Calcul des stats définies dans le mixins stat.js
-    this.calcStat(this.interventions);
+    this.statCal(this.interventions);
+    // Affichage des graphiques
+    this.viewGraph(this.structure1, this.structure2);
     this.loading = false;
     // suppression des interventions sans commentaires
     this.commentaires = this.interventions.filter(intervention => {
-        var isMatch = true;
-        isMatch = isMatch && String(intervention.commentaire) != "null" && String(intervention.commentaire) != "";
-        return isMatch;
-    })
+      var isMatch = true;
+      isMatch =
+        isMatch &&
+        String(intervention.commentaire) != "null" &&
+        String(intervention.commentaire) != "";
+      return isMatch;
+    });
   }
 };
 </script>

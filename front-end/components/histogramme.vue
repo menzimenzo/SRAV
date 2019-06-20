@@ -4,7 +4,6 @@ import Vue from "vue";
 import { mapState } from "vuex";
 import { Bar } from "vue-chartjs";
 
-
 export default {
   extends: Bar,
   props: {
@@ -17,10 +16,16 @@ export default {
       default: null
     }
   },
-  mounted () {
-    this.renderChart(this.chartdata, this.options)
+  watch: {
+    chartdata: function() {
+      // the callback will be called immediately after the start of the observation
+      this.renderChart(this.chartdata, this.options);
+    }
+  },
+  mounted() {
+    this.renderChart(this.chartdata, this.options);
   }
-}
+};
 </script>
 
 <style>
