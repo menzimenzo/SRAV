@@ -239,6 +239,7 @@ export const actions = {
     const url = process.env.API_URL + '/structures'
     return this.$axios.get(url).then(response => {
       commit("set_structures", response.data);
+      console.info("fetched structures - done")
     }).catch(err => {
       console.log(err)
     })

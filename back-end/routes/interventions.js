@@ -33,7 +33,8 @@ const formatIntervention = intervention => {
         dateCreation: new Date(intervention.int_datecreation),
         dateMaj: intervention.int_datemaj,
         commentaire: intervention.int_commentaire,
-        siteintervention: intervention.int_siteintervention
+        siteintervention: intervention.int_siteintervention,
+        departement:intervention.int_dep_num
     }
 
     if(intervention.uti_nom){

@@ -60,7 +60,7 @@
             <b-form-row>
               <b-col>
                 <!-- IMAGE RAYEE BANNER INTERVENTION -->
-                <b-img :src="require('assets/banner_ray_blue.png')" blank-color="rgba(0,0,0,1)"/>
+                <b-img :src="require('assets/banner_ray_blue.png')" blank-color="rgba(0,0,0,1)" />
                 <b-btn
                   class="accordionBtn"
                   block
@@ -71,7 +71,7 @@
                   <h4 v-if="loading === false">
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">poll</i>
-                    Accès aux indicateurs : {{NbAttestations}} attestations enregistrées
+                    Accès aux indicateurs : {{NbAttestations}} attestations enregistrées depuis Avril 2019
                   </h4>
                   <h4 v-else>
                     <i class="material-icons accordion-chevron">chevron_right</i>
@@ -91,9 +91,15 @@
                   <span class="liste-deroulante">
                     <b-form-select
                       v-model="structure1"
-                      :options="listeStructure"
-                      v-on:change="viewGraph(structure1,structure2)"
-                    />
+                      v-on:change="viewHisto(structure1,structure2);viewDoughnut(structure1)"
+                    >
+                      <option :value="'nationale'">Toutes</option>
+                      <option
+                        v-for="structure in structures"
+                        :key="structure.str_libellecourt"
+                        :value="structure.str_libellecourt"
+                      >{{ structure.str_libellecourt}}</option>
+                    </b-form-select>
                   </span>
                 </b-col>
                 <b-col>
@@ -101,22 +107,80 @@
                   <span class="liste-deroulante">
                     <b-form-select
                       v-model="structure2"
-                      :options="listeStructure"
-                      v-on:change="viewGraph(structure1,structure2)"
-                    />
+                      v-on:change="viewHisto(structure1,structure2)"
+                    >
+                      <option :value="'nationale'">Toutes</option>
+                      <option
+                        v-for="structure in structures"
+                        :key="structure.str_libellecourt"
+                        :value="structure.str_libellecourt"
+                      >{{ structure.str_libellecourt}}</option>
+                    </b-form-select>
                   </span>
                 </b-col>
               </b-form-row>
             </b-card-header>
-            <b-row></b-row>&nbsp;
+            <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col>
-                <h6>Interventions par bloc et par mois / Nombre d'attestations délivrées cumulé sur la période</h6>
-              </b-col>
-              <b-col>
-                <h6>Répartition des interventions par bloc et par Cadre d'intervention</h6>
+                <h5 v-if="structure1 === 'nationale'">Répartition des interventions par département</h5>
+                <h5 v-else>
+                  Répartition des interventions par département pour la structure :
+                  <b>{{structure1}}</b>
+                </h5>
               </b-col>
             </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row align="center">
+              <b-col>
+                <carte v-if="loading === false" :remplissage="remplissage" />
+              </b-col>
+            </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row align="center">
+              <b-col>
+                <h5>Nb Interventions par bloc / Nb Attestations cumulé</h5>
+              </b-col>
+              <b-col>
+                <h5>
+                  Interventions par Bloc et par Cadre
+                </h5>
+              </b-col>
+            </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>
+              <b-col>
+                <table class="legend">
+                  <tr>
+                    <td>{{structure1}}</td>
+                    <td class="bloc1">bloc 1</td>
+                    <td class="bloc2">bloc 2</td>
+                    <td class="bloc3">bloc 3</td>
+                    <td class="line">Cumul Att.</td>
+                  </tr>
+                  <tr>
+                  <td>{{structure2}}</td>
+                  <td class="sbloc1">bloc 1</td>
+                  <td class="sbloc2">bloc 2</td>
+                  <td class="sbloc3">bloc 3</td>
+                  <td class="sline">Cumul Att.</td>
+                </tr>
+                </table>
+              </b-col>
+              <b-col>
+                <table class="legend">
+                  <tr>
+                    <td>{{structure1}}</td>
+                    <td class="bloc1">bloc 1</td>
+                    <td class="bloc2">bloc 2</td>
+                    <td class="bloc3">bloc 3</td>
+                  </tr>
+                </table>
+              </b-col>
+            </b-row>
+            <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col align-self="center">
                 <bar-chart
@@ -126,7 +190,7 @@
                   :width="400"
                   :height="400"
                 />
-                <b-img fluid v-else :src="require('assets/giphy.gif')"/>
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
               <b-col align-self="center">
                 <doughnut-chart
@@ -136,16 +200,38 @@
                   :width="400"
                   :height="400"
                 />
-                <b-img fluid v-else :src="require('assets/giphy.gif')"/>
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col>
-                <h6>Interventions par Cadre d'intervention / Nombre d'attestations délivrées par mois</h6>
+                <h5>Nb Interventions par Cadre / Nb attestations délivrées</h5>
               </b-col>
               <b-col></b-col>
             </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>
+              <b-col>
+              <table class="legend">
+                  <tr>
+                    <td>{{structure1}}</td>
+                    <td class="sco">scolaire</td>
+                    <td class="peri">péri sco.</td>
+                    <td class="extra">extra sco.</td>
+                    <td class="line">nb Att.</td>
+                  </tr>
+                  <tr>
+                  <td>{{structure2}}</td>
+                  <td class="sbloc1">scolaire</td>
+                  <td class="sbloc2">péri sco.</td>
+                  <td class="sbloc3">extra sco.</td>
+                  <td class="sline">nb Att.</td>
+                </tr>
+                </table>
+              </b-col>
+            </b-row>
+            <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col align-self="center">
                 <bar-chart
@@ -155,7 +241,7 @@
                   :width="400"
                   :height="400"
                 />
-                <b-img fluid v-else :src="require('assets/giphy.gif')"/>
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
               <b-col align-self="center"></b-col>
             </b-row>
@@ -166,7 +252,7 @@
             <b-form-row>
               <b-col>
                 <!-- IMAGE RAYEE BANNER INTERVENTION -->
-                <b-img :src="require('assets/banner_ray_blue.png')" blank-color="rgba(0,0,0,1)"/>
+                <b-img :src="require('assets/banner_ray_blue.png')" blank-color="rgba(0,0,0,1)" />
                 <b-btn
                   class="accordionBtn"
                   block
@@ -202,7 +288,7 @@
       </b-col>
     </b-row>
     <modal name="editUser" height="auto" width="900px" :scrollabe="true">
-      <user/>
+      <user />
     </modal>
   </b-container>
 </template>
@@ -213,6 +299,7 @@ import Editable from "~/components/editable/index.vue";
 import user from "~/components/user.vue";
 import BarChart from "~/components/histogramme.vue";
 import DoughnutChart from "~/components/doughnut.vue";
+import Carte from "~/components/carte.vue";
 import stat from "~/lib/mixins/stat";
 
 export default {
@@ -221,12 +308,13 @@ export default {
     Editable,
     user,
     BarChart,
-    DoughnutChart
+    DoughnutChart,
+    Carte
   },
   data() {
     return {
-      statStructure: null,
-      structure1: "FUB",
+      remplissage: null,
+      structure1: "nationale",
       structure2: "nationale",
       data1: null,
       data2: null,
@@ -236,20 +324,6 @@ export default {
       NbAttestations: null,
       loading: true,
       commentaires: null,
-      listeStructure: [
-        { text: "Tous", value: "nationale" },
-        { text: "Ass. Prév. routière", value: "Ass. Prév. routière" },
-        { text: "EN - enseignant", value: "EN - enseignant" },
-        { text: "FFVélo", value: "FFVélo" },
-        { text: "FUB", value: "FUB" },
-        { text: "Jeunesse - animateur", value: "Jeunesse - animateur" },
-        { text: "MCF", value: "MCF" },
-        { text: "Mon vélo est une vie", value: "Mon vélo est une vie" },
-        { text: "Prévention MaÏf", value: "Prévention MaÏf" },
-        { text: "Sécurité routière", value: "Sécurité routière" },
-        { text: "UFOLEP", value: "UFOLEP" },
-        { text: "USEP", value: "USEP" }
-      ],
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
         { path: "proLibelle", title: "Rôle", type: "date", sortable: true },
@@ -300,15 +374,17 @@ export default {
   },
 
   methods: {
-    viewGraph(str1, str2) {
-      this.loading = true;
+    viewHisto(str1, str2) {
+      this.remplissage = this.$store.state.statStructure[
+        this.structure1
+      ].CouleurParDepartement;
       this.data1 = {
         labels: this.$store.state.statStructure["nationale"].labelsHisto,
         datasets: [
           {
             type: "line",
             fill: false,
-            label: "Nb attestations",
+            label: "Nb attestations " + this.structure1,
             pointBackgroundColor: "#444444",
             borderColor: "#888888",
             backgroundColor: "#888888",
@@ -318,7 +394,7 @@ export default {
           {
             type: "line",
             fill: false,
-            label: "Nb attestations structure",
+            label: "Nb attestations " + this.structure2,
             pointBackgroundColor: "#444444",
             borderColor: "#9543D8",
             backgroundColor: "#9543D8",
@@ -369,56 +445,6 @@ export default {
           }
         ]
       };
-      // Définition de l'objet Data envoyé au 2eme graphique
-      this.data2 = {
-        datasets: [
-          {
-            backgroundColor: ["#FF9914", "#F21B3F", "#08BDBD"],
-            data: [
-              this.$store.state.statStructure[str1].nbBloc1,
-              this.$store.state.statStructure[str1].nbBloc2,
-              this.$store.state.statStructure[str1].nbBloc3
-            ],
-            labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
-          },
-          {
-            backgroundColor: [
-              "#29BF12",
-              "#9543D8",
-              "#E4FC2E",
-              "#29BF12",
-              "#9543D8",
-              "#E4FC2E",
-              "#29BF12",
-              "#9543D8",
-              "#E4FC2E"
-            ],
-            labels: [
-              "Bloc 1 / scolaire",
-              "Bloc 1 / péri-scolaire",
-              "Bloc 1 / extra-scolaire",
-              "Bloc 2 / scolaire",
-              "Bloc 2 / péri-scolaire",
-              "Bloc 2 / extra-scolaire",
-              "Bloc 3 / scolaire",
-              "Bloc 3 / péri-scolaire",
-              "Bloc 3 / extra-scolaire"
-            ],
-            data: [
-              this.$store.state.statStructure[str1].IntParBlocParCadre[0],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[1],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[2],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[3],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[4],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[5],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[6],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[7],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[8]
-            ]
-          }
-        ],
-        labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
-      };
       // Définition de l'objet Data envoyé au 3eme graphique
       this.data3 = {
         labels: this.$store.state.statStructure["nationale"].labelsHisto,
@@ -427,9 +453,8 @@ export default {
             type: "line",
             fill: false,
             label: "Cumul attestations",
-            pointBackgroundColor: "#444444",
-            borderColor: "#888888",
-            backgroundColor: "#888888",
+            pointBackgroundColor: "#07509e",
+            borderColor: "#07509e",
             yAxisID: "B",
             data: this.$store.state.statStructure[str1].nbAttCumule
           },
@@ -438,8 +463,7 @@ export default {
             fill: false,
             label: "Cumul attestations",
             pointBackgroundColor: "#444444",
-            borderColor: "#888888",
-            backgroundColor: "#888888",
+            borderColor: "#000000",
             yAxisID: "B",
             data: this.$store.state.statStructure[str2].nbAttCumule
           },
@@ -448,7 +472,7 @@ export default {
             backgroundColor: "#FF9914",
             yAxisID: "A",
             stack: "st1",
-            data: this.$store.state.statStructure[str2].nbIntBloc1
+            data: this.$store.state.statStructure[str1].nbIntBloc1
           },
           {
             label: "bloc 2",
@@ -492,7 +516,7 @@ export default {
         responsive: true,
         maintainAspectRatio: true,
         legend: {
-          display: true
+          display: false
         },
         scales: {
           xAxes: [
@@ -528,12 +552,65 @@ export default {
           ]
         }
       };
+    },
+    viewDoughnut(str1) {
+      // Définition de l'objet Data envoyé au 2eme graphique
+      this.data2 = {
+        datasets: [
+          {
+            backgroundColor: ["#FF9914", "#F21B3F", "#08BDBD"],
+            data: [
+              this.$store.state.statStructure[str1].nbBloc1Rel,
+              this.$store.state.statStructure[str1].nbBloc2Rel,
+              this.$store.state.statStructure[str1].nbBloc3Rel
+            ],
+            labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
+          },
+          {
+            backgroundColor: [
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E",
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E",
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E"
+            ],
+            labels: [
+              "Bloc 1 / scolaire",
+              "Bloc 1 / péri-scolaire",
+              "Bloc 1 / extra-scolaire",
+              "Bloc 2 / scolaire",
+              "Bloc 2 / péri-scolaire",
+              "Bloc 2 / extra-scolaire",
+              "Bloc 3 / scolaire",
+              "Bloc 3 / péri-scolaire",
+              "Bloc 3 / extra-scolaire"
+            ],
+            data: [
+              this.$store.state.statStructure[str1].IntParBlocParCadre[0],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[1],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[2],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[3],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[4],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[5],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[6],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[7],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[8]
+            ]
+          }
+        ],
+        labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
+      };
+
       // Définition des options du 2eme et 4eme grahiques
       this.optionsDoughnut = {
         responsive: false,
         maintainAspectRatio: true,
         legend: {
-          position: "top",
+          display: false,
           onClick: function(e, legendItem) {
             var ci = this.chart;
             var bloc = ci.getDatasetMeta(0);
@@ -566,8 +643,6 @@ export default {
           }
         }
       };
-
-      this.loading = false;
     },
     editUser: function(id) {
       return this.$store
@@ -634,7 +709,7 @@ export default {
         });
     }
   },
-  computed: mapState(["interventions", "users", "documents"]),
+  computed: mapState(["interventions", "users", "documents", "structures"]),
 
   //  CHARGEMENT ASYNCHRONE DES USERS
   //
@@ -656,9 +731,18 @@ export default {
       this.$store.dispatch("get_structures")
     ]);
     // Calcul des stats définies dans le mixins stat.js
-    this.statCal(this.interventions);
+    this.statCal(this.interventions, this.structures);
+    // on positionne structure1 sur la structure de l'utilisateur
+    this.structure1 = this.structures[
+      this.$store.state.utilisateurCourant.structureId
+    ].str_libellecourt;
+
+    this.remplissage = this.$store.state.statStructure[
+      this.structure1
+    ].CouleurParDepartement;
     // Affichage des graphiques
-    this.viewGraph(this.structure1, this.structure2);
+    this.viewHisto(this.structure1, this.structure2);
+    this.viewDoughnut(this.structure1);
     this.loading = false;
     // suppression des interventions sans commentaires
     this.commentaires = this.interventions.filter(intervention => {
@@ -674,4 +758,114 @@ export default {
 </script>
 
 <style>
+.legend {
+  border-collapse: separate;
+  border-spacing: 5px;
+  font-size: 12px;
+  height: 10px;
+}
+.bloc1 {
+  border-radius: 5px;
+  width: 60px;
+  background: #ff9914;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+
+.bloc2 {
+  border-radius: 5px;
+  width: 60px;
+  background: #f21b3f;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+.bloc3 {
+  border-radius: 5px;
+  width: 60px;
+  background: #08bdbd;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+
+.sco {
+  border-radius: 5px;
+  width: 60px;
+  background: #29BF12;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+
+.peri {
+  border-radius: 5px;
+  width: 60px;
+  background: #9543D8;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+.extra {
+  border-radius: 5px;
+  width: 60px;
+  background: #E4FC2E;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+
+.sbloc1 {
+  border-radius: 5px;
+  width: 60px;
+  background: #9ab9a7;
+  text-align: center;
+  vertical-align: auto;
+  color: black;
+}
+
+.sbloc2 {
+  border-radius: 5px;
+  width: 60px;
+  background: #4a5759;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+.sbloc3 {
+  border-radius: 5px;
+  width: 60px;
+  background: #b6b4ac;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
+
+.line {
+  border-radius: 10px;
+  font-size: 12px;
+  width: 90px;
+  background: #07509e;
+  text-align: center;
+  vertical-align: center;
+  color: azure;
+}
+
+.sline {
+  border-radius:  10px;
+  font-size: 12px;
+  width: 90px;
+  background: black;
+  text-align: center;
+  vertical-align: center;
+  color: azure;
+}
+.links {
+  padding-top: 15px;
+}
+
+.fcBtn {
+  cursor: pointer;
+}
 </style>
