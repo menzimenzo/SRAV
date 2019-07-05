@@ -162,7 +162,7 @@ export default {
                     statStructure['nationale'].IntParBlocParCadre[indice]++;
 
                     // incrementation du tableau des etiquettes d'abscisses
-                    if (mois + 1 < 10) {
+                    if (mois  < 10) {
                         labelsHisto[indiceMensuel] =
                             Number(1900 + annee) + "-0" + Number(mois);
                     } else {
@@ -255,22 +255,22 @@ export default {
                     // choix de la couleur
                     switch (true) {
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 12):
-                            statStructure[element].CouleurParDepartement[i] = '#ff0000'
+                            statStructure[element].CouleurParDepartement[i] = '#191970'
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 9):
-                            statStructure[element].CouleurParDepartement[i] = '#ff8e8e'
+                            statStructure[element].CouleurParDepartement[i] = '#4169E1'
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 6):
-                            statStructure[element].CouleurParDepartement[i] = '#fcbaba'
+                            statStructure[element].CouleurParDepartement[i] = '#318CE7'
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 3):
-                            statStructure[element].CouleurParDepartement[i] = '#ffe5e5'
+                            statStructure[element].CouleurParDepartement[i] = '#77B5FE'
                             break;
                         case (statStructure[element].IntParDepartement[i] === 0):
                             statStructure[element].CouleurParDepartement[i] = '#3f3f3f' // =0
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 0): // +0
-                            statStructure[element].CouleurParDepartement[i] = '#cccccc'
+                            statStructure[element].CouleurParDepartement[i] = '#B0E0E6'
                             break;
                     }
                 }
