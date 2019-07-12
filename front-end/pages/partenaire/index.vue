@@ -30,7 +30,7 @@
               </b-col>
             </b-form-row>
           </b-card-header>
-          <b-collapse id="accordion1" visible accordion="my-accordion" role="tabpanel">
+          <b-collapse id="accordion1" accordion="my-accordion" role="tabpanel">
             <b-card-body>
               <b-btn @click="exportCsv()" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
@@ -82,7 +82,7 @@
               </b-col>
             </b-form-row>
           </b-card-header>
-          <b-collapse id="accordion2" accordion="my-accordion" role="tabpanel">
+          <b-collapse id="accordion2" visible accordion="my-accordion" role="tabpanel">
             <b-card-header header-tag="header" class="p-1" role="tab">
               <b-row></b-row>&nbsp;
               <b-row >
@@ -117,12 +117,12 @@
             <b-row>&nbsp;</b-row>
             <b-row align="center" class="mx-2">
               <b-col cols="4">Taux d'intervention départemental (en %) :</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#191970 ; color:white">+12</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#4169E1 ; color:white">]9;12]</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#318CE7 ; color:white">]6;9]</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#77B5FE">]3;6]</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#B0E0E6">]0;3]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#3f3f3f ; color:white">Aucune</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#B0E0E6">]0;3]</b-col> 
+              <b-col cols="1" class="legendCarte" style="background:#77B5FE">]3;6]</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#318CE7 ; color:white">]6;9]</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#4169E1 ; color:white">]9;12]</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#191970 ; color:white">+12</b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
             <b-row>&nbsp;</b-row>
@@ -134,6 +134,7 @@
                   :struc="structures"
                   :nb="statStructure"
                 />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
@@ -443,7 +444,7 @@ export default {
               type: "line",
               fill: false,
               label: "Cum. att.-"+str1,
-              pointBackgroundColor: "#07509e",
+              backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
               data: this.$store.state.statStructure[str1].nbAttCumule
@@ -452,7 +453,7 @@ export default {
               type: "line",
               fill: false,
               label: "Cum. att.-"+str2,
-              pointBackgroundColor: "#000000",
+              backgroundColor: "#000000",
               borderColor: "#000000",
               yAxisID: "B",
               data: this.$store.state.statStructure[str2].nbAttCumule
@@ -586,7 +587,7 @@ export default {
               type: "line",
               fill: false,
               label: "Cum. att-"+str1,
-              pointBackgroundColor: "#07509e",
+              backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
               data: this.$store.state.statStructure[str1].nbAttCumule
@@ -828,39 +829,29 @@ export default {
       this.$store.dispatch("get_structures")
     ]);
     // Calcul des stats définies dans le mixins stat.js
-    this.statCal(this.interventions, this.structures);
+      this.statCal(this.interventions, this.structures)
+      this.remplissage = this.$store.state.statStructure[
+      this.structure1
+    ].CouleurParDepartement,
+    this.statStructure = this.$store.state.statStructure
+   
+    
     // on positionne structure1 sur la structure de l'utilisateur
     this.structure1 = this.structures[
       this.$store.state.utilisateurCourant.structureId
     ].str_libellecourt;
     this.structure2 = this.structure1
 
-    this.remplissage = this.$store.state.statStructure[
-      this.structure1
-    ].CouleurParDepartement;
-    this.statStructure = this.$store.state.statStructure;
+  
     // Affichage des graphiques
     this.viewHisto(this.structure2, this.structure3);
-    this.viewDoughnut(this.structure1);
+    this.viewDoughnut(this.structure2);
     this.loading = false;
-    // suppression des interventions sans commentaires
-    this.commentaires = this.interventions.filter(intervention => {
-      var isMatch = true;
-      isMatch =
-        isMatch &&
-        String(intervention.commentaire) != "null" &&
-        String(intervention.commentaire) != "";
-      return isMatch;
-    });
   }
 };
 </script>
 
 <style>
-.legend {
-  border-collapse: separate;
-  font-size: 14px;
-}
 
 .legendCarte {
   font-size: 14px;
@@ -870,103 +861,6 @@ export default {
   color: black;
 }
 
-.bloc1 {
-  border-radius: 5px;
-  width: 60px;
-  background: #ff9914;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-
-.bloc2 {
-  border-radius: 5px;
-  width: 60px;
-  background: #f21b3f;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-.bloc3 {
-  border-radius: 5px;
-  width: 60px;
-  background: #08bdbd;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-
-.sco {
-  border-radius: 5px;
-  width: 80px;
-  background: #29bf12;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-
-.peri {
-  border-radius: 5px;
-  width: 80px;
-  background: #9543d8;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-.extra {
-  border-radius: 5px;
-  width: 80px;
-  background: #e4fc2e;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-
-.sbloc1 {
-  border-radius: 5px;
-  width: 60px;
-  background: #9ab9a7;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-
-.sbloc2 {
-  border-radius: 5px;
-  width: 60px;
-  background: #4a5759;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-.sbloc3 {
-  border-radius: 5px;
-  width: 60px;
-  background: #b6b4ac;
-  text-align: center;
-  vertical-align: center;
-  color: black;
-}
-
-.line {
-  border-radius: 10px;
-  font-size: 12px;
-  width: 80px;
-  background: #07509e;
-  text-align: center;
-  vertical-align: center;
-  color: azure;
-}
-
-.sline {
-  border-radius: 10px;
-  font-size: 12px;
-  width: 80px;
-  background: black;
-  text-align: center;
-  vertical-align: center;
-  color: azure;
-}
 .links {
   padding-top: 15px;
 }

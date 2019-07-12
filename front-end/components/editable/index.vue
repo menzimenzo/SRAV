@@ -2,10 +2,10 @@
     <div class="editable">
         <Clip-Loader v-if="loading" :loading="loading" :color="primaryColor" />
         <div  v-if="!loading && data && data.length === 0 && noDataLabel" class="alert alert-info" role="alert">
-            <span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>
+            <!--<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span>-->
             {{ noDataLabel }}
         </div>
-        <div :style="!pagination ? {maxHeight:tableMaxHeight,overflowY:'auto'} : {}">
+        <div :style="!pagination ? {maxHeight: tableMaxHeight, overflowY: 'auto'} : {}">
             <table v-if="!loading && data && data.length > 0 || newItem"
                 class="table table-hover">
                 <thead>
@@ -27,8 +27,8 @@
                         <th key="header-col-action" class="text-center" v-if="creableComputed || editable || removableComputed">Actions</th>
                     </tr>
                 </thead>
-                <tbody v-if="pagination">
-                    <template v-for="(item, i) in paginationData">
+                <tbody>
+                    <template v-for="(item, i) in pagination ? paginationData : sortedData">
                         <reading-row
                             v-show="editingIndex !== i"
                             :scope="scope"
@@ -93,125 +93,59 @@
                         </template>
                     </editing-row>
                 </tbody>
-                <tbody  v-if="!pagination">
-                    <template v-for="(item, i) in sortedData">
-                        <reading-row
-                            v-show="editingIndex !== i"
-                            :scope="scope"
-                            :key="'row-' + i"
-                            :ref="'row' + i"
-                            :item="item"
-                            :columns="columns"
-                            :editable="item.options && typeof item.options.editable === 'boolean' ? item.options.editable : editable"
-                            :creable="creableComputed"
-                            :removable="item.options && typeof item.options.removable === 'boolean' ? item.options.removable : removableComputed"
-                            :class="rowClassValue(item)"
-                            :editByLine="editByLine"
-                            :index="i"
-                            :data-test-key="getObjectValue(item, trackBy)"
-                            data-test-editing="false"
-                            @edit="edit"
-                            @remove="confirmRemove"
-                            >
-                            <template v-for="column in columns">
-                                <template v-if="fieldType(column.path) === '__slot'" :slot="fieldPath(column.path)">
-                                    <slot :name="fieldPath(column.path)" :data="item" :onEdit="false"></slot>
-                                </template>
-                            </template>
-                        </reading-row>
-                        <editing-row v-if="editingIndex === i"
-                            :key="'editing-row-' + i"
-                            :ref="'row' + i"
-                            :item="item"
-                            :columns="columns"
-                            :class="rowClassValue(item)"
-                            :index="i"
-                            :data-test-key="getObjectValue(item, trackBy)"
-                            data-test-editing="true"
-                            @save="save"
-                            @clean="clean"
-                            >
-                            <template v-for="column in columns">
-                                <template v-if="fieldType(column.path) === '__slot'" :slot="fieldPath(column.path)">
-                                    <slot :name="fieldPath(column.path)" :data="item" :onEdit="true"></slot>
-                                </template>
-                            </template>
-                        </editing-row>
-                    </template>
-                    <editing-row  v-if="newItem"
-                        ref="newItem"
-                        :item="newItem"
-                        :columns="columns"
-                        :class="rowClassValue(newItem)"
-                        :editByLine="editByLine"
-                        :newItem="true"
-                        :index="-1"
-                        :removable="false"
-                        @save="save"
-                        @clean="clean"
-                        data-test-key="newItem"
-                        data-test-editing="true"
-                        >
-                        <template v-for="column in columns">
-                            <template v-if="fieldType(column.type) === '__slot'" :slot="fieldPath(column.type)">
-                                <slot :name="fieldPath(column.type)" :data="newItem" :onEdit="true"></slot>
-                            </template>
-                        </template>
-                    </editing-row>
-                </tbody>
-                <tfoot class="table-footer" v-if="pagination && data.length > 5"  style="display: inline-flex;">
-                    <div style="height: 70px;"></div>
-                    <ul class="pagination" v-if="paginationEntries < sortedData.length+1">
-                        <li class="page-item"
-                            :class="{disabled: selectedPage == 1}"
-                        >
-                            <a 
-                                class="page-link"
-                                @click.prevent="setPaginationData(selectedPage - 1)"
-                            >
-                            Précédent
-                            </a>
-                        </li>
-                        <li 
-                            class="page-item page-number"
-                            v-for="i in paginationNumbers" 
-                            :key="i"
-                            @click.prevent="setPaginationData(i)"
-                        >
-                            <a 
-                                class="page-link"
-                                :class="{highlight:i == selectedPage}"
-                                >{{i}}
-                            </a>
-                        </li>
-                        <li class="page-item"
-                            :class="{disabled: selectedPage == paginationNumbers}"
-                            >
-                            <a 
-                                class="page-link"
-                                 @click.prevent="setPaginationData(selectedPage + 1)"
-                            >
-                            Suivant
-                            </a>
-                        </li>
-                    </ul>
-                    <div class="select-custom col-3 pagination-entries" 
-                        v-if="pagination">
-                        <span>
-                            Nombre d'entrées affichées:
-                        </span>
-                        <select 
-                            class="form-control"
-                            v-model="paginationEntries"
-                            @change="setPaginationData(1)">
-                            <option selected value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="25">25</option>
-                            <option value="50">50</option>
-                            <option :value="sortedData.length+1">Tout</option>
-                        </select>
-                    </div>
-                    
+                <tfoot class="table-footer" v-if="pagination">
+                    <tr>
+                        <td :colspan="this.columns.length">
+                            <ul class="pagination"  v-if="pages.length > 1">
+                                <li class="page-item"
+                                    :class="{disabled: selectedPage == 1}"
+                                >
+                                    <a 
+                                        class="page-link"
+                                        @click.prevent="setPaginationData(selectedPage - 1)"
+                                    >
+                                    Précédent
+                                    </a>
+                                </li>
+                                <li v-for="i in pages" 
+                                    class="page-item page-number"
+                                    :key="i"
+                                    @click.prevent="setPaginationData(i)"
+                                >
+                                    <a class="page-link"
+                                        :class="{ highlight: i == selectedPage }"
+                                    >{{i}}</a>
+                                </li>
+                                <li class="page-item"
+                                    :class="{disabled: selectedPage == pages.le}"
+                                    >
+                                    <a 
+                                        class="page-link"
+                                        @click.prevent="setPaginationData(selectedPage + 1)"
+                                    >
+                                    Suivant
+                                    </a>
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <div class="select-custom col-3 pagination-entries" 
+                            v-if="sortedData.length && sortedData.length > this.minEntries">
+                            <span>
+                                Nombre d'entrées affichées:
+                            </span>
+                            <select 
+                                class="form-control"
+                                v-model="paginationEntries"
+                                @change="setPaginationData(1)">
+                                <option selected :value="minEntries">{{ this.minEntries }}</option>
+                                <option value="25">25</option>
+                                <option value="50">50</option>
+                                <option data-pagination="all" :value="-1">Tout</option>
+                            </select>
+                        </div> 
+                    </tr>
                 </tfoot>
             </table>
         </div>
@@ -230,9 +164,7 @@
     </div>
 </template>
 
-
 <script>
-
 
 import { mapGetters } from 'vuex'
 import _ from 'lodash'
@@ -241,12 +173,25 @@ import table from '~/lib/mixins/table'
 import editingRow from './editing-row'
 import readingRow from './row'
 import btnAjouter from './svg-ajouter'
-import ClipLoader  from '~/node_modules/vue-spinner/src/ClipLoader.vue' 
+import ClipLoader  from '~/node_modules/vue-spinner/src/ClipLoader.vue'
+
+const props = {}
+const computed = {}
+
+if (process.env.enable_pagination == 'true') {
+    props.pagination = {
+        type: Boolean,
+        default: true
+    }
+} else {
+    computed.pagination = () => true
+}
 
 export default {
     inject: ['$validator'],
     mixins: [table],
     props: {
+        ...props,
         noDataLabel: {
             type: String,
             default: 'Aucun résultat trouvé.'
@@ -301,18 +246,35 @@ export default {
         scope: {
             type: String
         },
-        pagination: {
-            type: Boolean,
-            default: true
+        defaultEditingIndex: {
+            type: Number,
+            default: null
+        },
+        minEntries: {
+            type: Number,
+            default: 10
+        },
+        isSelected: {
+            type: Function
         }
-
     },
     components: {
-        readingRow, editingRow,
+        readingRow,
+        editingRow,
         btnAjouter,
         ClipLoader
     },
+    data() {
+        return {
+            sortField: this.defaultSortField,
+            editingIndex: this.defaultEditingIndex,
+            newItem: null,
+            selectedPage: 1,
+            paginationEntries: this.minEntries
+        }
+    },
     computed: {
+        ...computed,
         ...mapGetters(['primaryColor']),
         creableComputed() {
             return this.creable !== undefined ? this.creable : this.editable
@@ -322,7 +284,7 @@ export default {
         },
         sortedData() {
             if (!this.sortField) {
-                return this.data
+                return this.data || []
             }
             const sortedData = JSON.parse(JSON.stringify(this.data))
             sortedData.sort((el1, el2) => {
@@ -338,8 +300,18 @@ export default {
             })
             return sortedData
         },
-        paginationNumbers() {
-            return this.data.length === 0 ? 1 : Math.trunc((this.data.length - 1) / (this.paginationEntries)) + 1
+        maxPage() {
+            return (!this.data || this.data.length === 0 || this.paginationEntries === -1) ? 1 : Math.trunc((this.data.length - 1) / (this.paginationEntries)) + 1
+        },
+        pages() {
+            let pages
+            if (this.maxPage > 5) {
+                pages =  _.uniq([1, 2, 3, this.selectedPage - 1, this.selectedPage, this.selectedPage + 1, this.maxPage - 2, this.maxPage - 1, this.maxPage]).filter(p => p > 0 && p <= this.maxPage)
+                pages.sort((a,b) => a - b)
+            } else {
+                pages =  _.range(1, this.maxPage + 1)
+            }
+            return pages
         },
         paginationData() {
             if (this.paginationEntries === -1) {
@@ -351,16 +323,6 @@ export default {
                 return this.sortedData.slice(begin)
             }
             return this.sortedData.slice( begin, end )
-        }
-
-    },
-    data() {
-        return {
-            sortField: this.defaultSortField,
-            editingIndex: null,
-            newItem: null,
-            selectedPage: 1,
-            paginationEntries: 5
         }
     },
     methods: {
@@ -433,18 +395,23 @@ export default {
                 this.$emit('edit', this.data[index])
             }
         },
-        setPaginationData(i) {
-            if(i >= 1 && i <= this.paginationNumbers) {
-                this.selectedPage = i
+        setPaginationData(page) {
+            if(page >= 1 && page <= this.maxPage) {
+                this.selectedPage = page
             }
         }
-
+    },
+    watch: {
+        maxPage() {
+            this.selectedPage = 1
+        }
     }
 }
 </script>
 
 <style lang="scss">
 @import '~assets/css/_variable.scss';
+
 .editable {
     position: relative;
     margin-bottom: 5px;
@@ -550,5 +517,4 @@ only screen and (max-width: 980px),
         }
     }
 }
-
 </style>

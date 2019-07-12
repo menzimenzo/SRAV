@@ -900,7 +900,8 @@
         </svg>
       </b-col>
       <b-col>
-        <h3 class="titre" v-if="hover">{{nom}}</h3>
+        <h3 class="titreAdmin" v-if="(hover ===true) && (profil=='admin')">{{nom}}</h3>
+        <h3 class="titre" v-if="(hover ===true) && (profil=='partenaire')">{{nom}}</h3>
         <b-row class="liste" v-if="hover">
           <b-col cols="9" class="nom">Nationale</b-col>
           <b-col>{{nb['nationale'].IntParDepartement[id]}}</b-col>
@@ -937,7 +938,8 @@ export default {
     return {
       hover: false,
       id: null,
-      nom: null
+      nom: null,
+      profil:null
     };
   },
   methods: {
@@ -953,7 +955,15 @@ export default {
         this.nom = nomClick;
       }
     }
+  },
+  async mounted() {
+    if (this.$store.state.utilisateurCourant.profilId == 2) {
+      this.profil="partenaire";
   }
+  else{
+    this.profil="admin";
+  }
+}
 };
 </script>
 <style type="text/css">
@@ -1009,7 +1019,13 @@ path:hover {
   padding: 5px;
   font-family: arial;
 }
-
+.titreAdmin {
+  background-color: #ffffff;
+  text-align: left;
+  border-bottom: 1px solid #ff0000;
+  padding: 5px;
+  font-family: arial;
+}
 .liste {
   background-color: #ffffff;
   text-align: left;

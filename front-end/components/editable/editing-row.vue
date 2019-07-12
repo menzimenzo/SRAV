@@ -54,16 +54,20 @@
                     </select>
                 </div>
                 <div v-else-if="column.type === 'date'">
-                    <input type="date"
-                        class="form-control"
-                        :aria-label="column.title"
-                        :placeholder="column.title"
-                        v-validate="column.validation ? column.validation : ''"
-                        :data-vv-name="getPath(column.path)"
+
+                   <!-- <datepicker style="display: block;"
                         :data-vv-as="column.title"
+                        :name="getPath(column.path)"
+                        :placeholder="column.title"
+                        class="form-control datepicker"
+                        :aria-label="column.title"
                         role="textbox"
+                        v-validate="column.validation ? column.validation : ''"
                         @input="has(column, 'inputCallback') ? column.inputCallback(clonedItem) : ''"
-                        v-model="clonedItem[getPath(column.path)]" />
+                        v-model="clonedItem[getPath(column.path)]"
+                        format="dd/MM/yyyy"
+                        :language="$options.fr">
+                    </datepicker>-->
                 </div>
                 <template v-else-if="isSpecialField(column.type)">
                     <template v-if="fieldType(column.type) === '__slot' && can(column)">
@@ -136,11 +140,14 @@
 </template>
 
 <script>
+import { fr } from 'vuejs-datepicker/dist/locale'
+
 
 import _ from 'lodash'
 import Vue from 'vue'
 import table from '~/lib/mixins/table'
 
+//import Datepicker from 'vuejs-datepicker'
 import inputValidationErrors from './input-validation-errors'
 import btnEnregistrer from './svg-enregistrer'
 import btnAnnuler from './svg-annuler'
@@ -168,6 +175,7 @@ export default {
             required: true
         }
     },
+    fr,
     data() {
         return {
             clonedItem: _.cloneDeep(this.item)
@@ -177,6 +185,7 @@ export default {
         inputValidationErrors,
         btnEnregistrer,
         btnAnnuler
+        //Datepicker
     },
     watch: {
         item(item) {
@@ -186,11 +195,9 @@ export default {
     },
     methods: {
         validate(e) {
-            log.i('validate - IN')
             e && e.stopImmediatePropagation && e.stopImmediatePropagation()
             return this.$validator.validate()
                 .then(valid => {
-                    log.i('validate - DONE', { valid })
                     if (!valid) return
                     this.$emit('save', {item: this.clonedItem, index: this.index})
                 })
@@ -229,6 +236,19 @@ export default {
     @media screen and (min-width: 981px) and (max-width: 1425px) {
         .no-margin-left {
             margin-left: 0 !important;
+        }
+    }
+    
+    .vdp-datepicker {
+        position: static;
+        .vdp-datepicker__calendar {
+            position: fixed;
+            top: 50%;
+            left: 5%;
+            margin-top: -25%;
+            width: 90%;
+            z-index: 2000;
+            outline: rgba(0, 0, 0, 0.5) solid 9999px;
         }
     }
 </style>

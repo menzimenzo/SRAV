@@ -133,7 +133,7 @@
             <b-form-row>
               <b-col>
                 <!-- IMAGE RAYEE BANNER INTERVENTION -->
-                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)"/>
+                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)" />
                 <b-btn
                   class="accordionBtn"
                   block
@@ -144,7 +144,7 @@
                   <h4 v-if="loading === false">
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">poll</i>
-                    Accès aux indicateurs : {{NbAttestations}} attestations enregistrées depuis avril 2019
+                    Accès aux indicateurs : {{NbAttestations}} attestations enregistrées depuis Avril 2019
                   </h4>
                   <h4 v-else>
                     <i class="material-icons accordion-chevron">chevron_right</i>
@@ -155,16 +155,114 @@
               </b-col>
             </b-form-row>
           </b-card-header>
-          <b-collapse id="accordion3" accordion="my-accordion" role="tabpanel">
-            <b-row></b-row>&nbsp;
+          <b-collapse id="accordion3" visible accordion="my-accordion" role="tabpanel">
+            <b-card-header header-tag="header" class="p-1" role="tab">
+              <b-row></b-row>&nbsp;
+              <b-row >
+                <b-col style="text-align:center">
+                  Veuillez sélectionner la structure dont vous souhaitez voir la répartition des interventions :
+                  <span class="liste-deroulante">
+                    <b-form-select
+                      v-model="structure1"
+                      v-on:change="viewCarte(structure1)"
+                    >
+                      <option :value="'nationale'">Toutes</option>
+                      <option
+                        v-for="structure in structures"
+                        :key="structure.str_libellecourt"
+                        :value="structure.str_libellecourt"
+                      >{{ structure.str_libellecourt}}</option>
+                    </b-form-select>
+                  </span>
+                </b-col>
+              </b-row>
+            </b-card-header>
+            <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col>
-                <h6>Interventions par bloc et par mois / Nombre d'attestations délivrées cumulé sur la période</h6>
-              </b-col>
-              <b-col>
-                <h6>Répartition des interventions par bloc et par Cadre d'intervention</h6>
+                <h5 v-if="structure1 === 'nationale'">Répartition des interventions par département</h5>
+                <h5 v-else>
+                  Répartition des interventions par département pour la structure :
+                  <b>{{structure1}}</b>
+                </h5>
               </b-col>
             </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row align="center" class="mx-2">
+              <b-col cols="4">Taux d'intervention départemental (en %) :</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#3f3f3f ; color:white">Aucune</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#fbe5e5">]0;3]</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#f9d1d1">]3;6]</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#f69696 ; color:white">]6;9]</b-col> 
+              <b-col cols="1" class="legendCarte" style="background:#d85454 ; color:white">]9;12]</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#ff0000 ; color:white">+12</b-col>
+            </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>
+              <b-col>
+                <carte
+                  v-if="loading === false"
+                  :remplissage="remplissage"
+                  :struc="structures"
+                  :nb="statStructure"
+                />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
+              </b-col>
+            </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>&nbsp;</b-row>
+            <b-card-header header-tag="header">
+              <b-row></b-row>&nbsp;
+              <b-row>
+                <b-col style="text-align:center">
+                  Structure principale :
+                  <span class="liste-deroulante">
+                    <b-form-select
+                      v-model="structure2"
+                      v-on:change="viewHisto(structure2,structure3);viewDoughnut(structure2)"
+                    >
+                      <option :value="'nationale'">Toutes</option>
+                      <option
+                        v-for="structure in structures"
+                        :key="structure.str_libellecourt"
+                        :value="structure.str_libellecourt"
+                      >{{ structure.str_libellecourt}}</option>
+                    </b-form-select>
+                  </span>&nbsp;
+                  Structure de comparaison :
+                  <span class="liste-deroulante">
+                    <b-form-select
+                      v-model="structure3"
+                      v-on:change="viewHisto(structure2,structure3)"
+                    >
+                      <option :value="''"></option>
+                      <option :value="'nationale'">Toutes</option>
+                      <option
+                        v-for="structure in structures"
+                        :key="structure.str_libellecourt"
+                        :value="structure.str_libellecourt"
+                      >{{ structure.str_libellecourt}}</option>
+                    </b-form-select>
+                  </span>
+                </b-col>
+              </b-row>
+            </b-card-header>
+            <b-row>&nbsp;</b-row>
+            <b-row align="center">
+              <b-col >
+                <h5>Nb Interventions par bloc / Nb Attestations cumulé</h5>
+                <h6 v-if="structure3==''">"{{structure2}}"</h6>
+                <h6 v-else>"{{structure2}}" vs "{{structure3}}"</h6>
+              </b-col>
+              <b-col>
+                <h5>Nb Interventions par Cadre / Nb attestations délivrées</h5>
+                <h6 v-if="structure3==''">"{{structure2}}"</h6>
+                <h6 v-else>"{{structure2}}" vs "{{structure3}}"</h6>
+              </b-col>
+            </b-row>
+            <b-row>&nbsp;</b-row>
+            <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col align-self="center">
                 <bar-chart
@@ -177,10 +275,10 @@
                 <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
               <b-col align-self="center">
-                <doughnut-chart
+                <bar-chart
                   v-if="loading === false"
-                  :chartdata="data2"
-                  :options="optionsDoughnut"
+                  :chartdata="data1"
+                  :options="optionsHisto"
                   :width="400"
                   :height="400"
                 />
@@ -190,18 +288,20 @@
             <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col>
-                <h6>Interventions par Cadre d'intervention / Nombre d'attestations délivrées par mois</h6>
+                <h5>Interventions par Bloc et par Cadre</h5>
+                <h6>"{{structure2}}"</h6>
               </b-col>
               <b-col>
-                <h6>Répartition des interventions par structure et par bloc</h6>
+                <h5>Répartition des interventions par structure et par bloc</h5>
               </b-col>
             </b-row>
+            <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col align-self="center">
-                <bar-chart
+                <doughnut-chart
                   v-if="loading === false"
-                  :chartdata="data1"
-                  :options="optionsHisto"
+                  :chartdata="data2"
+                  :options="optionsDoughnut"
                   :width="400"
                   :height="400"
                 />
@@ -325,7 +425,8 @@ import fileUpload from "~/components/fileUpload.vue";
 import struct from "~/components/struct.vue";
 import BarChart from "~/components/histogramme.vue";
 import DoughnutChart from "~/components/doughnut.vue";
-import stat from '~/lib/mixins/stat';
+import Carte from "~/components/carte.vue";
+import stat from "~/lib/mixins/stat";
 
 export default {
   mixins: [stat],
@@ -335,10 +436,17 @@ export default {
     fileUpload,
     struct,
     BarChart,
-    DoughnutChart
+    DoughnutChart,
+    Carte
   },
   data() {
     return {
+      hover: false,
+      remplissage: null,
+      statStructure: null,
+      structure1: "nationale",
+      structure2: "nationale",
+      structure3: "",
       data1: null,
       data2: null,
       data3: null,
@@ -461,6 +569,382 @@ export default {
             error
           );
         });
+    },
+    viewCarte(str){
+       this.remplissage = this.$store.state.statStructure[str].CouleurParDepartementAdmin;
+    },
+    viewHisto(str1, str2) {
+      if (str2 != "") {
+        this.data1 = {
+          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          datasets: [
+            {
+              type: "line",
+              fill: false,
+              label: "Nb att-" + str1,
+              borderColor: "#07509e",
+              backgroundColor: "#07509e",
+              yAxisID: "B",
+              data: this.$store.state.statStructure[str1].nbAtt
+            },
+            {
+              type: "line",
+              fill: false,
+              label: "Nb att-" + str2,
+              borderColor: "#000000",
+              backgroundColor: "#000000",
+              yAxisID: "B",
+              data: this.$store.state.statStructure[str2].nbAtt
+            },
+            {
+              label: "sco-" +str1,
+              backgroundColor: "#29BF12",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntSco
+            },
+            {
+              label: "péri-sco-"+str1,
+              backgroundColor: "#9543D8",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntPer
+            },
+            {
+              label: "ext sco-"+str1,
+              backgroundColor: "#E4FC2E",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntExt
+            },
+            {
+              label: "sco-"+str2,
+              backgroundColor: "#9AB9A7",
+              yAxisID: "A",
+              stack: "st2",
+              data: this.$store.state.statStructure[str2].nbIntSco
+            },
+            {
+              label: "péri-sco-"+str2,
+              backgroundColor: "#4A5759",
+              yAxisID: "A",
+              stack: "st2",
+              data: this.$store.state.statStructure[str2].nbIntPer
+            },
+            {
+              label: "ext sco-"+str2,
+              backgroundColor: "#B6B4AC",
+              yAxisID: "A",
+              stack: "st2",
+              data: this.$store.state.statStructure[str2].nbIntExt
+            }
+          ]
+        };
+        // Définition de l'objet Data envoyé au 3eme graphique
+        this.data3 = {
+          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          datasets: [
+            {
+              type: "line",
+              fill: false,
+              label: "Cum. att.-"+str1,
+              backgroundColor: "#07509e",
+              borderColor: "#07509e",
+              yAxisID: "B",
+              data: this.$store.state.statStructure[str1].nbAttCumule
+            },
+            {
+              type: "line",
+              fill: false,
+              label: "Cum. att.-"+str2,
+              backgroundColor: "#000000",
+              borderColor: "#000000",
+              yAxisID: "B",
+              data: this.$store.state.statStructure[str2].nbAttCumule
+            },
+            {
+              label: "bl. 1-"+str1,
+              backgroundColor: "#FF9914",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntBloc1
+            },
+            {
+              label: "bl. 2-"+str1,
+              backgroundColor: "#F21B3F",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntBloc2
+            },
+            {
+              label: "bl. 3-"+str1,
+              backgroundColor: "#08BDBD",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntBloc3
+            },
+            {
+              label: "bl. 1-"+str2,
+              backgroundColor: "#9AB9A7",
+              yAxisID: "A",
+              stack: "st2",
+              data: this.$store.state.statStructure[str2].nbIntBloc1
+            },
+            {
+              label: "bl. 2"+str2,
+              backgroundColor: "#4A5759",
+              yAxisID: "A",
+              stack: "st2",
+              data: this.$store.state.statStructure[str2].nbIntBloc2
+            },
+            {
+              label: "bl. 3"+str2,
+              backgroundColor: "#B6B4AC",
+              yAxisID: "A",
+              stack: "st2",
+              data: this.$store.state.statStructure[str2].nbIntBloc3
+            }
+          ]
+        };
+        // Définition des options du 1er et 3eme grahiques
+        this.optionsHisto = {
+          responsive: true,
+          maintainAspectRatio: true,
+          legend: {
+            display: true
+          },
+          scales: {
+            xAxes: [
+              {
+                id: "st1",
+                stacked: true,
+                categoryPercentage: 0.7,
+                barPercentage: 1
+              },
+              {
+                id: "st2",
+                stacked: true,
+                categoryPercentage: 0.7,
+                display: false,
+                barPercentage: 1
+              }
+            ],
+            yAxes: [
+              {
+                id: "A",
+                type: "linear",
+                display: true,
+                position: "left",
+                min: 0,
+                stacked: true
+              },
+              {
+                id: "B",
+                type: "linear",
+                position: "right",
+                min: 0
+              }
+            ]
+          }
+        };
+      } else {
+        this.data1 = {
+          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          datasets: [
+            {
+              type: "line",
+              fill: false,
+              label: "Nb att." + str1,
+              borderColor: "#07509e",
+              backgroundColor: "#07509e",
+              yAxisID: "B",
+              data: this.$store.state.statStructure[str1].nbAtt
+            },
+            {
+              label: "sco-"+str1,
+              backgroundColor: "#29BF12",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntSco
+            },
+            {
+              label: "péri-sco-"+str1,
+              backgroundColor: "#9543D8",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntPer
+            },
+            {
+              label: "ext sco-"+str1,
+              backgroundColor: "#E4FC2E",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntExt
+            }
+          ]
+        };
+        // Définition de l'objet Data envoyé au 3eme graphique
+        this.data3 = {
+          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          datasets: [
+            {
+              type: "line",
+              fill: false,
+              label: "Cum. att-"+str1,
+              backgroundColor: "#07509e",
+              borderColor: "#07509e",
+              yAxisID: "B",
+              data: this.$store.state.statStructure[str1].nbAttCumule
+            },
+            {
+              label: "bl. 1-"+str1,
+              backgroundColor: "#FF9914",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntBloc1
+            },
+            {
+              label: "bl. 2-"+str1,
+              backgroundColor: "#F21B3F",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntBloc2
+            },
+            {
+              label: "bl. 3-"+str1,
+              backgroundColor: "#08BDBD",
+              yAxisID: "A",
+              stack: "st1",
+              data: this.$store.state.statStructure[str1].nbIntBloc3
+            }
+          ]
+        };
+        // Définition des options du 1er et 3eme grahiques
+        this.optionsHisto = {
+          responsive: true,
+          maintainAspectRatio: true,
+          legend: {
+            display: true
+          },
+          scales: {
+            xAxes: [
+              {
+                id: "st1",
+                stacked: true,
+                categoryPercentage: 0.7,
+                barPercentage: 1
+              }
+            ],
+            yAxes: [
+              {
+                id: "A",
+                type: "linear",
+                display: true,
+                position: "left",
+                min: 0,
+                stacked: true
+              },
+              {
+                id: "B",
+                type: "linear",
+                position: "right",
+                min: 0
+              }
+            ]
+          }
+        };
+      }
+    },
+    viewDoughnut(str1) {
+      // Définition de l'objet Data envoyé au 2eme graphique
+      this.data2 = {
+        datasets: [
+          {
+            backgroundColor: ["#FF9914", "#F21B3F", "#08BDBD"],
+            data: [
+              this.$store.state.statStructure[str1].nbBloc1Rel,
+              this.$store.state.statStructure[str1].nbBloc2Rel,
+              this.$store.state.statStructure[str1].nbBloc3Rel
+            ],
+            labels: ["Bl. 1-"+str1, "Bl. 2-"+str1, "Bl. 3-"+str1]
+          },
+          {
+            backgroundColor: [
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E",
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E",
+              "#29BF12",
+              "#9543D8",
+              "#E4FC2E"
+            ],
+            labels: [
+              "Bloc 1 / scolaire",
+              "Bloc 1 / péri-scolaire",
+              "Bloc 1 / extra-scolaire",
+              "Bloc 2 / scolaire",
+              "Bloc 2 / péri-scolaire",
+              "Bloc 2 / extra-scolaire",
+              "Bloc 3 / scolaire",
+              "Bloc 3 / péri-scolaire",
+              "Bloc 3 / extra-scolaire"
+            ],
+            data: [
+              this.$store.state.statStructure[str1].IntParBlocParCadre[0],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[1],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[2],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[3],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[4],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[5],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[6],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[7],
+              this.$store.state.statStructure[str1].IntParBlocParCadre[8]
+            ]
+          }
+        ],
+        labels: ["Bloc 1", "Bloc 2", "Bloc 3"]
+      };
+
+      // Définition des options du 2eme et 4eme grahiques
+      this.optionsDoughnut = {
+        responsive: false,
+        maintainAspectRatio: true,
+        legend: {
+          display: true,
+          onClick: function(e, legendItem) {
+            var ci = this.chart;
+            var bloc = ci.getDatasetMeta(0);
+            var cai = ci.getDatasetMeta(1);
+            if (bloc.data[legendItem.index].hidden) {
+              bloc.data[legendItem.index].hidden = false;
+              cai.data[3 * legendItem.index].hidden = false;
+              cai.data[3 * legendItem.index + 1].hidden = false;
+              cai.data[3 * legendItem.index + 2].hidden = false;
+            } else {
+              bloc.data[legendItem.index].hidden = true;
+              cai.data[3 * legendItem.index].hidden = true;
+              cai.data[3 * legendItem.index + 1].hidden = true;
+              cai.data[3 * legendItem.index + 2].hidden = true;
+            }
+            ci.update();
+          }
+        },
+        animation: {
+          animateScale: true,
+          animateRotate: true
+        },
+        tooltips: {
+          callbacks: {
+            label: function(tooltipItem, data) {
+              var dataset = data.datasets[tooltipItem.datasetIndex];
+              var index = tooltipItem.index;
+              return dataset.labels[index] + ": " + dataset.data[index] + "%";
+            }
+          }
+        }
+      };
     },
     editStruct: function(id) {
       if (id === null) {
@@ -587,13 +1071,38 @@ export default {
       }),
       this.$store.dispatch("get_interventions")
     ]);
-    // Calcul des stats définies dans le mixins stat.js
-    this.statCal(this.interventions)
+     // Calcul des stats définies dans le mixins stat.js
+      this.statCal(this.interventions, this.structures)
+      this.remplissage = this.$store.state.statStructure[
+      this.structure1
+    ].CouleurParDepartementAdmin,
+    this.statStructure = this.$store.state.statStructure
+   
+    
+    // on positionne structure1 sur la structure de l'utilisateur
+    this.structure1 = "nationale"
+    this.structure2 = this.structure1
+
+  
+    // Affichage des graphiques
+    this.viewHisto(this.structure2, this.structure3);
+    this.viewDoughnut(this.structure2);
+    this.data4 = this.$store.state.statStructure['nationale'].data4
+
     this.loading = false;
   }
 };
 </script>
 
 <style>
+
+
+.legendCarte {
+  font-size: 14px;
+  border-radius: 10px;
+  text-align: center;
+  vertical-align: center;
+  color: black;
+}
 </style>
 

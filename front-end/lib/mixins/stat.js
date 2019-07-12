@@ -1,5 +1,5 @@
-import _ from 'lodash'
-import { state } from '../../store';
+import _ from 'lodash';
+//import { state } from '../../store';
 
 export default {
     methods: {
@@ -37,7 +37,8 @@ export default {
                     nbBloc3Rel: 0,
                     IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
                     IntParDepartement: [],
-                    CouleurParDepartement: []
+                    CouleurParDepartement: [],
+                    CouleurParDepartementAdmin: [],
                 }
             }
 
@@ -47,6 +48,7 @@ export default {
             const today = new Date();
             const moisCourant = Number(today.getMonth()) + 1;
             const anneeCourant = Number(today.getYear());
+
             intervention.forEach(element => {
                 let mois = Number(element.dateIntervention.getMonth()) + 1;
                 let annee = Number(element.dateIntervention.getYear());
@@ -56,7 +58,7 @@ export default {
                 let cai = Number(element.cai);
                 let structure = element.structure;
                 let indice = 0;
-                let indiceMensuel = 0
+                let indiceMensuel = -1
                 let indDepartement = 0
 
                 // Si blocid = 3 alors il y a attestation
@@ -78,7 +80,6 @@ export default {
                         indiceMensuel = (annee - anneeCourant + 1) * 12 + (mois - moisCourant);
                     }
                 }
-
                 // on ne garde que les intervention dans [dateDuJour - 12 mois; dateDuJour + 2 mois]
                 if (indiceMensuel >= 0 && indiceMensuel < 15) {
                     // on ramene tous les numeros de departement a un entier entre 1 et 102
@@ -132,7 +133,8 @@ export default {
                             nbBloc3Rel: 0,
                             IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
                             IntParDepartement: [],
-                            CouleurParDepartement: []
+                            CouleurParDepartement: [],
+                            CouleurParDepartementAdmin: [],
                         }
                     }
                     // MAJ Nb intervention total par structure
@@ -256,29 +258,33 @@ export default {
                     switch (true) {
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 12):
                             statStructure[element].CouleurParDepartement[i] = '#191970'
+                            statStructure[element].CouleurParDepartementAdmin[i] = '#ff0000'
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 9):
                             statStructure[element].CouleurParDepartement[i] = '#4169E1'
+                            statStructure[element].CouleurParDepartementAdmin[i] = '#d85454'
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 6):
                             statStructure[element].CouleurParDepartement[i] = '#318CE7'
+                            statStructure[element].CouleurParDepartementAdmin[i] = '#f69696'
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 3):
                             statStructure[element].CouleurParDepartement[i] = '#77B5FE'
+                            statStructure[element].CouleurParDepartementAdmin[i] = '#f9d1d1'
                             break;
                         case (statStructure[element].IntParDepartement[i] === 0):
                             statStructure[element].CouleurParDepartement[i] = '#3f3f3f' // =0
+                            statStructure[element].CouleurParDepartementAdmin[i] = '#3f3f3f'
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 0): // +0
                             statStructure[element].CouleurParDepartement[i] = '#B0E0E6'
+                            statStructure[element].CouleurParDepartementAdmin[i] = '#fbe5e5'
                             break;
                     }
                 }
             });
-
-            // sauvegarde du tableau des labels dans l'objet qui sera sauvegardé dans le store
-            statStructure['nationale'].labelsHisto = labelsHisto
-
+            
+            
             // 4 eme graphique, que pour les admin
             // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
             var keys = Object.keys(statStructure);
@@ -344,22 +350,22 @@ export default {
                 keys.forEach(function (k) {
                     DataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].total) / NbIntervention) * 10000
+                            (Number(statStructure[k].nbInt) / NbIntervention) * 10000
                         ) / 100
                     );
                     SubDataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].bloc1) / NbIntervention) * 10000
+                            (Number(statStructure[k].nbBloc1) / NbIntervention) * 10000
                         ) / 100
                     );
                     SubDataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].bloc2) / NbIntervention) * 10000
+                            (Number(statStructure[k].nbBloc2) / NbIntervention) * 10000
                         ) / 100
                     );
                     SubDataToDisplay.push(
                         Math.round(
-                            (Number(IntParStructure[k].bloc3) / NbIntervention) * 10000
+                            (Number(statStructure[k].nbBloc3) / NbIntervention) * 10000
                         ) / 100
                     );
                     LabelsToDisplay.push(k);
@@ -368,9 +374,6 @@ export default {
                     SubLabelsToDisplay.push(k + " / bloc 3");
                 });
             }
-
-            this.$store.commit('set_statStructure', statStructure)
-
             // Définition de l'objet Data envoyé au 4eme graphique
             this.data4 = {
                 datasets: [
@@ -424,6 +427,11 @@ export default {
                 ],
                 labels: LabelsToDisplay
             };
+            // sauvegarde du tableau des labels dans l'objet qui sera sauvegardé dans le store
+            statStructure['nationale'].labelsHisto = labelsHisto
+            statStructure['nationale'].data4 = this.data4
+            this.$store.commit('set_statStructure', statStructure)
         }
+        
     }
 }

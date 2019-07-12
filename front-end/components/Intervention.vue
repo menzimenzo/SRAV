@@ -224,7 +224,6 @@ export default {
       type: Object,
       default: () => {
         return {};
-        //return { nbEnfants: 12 }
       }
     }
   },

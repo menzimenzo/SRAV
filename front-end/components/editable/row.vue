@@ -57,9 +57,9 @@
         </td>
         <td class="actions text-center"
             aria-label="Actions"
-            data-title="Actions"
-            v-if="creable || editable || removable">
-            <div class="btn-group" role="group">
+            data-title="Actions">
+            <div class="btn-group" role="group"
+                v-if="creable || editable || removable">
                 <a class="btn-editer btn-rounded btn-shadow"
                     v-if="editable && isFieldsEditable"
                     role="button"
@@ -134,11 +134,6 @@ export default {
             required: true
         }
     },
-    data() {
-        return {
-            clonedItem: _.cloneDeep(this.item)
-        }
-    },
     components: {
         inputValidationErrors,
         btnSupprimer,
@@ -155,12 +150,6 @@ export default {
             return _.includes(_.uniq(_.map(this.columns, 'editable')), true)
         }
     },
-    watch: {
-        item(item) {
-            this.clonedItem = _.cloneDeep(item)
-            this.callInputsCallbacks(this.columns, this.clonedItem)
-        }
-    },
     methods: {
         remove(e) {
             e && e.stopImmediatePropagation && e.stopImmediatePropagation()
@@ -168,14 +157,14 @@ export default {
         },
         edit(e) {
             e && e.stopImmediatePropagation && e.stopImmediatePropagation()
-            this.$emit('edit', { index: this.index, item: this.clonedItem })
+            this.$emit('edit', { index: this.index, item: this.item })
         },
         getPath(path) {
             return this.isSpecialField(path) ? this.fieldPath(path) : path
         },
         rowClicked(e) {
             e && e.stopImmediatePropagation && e.stopImmediatePropagation()
-            !this.newItem && this.$parent.$emit('rowClicked', this.clonedItem)
+            !this.newItem && this.$parent.$emit('rowClicked', this.item)
         },
         editableColumn(column) {
             const editable = this.item.options && this.item.options.editable || {}
