@@ -38,15 +38,20 @@
               <div class="mb-3">
                 <b-form inline>
                   <label for="nomFilter">Nom:</label>
+                  <b-input class="ml-2" id="nomFilter" v-model="nomFilter" placeholder="Nom" />
+                  <label class="ml-3" for="prenomFilter">Prénom:</label>
                   <b-input
                     class="ml-2"
-                    id="nomFilter"
-                    v-model="nomFilter"
-                    placeholder="Nom"
+                    id="prenomFilter"
+                    v-model="prenomFilter"
+                    placeholder="Prénom"
                   />
-                  <label class="ml-3" for="prenomFilter">Prénom:</label>
-                  <b-input class="ml-2" id="prenomFilter" v-model="prenomFilter" placeholder="Prénom"/>
-                  <label class="ml-3"  for="inscriptionFilter"> Validité Inscription :</label><b-form-select class="ml-3"  v-model="inscriptionFilter" :options="listeValidInscrip"/>
+                  <label class="ml-3" for="inscriptionFilter">Validité Inscription :</label>
+                  <b-form-select
+                    class="ml-3"
+                    v-model="inscriptionFilter"
+                    :options="listeValidInscrip"
+                  />
                 </b-form>
                 <!--
                 <b-form inline>
@@ -54,7 +59,7 @@
                   <label class="ml-3"  for="inscriptionFilter"> Validité Inscription :</label><b-form-select class="ml-3"  v-model="inscriptionFilter" :options="listeValidInscrip"/>
                 </b-form>
                 -->
-              </div>              
+              </div>
               <editable
                 :columns="headers"
                 :data="filteredUtilisateurs"
@@ -81,7 +86,7 @@
             <b-form-row>
               <b-col>
                 <!-- IMAGE RAYEE BANNER INTERVENTION -->
-                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)"/>
+                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)" />
                 <b-btn
                   class="accordionBtn"
                   block
@@ -156,16 +161,16 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion3" visible accordion="my-accordion" role="tabpanel">
-            <b-card-header header-tag="header" class="p-1" role="tab">
+            <b-row>&nbsp;</b-row>
+            <b-card-header header-tag="header" style="background:#fbe5e5">
               <b-row></b-row>&nbsp;
-              <b-row >
+              <b-row>
                 <b-col style="text-align:center">
                   Veuillez sélectionner la structure dont vous souhaitez voir la répartition des interventions :
-                  <span class="liste-deroulante">
-                    <b-form-select
-                      v-model="structure1"
-                      v-on:change="viewCarte(structure1)"
-                    >
+                  <span
+                    class="liste-deroulante"
+                  >
+                    <b-form-select v-model="structure1" v-on:change="viewCarte(structure1)">
                       <option :value="'nationale'">Toutes</option>
                       <option
                         v-for="structure in structures"
@@ -193,7 +198,7 @@
               <b-col cols="1" class="legendCarte" style="background:#3f3f3f ; color:white">Aucune</b-col>
               <b-col cols="1" class="legendCarte" style="background:#fbe5e5">]0;3]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#f9d1d1">]3;6]</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#f69696 ; color:white">]6;9]</b-col> 
+              <b-col cols="1" class="legendCarte" style="background:#f69696 ; color:white">]6;9]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#d85454 ; color:white">]9;12]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#ff0000 ; color:white">+12</b-col>
             </b-row>
@@ -212,7 +217,7 @@
             </b-row>
             <b-row>&nbsp;</b-row>
             <b-row>&nbsp;</b-row>
-            <b-card-header header-tag="header">
+            <b-card-header header-tag="header" style="background:#fbe5e5">
               <b-row></b-row>&nbsp;
               <b-row>
                 <b-col style="text-align:center">
@@ -250,7 +255,7 @@
             </b-card-header>
             <b-row>&nbsp;</b-row>
             <b-row align="center">
-              <b-col >
+              <b-col>
                 <h5>Nb Interventions par bloc / Nb Attestations cumulé</h5>
                 <h6 v-if="structure3==''">"{{structure2}}"</h6>
                 <h6 v-else>"{{structure2}}" vs "{{structure3}}"</h6>
@@ -318,6 +323,7 @@
                 <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
             </b-row>
+            <b-row>&nbsp;</b-row>
           </b-collapse>
         </b-card>
         <b-card no-body class="mb-3">
@@ -325,7 +331,7 @@
             <b-form-row>
               <b-col>
                 <!-- IMAGE RAYEE BANNER INTERVENTION -->
-                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)"/>
+                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)" />
                 <b-btn
                   class="accordionBtn"
                   block
@@ -344,7 +350,7 @@
           </b-card-header>
           <b-collapse id="accordion4" accordion="my-accordion" role="tabpanel">
             <b-card-body>
-              <file-upload/>
+              <file-upload />
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -355,7 +361,7 @@
             <b-form-row>
               <b-col>
                 <!-- IMAGE RAYEE BANNER INTERVENTION -->
-                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)"/>
+                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)" />
                 <b-btn
                   class="accordionBtn"
                   block
@@ -384,7 +390,7 @@
                     placeholder="Bernard Dupond"
                   />
                   <label class="ml-3" for="placeFilter">Lieu:</label>
-                  <b-input class="ml-2" id="placeFilter" v-model="placeFilter" placeholder="Paris"/>
+                  <b-input class="ml-2" id="placeFilter" v-model="placeFilter" placeholder="Paris" />
                 </b-form>
               </div>
               <editable
@@ -408,12 +414,11 @@
       </b-col>
     </b-row>
     <modal name="editUser" height="auto" width="900px" :scrollabe="true">
-      <user/>
+      <user />
     </modal>
     <modal name="editStruct" height="auto" width="900px" :scrollabe="true">
-      <struct/>
+      <struct />
     </modal>
-    
   </b-container>
 </template>
 
@@ -537,22 +542,21 @@ export default {
         }
       ],
       listeValidInscrip: [
-         { text: 'Validée', value: 'Validée' },
-         { text: 'Non validée', value: 'Non validée' },
-         { text: 'Tous', value: 'Tous' }
-       ],
+        { text: "Validée", value: "Validée" },
+        { text: "Non validée", value: "Non validée" },
+        { text: "Tous", value: "Tous" }
+      ],
       listeprofil: [
-         { text: 'Administrateur', value: 'Administrateur' },
-         { text: 'Partenaire', value: 'Partenaire' },
-         { text: 'Intervenant', value: 'Intervenant' },
-         { text: 'Tous', value: 'Tous' }
-       ],
-       liststatus: [
-         { text: 'Actif', value: 'Actif' },
-         { text: 'Bloqué', value: 'Actif' },
-         { text: 'Tous', value: 'Tous' }
-       ]
-
+        { text: "Administrateur", value: "Administrateur" },
+        { text: "Partenaire", value: "Partenaire" },
+        { text: "Intervenant", value: "Intervenant" },
+        { text: "Tous", value: "Tous" }
+      ],
+      liststatus: [
+        { text: "Actif", value: "Actif" },
+        { text: "Bloqué", value: "Actif" },
+        { text: "Tous", value: "Tous" }
+      ]
     };
   },
 
@@ -570,8 +574,10 @@ export default {
           );
         });
     },
-    viewCarte(str){
-       this.remplissage = this.$store.state.statStructure[str].CouleurParDepartementAdmin;
+    viewCarte(str) {
+      this.remplissage = this.$store.state.statStructure[
+        str
+      ].CouleurParDepartementAdmin;
     },
     viewHisto(str1, str2) {
       if (str2 != "") {
@@ -597,42 +603,42 @@ export default {
               data: this.$store.state.statStructure[str2].nbAtt
             },
             {
-              label: "sco-" +str1,
+              label: "sco-" + str1,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntSco
             },
             {
-              label: "péri-sco-"+str1,
+              label: "péri-sco-" + str1,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntPer
             },
             {
-              label: "ext sco-"+str1,
+              label: "ext sco-" + str1,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntExt
             },
             {
-              label: "sco-"+str2,
+              label: "sco-" + str2,
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntSco
             },
             {
-              label: "péri-sco-"+str2,
+              label: "péri-sco-" + str2,
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntPer
             },
             {
-              label: "ext sco-"+str2,
+              label: "ext sco-" + str2,
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
@@ -647,7 +653,7 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Cum. att.-"+str1,
+              label: "Cum. att.-" + str1,
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
@@ -656,49 +662,49 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Cum. att.-"+str2,
+              label: "Cum. att.-" + str2,
               backgroundColor: "#000000",
               borderColor: "#000000",
               yAxisID: "B",
               data: this.$store.state.statStructure[str2].nbAttCumule
             },
             {
-              label: "bl. 1-"+str1,
+              label: "bl. 1-" + str1,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc1
             },
             {
-              label: "bl. 2-"+str1,
+              label: "bl. 2-" + str1,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc2
             },
             {
-              label: "bl. 3-"+str1,
+              label: "bl. 3-" + str1,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc3
             },
             {
-              label: "bl. 1-"+str2,
+              label: "bl. 1-" + str2,
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntBloc1
             },
             {
-              label: "bl. 2"+str2,
+              label: "bl. 2" + str2,
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntBloc2
             },
             {
-              label: "bl. 3"+str2,
+              label: "bl. 3" + str2,
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
@@ -761,21 +767,21 @@ export default {
               data: this.$store.state.statStructure[str1].nbAtt
             },
             {
-              label: "sco-"+str1,
+              label: "sco-" + str1,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntSco
             },
             {
-              label: "péri-sco-"+str1,
+              label: "péri-sco-" + str1,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntPer
             },
             {
-              label: "ext sco-"+str1,
+              label: "ext sco-" + str1,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
@@ -790,28 +796,28 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Cum. att-"+str1,
+              label: "Cum. att-" + str1,
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
               data: this.$store.state.statStructure[str1].nbAttCumule
             },
             {
-              label: "bl. 1-"+str1,
+              label: "bl. 1-" + str1,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc1
             },
             {
-              label: "bl. 2-"+str1,
+              label: "bl. 2-" + str1,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc2
             },
             {
-              label: "bl. 3-"+str1,
+              label: "bl. 3-" + str1,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
@@ -866,7 +872,7 @@ export default {
               this.$store.state.statStructure[str1].nbBloc2Rel,
               this.$store.state.statStructure[str1].nbBloc3Rel
             ],
-            labels: ["Bl. 1-"+str1, "Bl. 2-"+str1, "Bl. 3-"+str1]
+            labels: ["Bl. 1-" + str1, "Bl. 2-" + str1, "Bl. 3-" + str1]
           },
           {
             backgroundColor: [
@@ -1005,7 +1011,8 @@ export default {
         if (this.nameFilter != "") {
           isMatch =
             isMatch &&
-            (String(intervention.commentaire) != "null" && String(intervention.commentaire) != "") &&
+            (String(intervention.commentaire) != "null" &&
+              String(intervention.commentaire) != "") &&
             intervention.nom
               .toLowerCase()
               .indexOf(this.nameFilter.toLowerCase()) > -1;
@@ -1013,14 +1020,18 @@ export default {
         if (this.placeFilter != "") {
           isMatch =
             isMatch &&
-            (String(intervention.commentaire) != "null" && String(intervention.commentaire) != "") &&
+            (String(intervention.commentaire) != "null" &&
+              String(intervention.commentaire) != "") &&
             intervention.commune.com_libellemaj
               .toLowerCase()
               .indexOf(this.placeFilter.toLowerCase()) > -1;
         }
         // Suppression des interventions sans commentaire
         if (this.placeFilter == "" && this.nameFilter == "") {
-          isMatch = isMatch && (String(intervention.commentaire) != "null" && String(intervention.commentaire) != "");
+          isMatch =
+            isMatch &&
+            (String(intervention.commentaire) != "null" &&
+              String(intervention.commentaire) != "");
         }
         return isMatch;
       });
@@ -1028,27 +1039,26 @@ export default {
     filteredUtilisateurs: function() {
       return this.users.filter(user => {
         var isMatch = true;
-        console.log(this.nomFilter)
-        if (this.nomFilter !="") {
+        console.log(this.nomFilter);
+        if (this.nomFilter != "") {
           isMatch =
-            isMatch && user.nom
-              .toLowerCase()
-              .indexOf(this.nomFilter.toLowerCase()) > -1;
-
+            isMatch &&
+            user.nom.toLowerCase().indexOf(this.nomFilter.toLowerCase()) > -1;
         }
-        if (this.prenomFilter !="") {
+        if (this.prenomFilter != "") {
           isMatch =
-            isMatch && user.prenom
-              .toLowerCase()
-              .indexOf(this.prenomFilter.toLowerCase()) > -1;
-
-        }        
-        if (this.inscriptionFilter != "Tous" && this.inscriptionFilter != undefined && this.inscriptionFilter != "") {
+            isMatch &&
+            user.prenom.toLowerCase().indexOf(this.prenomFilter.toLowerCase()) >
+              -1;
+        }
+        if (
+          this.inscriptionFilter != "Tous" &&
+          this.inscriptionFilter != undefined &&
+          this.inscriptionFilter != ""
+        ) {
           isMatch =
-            isMatch && user.inscription
-              .indexOf(this.inscriptionFilter) > -1;
-
-        }   
+            isMatch && user.inscription.indexOf(this.inscriptionFilter) > -1;
+        }
 
         return isMatch;
       });
@@ -1071,23 +1081,21 @@ export default {
       }),
       this.$store.dispatch("get_interventions")
     ]);
-     // Calcul des stats définies dans le mixins stat.js
-      this.statCal(this.interventions, this.structures)
-      this.remplissage = this.$store.state.statStructure[
+    // Calcul des stats définies dans le mixins stat.js
+    this.statCal(this.interventions, this.structures);
+    (this.remplissage = this.$store.state.statStructure[
       this.structure1
-    ].CouleurParDepartementAdmin,
-    this.statStructure = this.$store.state.statStructure
-   
-    
-    // on positionne structure1 sur la structure de l'utilisateur
-    this.structure1 = "nationale"
-    this.structure2 = this.structure1
+    ].CouleurParDepartementAdmin),
+      (this.statStructure = this.$store.state.statStructure);
 
-  
+    // on positionne structure1 sur la structure de l'utilisateur
+    this.structure1 = "nationale";
+    this.structure2 = this.structure1;
+
     // Affichage des graphiques
     this.viewHisto(this.structure2, this.structure3);
     this.viewDoughnut(this.structure2);
-    this.data4 = this.$store.state.statStructure['nationale'].data4
+    this.data4 = this.$store.state.statStructure["nationale"].data4;
 
     this.loading = false;
   }
@@ -1095,8 +1103,6 @@ export default {
 </script>
 
 <style>
-
-
 .legendCarte {
   font-size: 14px;
   border-radius: 10px;

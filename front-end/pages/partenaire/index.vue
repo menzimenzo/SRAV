@@ -83,16 +83,16 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion2" visible accordion="my-accordion" role="tabpanel">
-            <b-card-header header-tag="header" class="p-1" role="tab">
+            <b-row>&nbsp;</b-row>
+            <b-card-header header-tag="header" style="background:#d0eef2">
               <b-row></b-row>&nbsp;
-              <b-row >
+              <b-row>
                 <b-col style="text-align:center">
                   Veuillez sélectionner la structure dont vous souhaitez voir la répartition des interventions :
-                  <span class="liste-deroulante">
-                    <b-form-select
-                      v-model="structure1"
-                      v-on:change="viewCarte(structure1)"
-                    >
+                  <span
+                    class="liste-deroulante"
+                  >
+                    <b-form-select v-model="structure1" v-on:change="viewCarte(structure1)">
                       <option :value="'nationale'">Toutes</option>
                       <option
                         v-for="structure in structures"
@@ -118,7 +118,7 @@
             <b-row align="center" class="mx-2">
               <b-col cols="4">Taux d'intervention départemental (en %) :</b-col>
               <b-col cols="1" class="legendCarte" style="background:#3f3f3f ; color:white">Aucune</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#B0E0E6">]0;3]</b-col> 
+              <b-col cols="1" class="legendCarte" style="background:#B0E0E6">]0;3]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#77B5FE">]3;6]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#318CE7 ; color:white">]6;9]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#4169E1 ; color:white">]9;12]</b-col>
@@ -139,7 +139,7 @@
             </b-row>
             <b-row>&nbsp;</b-row>
             <b-row>&nbsp;</b-row>
-            <b-card-header header-tag="header">
+            <b-card-header header-tag="header" style="background:#d0eef2">
               <b-row></b-row>&nbsp;
               <b-row>
                 <b-col style="text-align:center">
@@ -177,7 +177,7 @@
             </b-card-header>
             <b-row>&nbsp;</b-row>
             <b-row align="center">
-              <b-col >
+              <b-col>
                 <h5>Nb Interventions par bloc / Nb Attestations cumulé</h5>
                 <h6 v-if="structure3==''">"{{structure2}}"</h6>
                 <h6 v-else>"{{structure2}}" vs "{{structure3}}"</h6>
@@ -234,6 +234,7 @@
               </b-col>
               <b-col align-self="center"></b-col>
             </b-row>
+            <b-row>&nbsp;</b-row>
           </b-collapse>
         </b-card>
         <b-card no-body class="mb-3">
@@ -366,8 +367,10 @@ export default {
   },
 
   methods: {
-    viewCarte(str){
-       this.remplissage = this.$store.state.statStructure[str].CouleurParDepartement;
+    viewCarte(str) {
+      this.remplissage = this.$store.state.statStructure[
+        str
+      ].CouleurParDepartement;
     },
     viewHisto(str1, str2) {
       if (str2 != "") {
@@ -393,42 +396,42 @@ export default {
               data: this.$store.state.statStructure[str2].nbAtt
             },
             {
-              label: "sco-" +str1,
+              label: "sco-" + str1,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntSco
             },
             {
-              label: "péri-sco-"+str1,
+              label: "péri-sco-" + str1,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntPer
             },
             {
-              label: "ext sco-"+str1,
+              label: "ext sco-" + str1,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntExt
             },
             {
-              label: "sco-"+str2,
+              label: "sco-" + str2,
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntSco
             },
             {
-              label: "péri-sco-"+str2,
+              label: "péri-sco-" + str2,
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntPer
             },
             {
-              label: "ext sco-"+str2,
+              label: "ext sco-" + str2,
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
@@ -443,7 +446,7 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Cum. att.-"+str1,
+              label: "Cum. att.-" + str1,
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
@@ -452,49 +455,49 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Cum. att.-"+str2,
+              label: "Cum. att.-" + str2,
               backgroundColor: "#000000",
               borderColor: "#000000",
               yAxisID: "B",
               data: this.$store.state.statStructure[str2].nbAttCumule
             },
             {
-              label: "bl. 1-"+str1,
+              label: "bl. 1-" + str1,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc1
             },
             {
-              label: "bl. 2-"+str1,
+              label: "bl. 2-" + str1,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc2
             },
             {
-              label: "bl. 3-"+str1,
+              label: "bl. 3-" + str1,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc3
             },
             {
-              label: "bl. 1-"+str2,
+              label: "bl. 1-" + str2,
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntBloc1
             },
             {
-              label: "bl. 2"+str2,
+              label: "bl. 2" + str2,
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
               data: this.$store.state.statStructure[str2].nbIntBloc2
             },
             {
-              label: "bl. 3"+str2,
+              label: "bl. 3" + str2,
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
@@ -557,21 +560,21 @@ export default {
               data: this.$store.state.statStructure[str1].nbAtt
             },
             {
-              label: "sco-"+str1,
+              label: "sco-" + str1,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntSco
             },
             {
-              label: "péri-sco-"+str1,
+              label: "péri-sco-" + str1,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntPer
             },
             {
-              label: "ext sco-"+str1,
+              label: "ext sco-" + str1,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
@@ -586,28 +589,28 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Cum. att-"+str1,
+              label: "Cum. att-" + str1,
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
               data: this.$store.state.statStructure[str1].nbAttCumule
             },
             {
-              label: "bl. 1-"+str1,
+              label: "bl. 1-" + str1,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc1
             },
             {
-              label: "bl. 2-"+str1,
+              label: "bl. 2-" + str1,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
               data: this.$store.state.statStructure[str1].nbIntBloc2
             },
             {
-              label: "bl. 3-"+str1,
+              label: "bl. 3-" + str1,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
@@ -662,7 +665,7 @@ export default {
               this.$store.state.statStructure[str1].nbBloc2Rel,
               this.$store.state.statStructure[str1].nbBloc3Rel
             ],
-            labels: ["Bl. 1-"+str1, "Bl. 2-"+str1, "Bl. 3-"+str1]
+            labels: ["Bl. 1-" + str1, "Bl. 2-" + str1, "Bl. 3-" + str1]
           },
           {
             backgroundColor: [
@@ -829,20 +832,18 @@ export default {
       this.$store.dispatch("get_structures")
     ]);
     // Calcul des stats définies dans le mixins stat.js
-      this.statCal(this.interventions, this.structures)
-      this.remplissage = this.$store.state.statStructure[
+    this.statCal(this.interventions, this.structures);
+    (this.remplissage = this.$store.state.statStructure[
       this.structure1
-    ].CouleurParDepartement,
-    this.statStructure = this.$store.state.statStructure
-   
-    
+    ].CouleurParDepartement),
+      (this.statStructure = this.$store.state.statStructure);
+
     // on positionne structure1 sur la structure de l'utilisateur
     this.structure1 = this.structures[
       this.$store.state.utilisateurCourant.structureId
     ].str_libellecourt;
-    this.structure2 = this.structure1
+    this.structure2 = this.structure1;
 
-  
     // Affichage des graphiques
     this.viewHisto(this.structure2, this.structure3);
     this.viewDoughnut(this.structure2);
@@ -852,7 +853,6 @@ export default {
 </script>
 
 <style>
-
 .legendCarte {
   font-size: 14px;
   border-radius: 10px;

@@ -111,7 +111,7 @@
                     </div>
                     <h4
                       class="text-center"
-                      v-if="interventions.length == 0"
+                      v-if="(interventions.length == 0) && (loading===false)"
                     >Aucune intervention n'a été créée pour le moment.</h4>
                   </b-col>
                 </b-row>
@@ -245,7 +245,7 @@ export default {
   },
   watch: {
     interventions: function() {
-      this.loading = true
+      this.loading = true;
       if (this.utilisateurCourant.profilId == 2) {
         //console.info('suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
         //console.info('nb inter avant: '+ this.interventions.length)
@@ -261,7 +261,7 @@ export default {
       } else {
         this.interventionsToDisplay = this.interventions;
       }
-      this.loading = false
+      this.loading = false;
     }
   },
   computed: mapState([
@@ -291,7 +291,7 @@ export default {
       console.info("Suppression d'une intervention : " + idIntervention);
       //this.$dialog.confirm({ text: 'Confirmez-vous la suppression définitive d\'intervention', title: 'Suppression'});
       if (confirm("Confirmez-vous la suppression définitive d'intervention")) {
-        this.loading = true
+        this.loading = true;
         const url =
           process.env.API_URL + "/interventions/delete/" + idIntervention;
         console.info(url);
@@ -312,7 +312,7 @@ export default {
               error
             );
           });
-          this.loading = false;
+        this.loading = false;
       }
     },
     downloadPdf: function(id) {
