@@ -458,7 +458,7 @@ export default {
       data4: null,
       optionsHisto: null,
       optionsDoughnut: null,
-      NbAttestations: null,
+      NbAttestations: 0,
       loading: true,
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },

@@ -899,7 +899,7 @@
           />
         </svg>
       </b-col>
-      <b-col>
+      <b-col v-if="hover">
         <h3 class="titreAdmin" v-if="(hover ===true) && (profil=='admin')">{{nom}}</h3>
         <h3 class="titre" v-if="(hover ===true) && (profil=='partenaire')">{{nom}}</h3>
         <b-row class="liste" v-if="hover">
@@ -909,7 +909,7 @@
         <b-row
           cols="9"
           class="liste"
-          v-if="hover"
+          
           v-for="structure in struc"
           :key="structure.str_libellecourt"
           :value="structure.str_libellecourt"
