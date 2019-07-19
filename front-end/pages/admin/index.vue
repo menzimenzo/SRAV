@@ -197,7 +197,7 @@
               <b-col cols="4">Taux d'intervention départemental (en %) :</b-col>
               <b-col cols="1" class="legendCarte" style="background:#3f3f3f ; color:white">Aucune</b-col>
               <b-col cols="1" class="legendCarte" style="background:#fbe5e5">]0;3]</b-col>
-              <b-col cols="1" class="legendCarte" style="background:#f9d1d1">]3;6]</b-col>
+              <b-col cols="1" class="legendCarte" style="background:#f7c3c3">]3;6]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#f69696 ; color:white">]6;9]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#d85454 ; color:white">]9;12]</b-col>
               <b-col cols="1" class="legendCarte" style="background:#ff0000 ; color:white">+12</b-col>

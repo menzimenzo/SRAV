@@ -269,7 +269,7 @@ export default {
                             break;
                         case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 3):
                             statStructure[element].CouleurParDepartement[i] = '#77B5FE'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#f9d1d1'
+                            statStructure[element].CouleurParDepartementAdmin[i] = '#f7c3c3'
                             break;
                         case (statStructure[element].IntParDepartement[i] === 0):
                             statStructure[element].CouleurParDepartement[i] = '#3f3f3f' // =0
@@ -283,7 +283,6 @@ export default {
                 }
             }
             });
-
 
             // 4 eme graphique, que pour les admin
             // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses

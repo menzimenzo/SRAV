@@ -833,16 +833,17 @@ export default {
     ]);
     // Calcul des stats définies dans le mixins stat.js
     this.statCal(this.interventions, this.structures);
+    // on positionne structure1 sur la structure de l'utilisateur
+     this.structures.forEach(x => {
+       if (String(x.str_id) === String(this.$store.state.utilisateurCourant.structureId)) {
+        this.structure1 = String(x.str_libellecourt)
+        this.structure2 = this.structure1;
+        }
+     });
     (this.remplissage = this.$store.state.statStructure[
       this.structure1
     ].CouleurParDepartement),
       (this.statStructure = this.$store.state.statStructure);
-
-    // on positionne structure1 sur la structure de l'utilisateur
-    this.structure1 = this.structures[
-      this.$store.state.utilisateurCourant.structureId
-    ].str_libellecourt;
-    this.structure2 = this.structure1;
 
     // Affichage des graphiques
     this.viewHisto(this.structure2, this.structure3);

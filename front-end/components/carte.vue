@@ -1,7 +1,7 @@
 <template>
   <div class="map" id="map">
     <b-row>
-      <b-col cols="8">
+      <b-col cols="7">
         <svg
           xmlns:i="http://ns.adobe.com/AdobeIllustrator/10.0/"
           xmlns:dc="http://purl.org/dc/elements/1.1/"
@@ -899,7 +899,7 @@
           />
         </svg>
       </b-col>
-      <b-col v-if="hover">
+      <b-col  cols="4" v-if="hover">
         <h3 class="titreAdmin" v-if="(hover ===true) && (profil=='admin')">{{nom}}</h3>
         <h3 class="titre" v-if="(hover ===true) && (profil=='partenaire')">{{nom}}</h3>
         <b-row class="liste" v-if="hover">
@@ -1013,23 +1013,22 @@ path:hover {
 }
 
 .titre {
-  background-color: #ffffff;
   text-align: left;
   border-bottom: 1px solid #191970;
   padding: 5px;
   font-family: arial;
 }
 .titreAdmin {
-  background-color: #ffffff;
   text-align: left;
   border-bottom: 1px solid #ff0000;
+  border-right: 0px solid;
   padding: 5px;
   font-family: arial;
 }
 .liste {
-  background-color: #ffffff;
   text-align: left;
   padding: 2px;
+  
 }
 .nom {
   column-width: 80%;
