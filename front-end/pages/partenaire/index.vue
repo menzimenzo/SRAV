@@ -71,7 +71,7 @@
                   <h4 v-if="loading === false">
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">poll</i>
-                    Accès aux indicateurs : {{NbAttestations}} attestations enregistrées depuis Avril 2019
+                    Accès aux indicateurs : {{statStructure[structure2].nbAttestations}} attestations enregistrées depuis Avril 2019
                   </h4>
                   <h4 v-else>
                     <i class="material-icons accordion-chevron">chevron_right</i>
@@ -218,7 +218,9 @@
                 <h5>Interventions par Bloc et par Cadre</h5>
                 <h6>"{{structure2}}"</h6>
               </b-col>
-              <b-col></b-col>
+              <b-col>
+                <h5>Répartition des interventions par structure et par bloc</h5>
+              </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
             <b-row align="center">
@@ -232,7 +234,16 @@
                 />
                 <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
-              <b-col align-self="center"></b-col>
+                <b-col align-self="center">
+                <doughnut-chart
+                  v-if="loading === false"
+                  :chartdata="data4"
+                  :options="optionsDoughnut"
+                  :width="400"
+                  :height="400"
+                />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />
+              </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
           </b-collapse>
@@ -314,7 +325,6 @@ export default {
       data3: null,
       optionsHisto: null,
       optionsDoughnut: null,
-      NbAttestations: null,
       loading: true,
       commentaires: null,
       headers: [

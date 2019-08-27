@@ -8,11 +8,11 @@ export default {
             let SubDataToDisplay = [];
             let LabelsToDisplay = [];
             let SubLabelsToDisplay = [];
-            let NbAttestations = 0;
             let nb = 0;
             let statStructure = {
                 nationale: {
                     nbInt: 0,
+                    nbAttestations: 0,
                     nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -48,6 +48,7 @@ export default {
             structures.forEach(element => {
                 statStructure[element.str_libellecourt] = {
                     nbInt: 0,
+                    nbAttestations: 0,
                     nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                     nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -101,7 +102,8 @@ export default {
 
                 // Si blocid = 3 alors il y a attestation
                 if (blocId === 3) {
-                    this.NbAttestations = this.NbAttestations + nbEnfants;
+                    statStructure[structure].nbAttestations =statStructure[structure].nbAttestations + nbEnfants;
+                    statStructure['nationale'].nbAttestations =statStructure['nationale'].nbAttestations + nbEnfants;
                 }
 
                 // tous les tableaux sont indicés sur indiceMensuel qui est a 12 pour le mois courant
@@ -127,6 +129,7 @@ export default {
                             break;
                         case '2B':
                             indDepartement = 96;
+                            break;
                         case '971':
                             indDepartement = 97;
                             break;

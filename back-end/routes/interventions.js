@@ -270,7 +270,7 @@ router.get('/', async function (req, res) {
             return res.status(400).json('erreur lors de la récupération des interventions');
         }
         else {
-            console.info(result.rows)
+            //console.info(result.rows)
             const interventions = result.rows.map(formatIntervention);
             res.json({ interventions });
         }

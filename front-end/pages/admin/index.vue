@@ -149,7 +149,7 @@
                   <h4 v-if="loading === false">
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">poll</i>
-                    Accès aux indicateurs : {{NbAttestations}} attestations enregistrées depuis Avril 2019
+                    Accès aux indicateurs : {{statStructure['nationale'].nbAttestations}} attestations enregistrées depuis Avril 2019
                   </h4>
                   <h4 v-else>
                     <i class="material-icons accordion-chevron">chevron_right</i>
@@ -458,7 +458,6 @@ export default {
       data4: null,
       optionsHisto: null,
       optionsDoughnut: null,
-      NbAttestations: 0,
       loading: true,
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
