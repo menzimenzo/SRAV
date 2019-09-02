@@ -35,16 +35,36 @@
               <b-btn @click="exportCsv()" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
               </b-btn>
+              <div class="mb-3">
+                <b-form inline>
+                  <label for="nomFilter">Nom:</label>
+                  <b-input class="ml-2" id="nomFilter" v-model="nomFilter" placeholder="Nom" />
+                  <label class="ml-3" for="prenomFilter">Prénom:</label>
+                  <b-input
+                    class="ml-2"
+                    id="prenomFilter"
+                    v-model="prenomFilter"
+                    placeholder="Prénom"
+                  />
+                  <label class="ml-3" for="inscriptionFilter">Validité Inscription :</label>
+                  <b-form-select
+                    class="ml-3"
+                    v-model="inscriptionFilter"
+                    :options="listeValidInscrip"
+                  />
+                </b-form>
+              </div>
               <editable
                 :columns="headers"
-                :data="users"
+                :data="filteredUtilisateurs"
                 :removable="false"
                 :creable="false"
-                :defaultSortField="{ key: 'nom', order: 'asc' }"
                 :editable="false"
                 :noDataLabel="''"
                 tableMaxHeight="none"
                 :loading="loading"
+                v-if="filteredUtilisateurs.length > 0"
+                :defaultSortField="{ key: 'nom', order: 'asc' }"
               >
                 <template slot-scope="props" slot="actions">
                   <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
@@ -350,6 +370,14 @@ export default {
           type: "__slot:actions",
           sortable: false
         }
+      ],
+      nomFilter: "",
+      prenomFilter: "",
+      inscriptionFilter: "",
+      listeValidInscrip: [
+        { text: "Validée", value: "Validée" },
+        { text: "Non validée", value: "Non validée" },
+        { text: "Tous", value: "Tous" }
       ],
       headersCom: [
         { path: "nom", title: "Intervenant", type: "text", sortable: true },
@@ -820,8 +848,36 @@ export default {
         });
     }
   },
-  computed: mapState(["interventions", "users", "documents", "structures"]),
+  computed: {
+    ...mapState(["interventions", "users", "documents", "structures"]),
+    filteredUtilisateurs: function() {
+      return this.users.filter(user => {
+        var isMatch = true;
+        console.log(this.nomFilter);
+        if (this.nomFilter != "") {
+          isMatch =
+            isMatch &&
+            user.nom.toLowerCase().indexOf(this.nomFilter.toLowerCase()) > -1;
+        }
+        if (this.prenomFilter != "") {
+          isMatch =
+            isMatch &&
+            user.prenom.toLowerCase().indexOf(this.prenomFilter.toLowerCase()) >
+              -1;
+        }
+        if (
+          this.inscriptionFilter != "Tous" &&
+          this.inscriptionFilter != undefined &&
+          this.inscriptionFilter != ""
+        ) {
+          isMatch =
+            isMatch && user.inscription.indexOf(this.inscriptionFilter) > -1;
+        }
 
+        return isMatch;
+      });
+    }
+  },
   //  CHARGEMENT ASYNCHRONE DES USERS
   //
   async mounted() {
