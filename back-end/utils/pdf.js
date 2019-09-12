@@ -41,8 +41,8 @@ function generate(id,nbenfants,dateintervention) {
         // Formatage de la date
         dateaffichee = dateintervention.substr(8,2)+"/"+dateintervention.substr(5,2)+"/"+dateintervention.substr(0,4);
         doc.fontSize(14);
-        doc.text(numattestation,590,350,{align:'center'});
-        doc.text(dateaffichee,410,420,{align:'center'});
+        doc.text(numattestation,577,352.5,{align:'center'});
+        doc.text(dateaffichee,409,422,{align:'center'});
         // dernière page ? pour ne pas ajouter de page vide
         if (indexpage <= nbenfants-1) {
             doc.addPage();

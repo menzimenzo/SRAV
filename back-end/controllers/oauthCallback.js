@@ -63,23 +63,25 @@ const oauthCallback = async (req, res, next) => {
             console.log(err)
             throw(err)
           }
+          //console.log('Nom d\'usage :' + userInfo.preferred_username);
+          //console.log('Nom de naissance :' + userInfo.family_name);
+
+          // recuperation du nom d'usage plutot que du nom de naissance
+          if (userInfo.preferred_username != undefined && userInfo.preferred_username != '') { 
+            console.log('utilisation préférentielle du nom d\'usage plutot que de naissance')
+            nom = userInfo.preferred_username
+          }
+          else
+          {
+            //console.log('utilisation préférentielle du nom de naissance')
+            nom = userInfo.family_name
+          }
+
           // If user was never created we insert it in our database
           if (result.rows.length === 0) {
             console.log("L'utilisateur n'existe pas");
             url = "/connexion/inscription"
-            console.log('Nom de naissance' + userInfo.preferred_username);
-            console.log('Nom d\'usage' + userInfo.family_name);
-
-            // recuperation du nom d'usage plutot que du nom de naissance
-            if (userInfo.preferred_username != undefined) { 
-              console.log('utilisation préférentielle du nom d\'usage plutot que de naissance')
-              nom = userInfo.preferred_username
-            }
-            else
-            {
-              console.log('utilisation préférentielle du nom de naissance')
-              nom = userInfo.family_name
-            }
+            
             const { rows } = await pgPool.query(
               'INSERT INTO utilisateur(pro_id, stu_id, str_id, uti_mail, uti_nom, uti_prenom, uti_datenaissance,\
                 uti_tockenfranceconnect) VALUES($1, $2, $3, $4, upper($5), $6, $7, $8) RETURNING *'
@@ -92,7 +94,19 @@ const oauthCallback = async (req, res, next) => {
 
           // User is logging in
           } else {
+            
             utilisateur = result.rows[0]
+            // Mantis 68472 - sauvegarde systématique du nom
+            const { rows } = await pgPool.query(
+              'UPDATE utilisateur SET uti_nom = $1 where uti_id = $2 RETURNING *'
+              , [nom,utilisateur.uti_id]
+            ).catch(err => {
+              console.log('erreur lors de la sauvegarde du nom:'+err)
+              throw err
+            })
+            utilisateur.uti_nom = nom
+            // -- fin 68472
+
             // Account was never validated so is considered as new user
             if(!utilisateur.validated){
               url = "/connexion/inscription"

@@ -291,18 +291,35 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion5" accordion="my-accordion" role="tabpanel">
-            <b-card-body>
+             <b-card-body>
+              <div class="mb-3">
+                <b-form inline>
+                  <label for="nameFilter">Intervenant:</label>
+                  <b-input
+                    class="ml-2"
+                    id="nameFilter"
+                    v-model="nameFilter"
+                    placeholder="Bernard Dupond"
+                  />
+                  <label class="ml-3" for="placeFilter">Lieu:</label>
+                  <b-input class="ml-2" id="placeFilter" v-model="placeFilter" placeholder="Paris" />
+                </b-form>
+              </div>
               <editable
                 :columns="headersCom"
-                :data="commentaires"
+                :data="filteredInterventions"
                 :removable="false"
                 :creable="false"
                 :editable="false"
                 :noDataLabel="''"
                 tableMaxHeight="none"
                 :loading="loading"
+                v-if="filteredInterventions.length > 0"
                 :defaultSortField="{ key: 'id', order: 'asc' }"
-              ></editable>
+              >
+                <template slot-scope="props" slot="actions">{{props.data.id}}</template>
+              </editable>
+              <h5 class="text-center" v-if="filteredInterventions.length == 0">Aucune intervention</h5>
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -346,7 +363,6 @@ export default {
       optionsHisto: null,
       optionsDoughnut: null,
       loading: true,
-      commentaires: null,
       headers: [
         { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
         { path: "proLibelle", title: "Rôle", type: "date", sortable: true },
@@ -379,6 +395,8 @@ export default {
         { text: "Non validée", value: "Non validée" },
         { text: "Tous", value: "Tous" }
       ],
+      nameFilter: "",
+      placeFilter: "",
       headersCom: [
         { path: "nom", title: "Intervenant", type: "text", sortable: true },
         {
@@ -874,6 +892,41 @@ export default {
             isMatch && user.inscription.indexOf(this.inscriptionFilter) > -1;
         }
 
+        return isMatch;
+      });
+    },
+    filteredInterventions: function() {
+      return this.interventions.filter(intervention => {
+        var isMatch = true;
+       if (this.nameFilter != "") {
+          isMatch =
+            isMatch &&
+            (String(intervention.commentaire) != "null" &&
+              String(intervention.commentaire) != "") &&
+              intervention.structureId == this.$store.state.utilisateurCourant.structureId &&
+            intervention.nom
+              .toLowerCase()
+              .indexOf(this.nameFilter.toLowerCase()) > -1;
+        }
+        if (this.placeFilter != "") {
+          isMatch =
+            isMatch &&
+            (String(intervention.commentaire) != "null" &&
+              String(intervention.commentaire) != "") &&
+              intervention.structureId == this.$store.state.utilisateurCourant.structureId &&
+            intervention.commune.com_libellemaj
+              .toLowerCase()
+              .indexOf(this.placeFilter.toLowerCase()) > -1;
+        }
+        // Suppression des interventions sans commentaire
+        if (this.placeFilter == "" && this.nameFilter == "") {
+          isMatch =
+            isMatch &&
+            (String(intervention.commentaire) != "null" &&
+              String(intervention.commentaire) != "") && 
+                intervention.structureId == this.$store.state.utilisateurCourant.structureId;
+        }
+        
         return isMatch;
       });
     }

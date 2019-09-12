@@ -903,7 +903,7 @@
         <h3 class="titreAdmin" v-if="(hover ===true) && (profil=='admin')">{{nom}}</h3>
         <h3 class="titre" v-if="(hover ===true) && (profil=='partenaire')">{{nom}}</h3>
         <b-row class="liste" v-if="hover">
-          <b-col cols="9" class="nom">Nationale</b-col>
+          <b-col cols="9" class="nom">Total</b-col>
           <b-col>{{nb['nationale'].IntParDepartement[id]}}</b-col>
         </b-row>
         <b-row

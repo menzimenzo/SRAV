@@ -36,18 +36,20 @@
           label="Structure nationale :"
           label-for="structNatSelect"
         >
+          <!--Mantis 68055 : min_value: 1-->
           <b-form-select
             id="structNatSelect"
             v-model="user.structureId"
-            v-validate="{required: true}"
+            v-validate="{required: true, min_value: 1}"
             name="struct"
             :state="validateState('struct')"
             aria-describedby="structFeedback"
             :disabled="! checkLegal"
           >
-            <option :value="null">Veuillez choisir votre structure...</option>
+          <!--Mantis 68055 value = 0 -->
+            <option value=0 >Veuillez choisir votre structure...</option>
             <option
-              v-for="structure in structures"
+              v-for="structure in listeStructures"
               :key="structure.str_id"
               :value="structure.str_id"
             >{{ structure.str_libelle}}</option>
@@ -129,12 +131,14 @@ export default {
           this.$emit("submit");
         }
       });
+        
     },
     validateState(ref) {
       if(!this.veeFields){ return null}
       if (this.veeFields[ref] && (this.veeFields[ref].dirty || this.veeFields[ref].validated)) {
         return !this.errors.has(ref)
       }
+      
       return null
     },
     // true si la structure sélectionnée est une fédération
@@ -150,9 +154,27 @@ export default {
   },
   async mounted(){
     await this.$store.dispatch('get_structures')
+    // Mantis 68055
+    this.user.structureId = 0
   },
   computed:{
-    ...mapState(['structures'])
+    ...mapState(['structures']),
+    listeStructures() {
+      var liste = this.structures
+      if (this.user.mail.indexOf('.gouv.fr') != -1) {
+      return(liste)
+      }
+      else {
+        liste =  this.structures.filter( str => {
+          var isMatch = true;
+        isMatch =
+          isMatch &  String(str.str_libellecourt) != 'DS';
+        return isMatch;
+        })
+        return(liste)
+      }
+    }
+   
   }
 };
 </script>
