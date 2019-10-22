@@ -160,38 +160,27 @@
             <b-row>&nbsp;</b-row>
             <b-row>&nbsp;</b-row>
             <b-card-header header-tag="header" style="background:#d0eef2">
-              <b-row></b-row>&nbsp;
               <b-row>
                 <b-col style="text-align:center">
-                  Structure principale :
-                  <span class="liste-deroulante">
-                    <b-form-select
-                      v-model="structure2"
-                      v-on:change="viewHisto(structure2,structure3);viewDoughnut(structure2)"
-                    >
-                      <option :value="'nationale'">Toutes</option>
-                      <option
-                        v-for="structure in structures"
-                        :key="structure.str_libellecourt"
-                        :value="structure.str_libellecourt"
-                      >{{ structure.str_libellecourt}}</option>
-                    </b-form-select>
-                  </span>&nbsp;
-                  Structure de comparaison :
-                  <span class="liste-deroulante">
-                    <b-form-select
+                  <b-form-select
+                    v-model="structure2"
+                    v-on:change="viewHisto(structure2,structure3);viewDoughnut(structure2)"
+                  >
+                    <option :value="'nationale'">Toutes</option>
+                    <option
+                      v-for="structure in structures"
+                      :key="structure.str_libellecourt"
+                      :value="structure.str_libellecourt"
+                    >{{ structure.str_libellecourt}}</option>
+                  </b-form-select>
+                </b-col>
+
+                <b-col style="text-align:center">
+                    <b-form-checkbox
+                      switch
                       v-model="structure3"
-                      v-on:change="viewHisto(structure2,structure3)"
-                    >
-                      <option :value="''"></option>
-                      <option :value="'nationale'">Toutes</option>
-                      <option
-                        v-for="structure in structures"
-                        :key="structure.str_libellecourt"
-                        :value="structure.str_libellecourt"
-                      >{{ structure.str_libellecourt}}</option>
-                    </b-form-select>
-                  </span>
+                      v-on:input="viewHisto(structure2,structure3)"
+                    >Afficher les statistiques nationales</b-form-checkbox>
                 </b-col>
               </b-row>
             </b-card-header>
@@ -254,7 +243,7 @@
                 />
                 <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
-                <b-col align-self="center">
+              <b-col align-self="center">
                 <doughnut-chart
                   v-if="loading === false"
                   :chartdata="data4"
@@ -291,7 +280,7 @@
             </b-form-row>
           </b-card-header>
           <b-collapse id="accordion5" accordion="my-accordion" role="tabpanel">
-             <b-card-body>
+            <b-card-body>
               <div class="mb-3">
                 <b-form inline>
                   <label for="nameFilter">Intervenant:</label>
@@ -356,7 +345,7 @@ export default {
       statStructure: null,
       structure1: "nationale",
       structure2: "nationale",
-      structure3: "",
+      structure3: false,
       data1: null,
       data2: null,
       data3: null,
@@ -429,7 +418,7 @@ export default {
       ].CouleurParDepartement;
     },
     viewHisto(str1, str2) {
-      if (str2 != "") {
+      if (str2 === true) {
         this.data1 = {
           labels: this.$store.state.statStructure["nationale"].labelsHisto,
           datasets: [
@@ -445,11 +434,11 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Nb att-" + str2,
+              label: "Nb att-nationale",
               borderColor: "#000000",
               backgroundColor: "#000000",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str2].nbAtt
+              data: this.$store.state.statStructure["nationale"].nbAtt
             },
             {
               label: "sco-" + str1,
@@ -473,25 +462,25 @@ export default {
               data: this.$store.state.statStructure[str1].nbIntExt
             },
             {
-              label: "sco-" + str2,
+              label: "sco-nationale",
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntSco
+              data: this.$store.state.statStructure["nationale"].nbIntSco
             },
             {
-              label: "péri-sco-" + str2,
+              label: "péri-sco-nationale",
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntPer
+              data: this.$store.state.statStructure["nationale"].nbIntPer
             },
             {
-              label: "ext sco-" + str2,
+              label: "ext sco-nationale",
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntExt
+              data: this.$store.state.statStructure["nationale"].nbIntExt
             }
           ]
         };
@@ -511,11 +500,11 @@ export default {
             {
               type: "line",
               fill: false,
-              label: "Cum. att.-" + str2,
+              label: "Cum. att.-nationale",
               backgroundColor: "#000000",
               borderColor: "#000000",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str2].nbAttCumule
+              data: this.$store.state.statStructure["nationale"].nbAttCumule
             },
             {
               label: "bl. 1-" + str1,
@@ -539,25 +528,25 @@ export default {
               data: this.$store.state.statStructure[str1].nbIntBloc3
             },
             {
-              label: "bl. 1-" + str2,
+              label: "bl. 1-nationale",
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntBloc1
+              data: this.$store.state.statStructure["nationale"].nbIntBloc1
             },
             {
-              label: "bl. 2" + str2,
+              label: "bl. 2-nationale",
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntBloc2
+              data: this.$store.state.statStructure["nationale"].nbIntBloc2
             },
             {
-              label: "bl. 3" + str2,
+              label: "bl. 3-nationale",
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntBloc3
+              data: this.$store.state.statStructure["nationale"].nbIntBloc3
             }
           ]
         };
@@ -898,12 +887,13 @@ export default {
     filteredInterventions: function() {
       return this.interventions.filter(intervention => {
         var isMatch = true;
-       if (this.nameFilter != "") {
+        if (this.nameFilter != "") {
           isMatch =
             isMatch &&
             (String(intervention.commentaire) != "null" &&
               String(intervention.commentaire) != "") &&
-              intervention.structureId == this.$store.state.utilisateurCourant.structureId &&
+            intervention.structureId ==
+              this.$store.state.utilisateurCourant.structureId &&
             intervention.nom
               .toLowerCase()
               .indexOf(this.nameFilter.toLowerCase()) > -1;
@@ -913,7 +903,8 @@ export default {
             isMatch &&
             (String(intervention.commentaire) != "null" &&
               String(intervention.commentaire) != "") &&
-              intervention.structureId == this.$store.state.utilisateurCourant.structureId &&
+            intervention.structureId ==
+              this.$store.state.utilisateurCourant.structureId &&
             intervention.commune.com_libellemaj
               .toLowerCase()
               .indexOf(this.placeFilter.toLowerCase()) > -1;
@@ -923,10 +914,11 @@ export default {
           isMatch =
             isMatch &&
             (String(intervention.commentaire) != "null" &&
-              String(intervention.commentaire) != "") && 
-                intervention.structureId == this.$store.state.utilisateurCourant.structureId;
+              String(intervention.commentaire) != "") &&
+            intervention.structureId ==
+              this.$store.state.utilisateurCourant.structureId;
         }
-        
+
         return isMatch;
       });
     }
@@ -953,12 +945,15 @@ export default {
     // Calcul des stats définies dans le mixins stat.js
     this.statCal(this.interventions, this.structures);
     // on positionne structure1 sur la structure de l'utilisateur
-     this.structures.forEach(x => {
-       if (String(x.str_id) === String(this.$store.state.utilisateurCourant.structureId)) {
-        this.structure1 = String(x.str_libellecourt)
+    this.structures.forEach(x => {
+      if (
+        String(x.str_id) ===
+        String(this.$store.state.utilisateurCourant.structureId)
+      ) {
+        this.structure1 = String(x.str_libellecourt);
         this.structure2 = this.structure1;
-        }
-     });
+      }
+    });
     (this.remplissage = this.$store.state.statStructure[
       this.structure1
     ].CouleurParDepartement),
