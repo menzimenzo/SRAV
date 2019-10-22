@@ -108,29 +108,34 @@
               <b-row></b-row>&nbsp;
               <b-row>
                 <b-col style="text-align:center">
-                  Veuillez sélectionner la structure dont vous souhaitez voir la répartition des interventions :
-                  <span
-                    class="liste-deroulante"
+                  <b-form-select
+                    v-model="structure2"
+                    v-on:change="viewCarte(structure2);viewHisto(structure2,structure3);viewDoughnut(structure2)"
                   >
-                    <b-form-select v-model="structure1" v-on:change="viewCarte(structure1)">
-                      <option :value="'nationale'">Toutes</option>
-                      <option
-                        v-for="structure in structures"
-                        :key="structure.str_libellecourt"
-                        :value="structure.str_libellecourt"
-                      >{{ structure.str_libellecourt}}</option>
-                    </b-form-select>
-                  </span>
+                    <option :value="'nationale'">Toutes</option>
+                    <option
+                      v-for="structure in structures"
+                      :key="structure.str_libellecourt"
+                      :value="structure.str_libellecourt"
+                    >{{ structure.str_libellecourt}}</option>
+                  </b-form-select>
+                </b-col>
+                <b-col style="text-align:center">
+                  <b-form-checkbox
+                    switch
+                    v-model="structure3"
+                    v-on:input="viewHisto(structure2,structure3)"
+                  >Afficher les statistiques nationales</b-form-checkbox>
                 </b-col>
               </b-row>
             </b-card-header>
             <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col>
-                <h5 v-if="structure1 === 'nationale'">Répartition des interventions par département</h5>
+                <h5 v-if="structure2 === 'nationale'">Répartition des interventions par département</h5>
                 <h5 v-else>
                   Répartition des interventions par département pour la structure :
-                  <b>{{structure1}}</b>
+                  <b>{{structure2}}</b>
                 </h5>
               </b-col>
             </b-row>
@@ -159,42 +164,16 @@
             </b-row>
             <b-row>&nbsp;</b-row>
             <b-row>&nbsp;</b-row>
-            <b-card-header header-tag="header" style="background:#d0eef2">
-              <b-row>
-                <b-col style="text-align:center">
-                  <b-form-select
-                    v-model="structure2"
-                    v-on:change="viewHisto(structure2,structure3);viewDoughnut(structure2)"
-                  >
-                    <option :value="'nationale'">Toutes</option>
-                    <option
-                      v-for="structure in structures"
-                      :key="structure.str_libellecourt"
-                      :value="structure.str_libellecourt"
-                    >{{ structure.str_libellecourt}}</option>
-                  </b-form-select>
-                </b-col>
-
-                <b-col style="text-align:center">
-                    <b-form-checkbox
-                      switch
-                      v-model="structure3"
-                      v-on:input="viewHisto(structure2,structure3)"
-                    >Afficher les statistiques nationales</b-form-checkbox>
-                </b-col>
-              </b-row>
-            </b-card-header>
-            <b-row>&nbsp;</b-row>
             <b-row align="center">
               <b-col>
                 <h5>Nb Interventions par bloc / Nb Attestations cumulé</h5>
-                <h6 v-if="structure3==''">"{{structure2}}"</h6>
-                <h6 v-else>"{{structure2}}" vs "{{structure3}}"</h6>
+                <h6 v-if="structure3===false">"{{structure2}}"</h6>
+                <h6 v-else>"{{structure2}}" vs "total national"</h6>
               </b-col>
               <b-col>
                 <h5>Nb Interventions par Cadre / Nb attestations délivrées</h5>
-                <h6 v-if="structure3==''">"{{structure2}}"</h6>
-                <h6 v-else>"{{structure2}}" vs "{{structure3}}"</h6>
+                <h6 v-if="structure3===false">"{{structure2}}"</h6>
+                <h6 v-else>"{{structure2}}" vs "total national"</h6>
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
