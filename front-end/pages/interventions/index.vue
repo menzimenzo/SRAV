@@ -247,8 +247,8 @@ export default {
     interventions: function() {
       this.loading = true;
       if (this.utilisateurCourant.profilId == 2) {
-        //console.info('suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
-        //console.info('nb inter avant: '+ this.interventions.length)
+       //console.info('suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
+       //console.info('nb inter avant: '+ this.interventions.length)
         this.interventionsToDisplay = this.interventions.filter(x => {
           var isMatch = true;
           isMatch =
@@ -409,9 +409,9 @@ export default {
     ]);
     //console.info("mounted", { interventions: this.interventions});
     // on supprime les interventions ne relevant pas de la structure si prod_id = 2 (partenaire)
-    if (this.utilisateurCourant.profilId == 2) {
-      //console.info('suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
-      //console.info('nb inter avant: '+ this.interventions.length)
+    /*if (this.utilisateurCourant.profilId == 2) {
+      console.info('2 - suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
+      console.info('2 - nb inter avant: '+ this.interventions.length)
       this.interventionsToDisplay = this.interventions.filter(x => {
         var isMatch = true;
         isMatch =
@@ -419,10 +419,10 @@ export default {
           String(x.structureId) == this.utilisateurCourant.structureId;
         return isMatch;
       });
-      //console.info('nb inter apres filtrage structure: '+ this.interventionsToDisplay.length)
+      console.info('2 - nb inter apres filtrage structure: '+ this.interventionsToDisplay.length)
     } else {
       this.interventionsToDisplay = this.interventions;
-    }
+    }*/
     this.loading = false;
   }
 };
