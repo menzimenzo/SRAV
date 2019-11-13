@@ -2,14 +2,14 @@
   <div>
     <b-card class="mb-3">
       <b-form-group label="Prénom :">
-        <b-form-input type="text" v-model="user.prenom" disabled/>
+        <b-form-input type="text" v-model="user.prenom" disabled />
       </b-form-group>
       <b-form-group label="Nom :">
-        <b-form-input type="text" v-model="user.nom" disabled/>
+        <b-form-input type="text" v-model="user.nom" disabled />
       </b-form-group>
 
       <b-form-group label="Date de naissance :">
-        <b-form-input type="date" v-model="user.dateNaissance" disabled/>
+        <b-form-input type="date" v-model="user.dateNaissance" disabled />
       </b-form-group>
     </b-card>
     <b-card class="mb-3">
@@ -27,7 +27,9 @@
             :state="validateState('mail')"
           />
 
-          <b-form-invalid-feedback id="emailFeedback">Le courriel est obligatoire et doit être valide.</b-form-invalid-feedback>
+          <b-form-invalid-feedback
+            id="emailFeedback"
+          >Le courriel est obligatoire et doit être valide.</b-form-invalid-feedback>
         </b-form-group>
 
         <b-form-group
@@ -46,8 +48,8 @@
             aria-describedby="structFeedback"
             :disabled="! checkLegal"
           >
-          <!--Mantis 68055 value = 0 -->
-            <option value=0 >Veuillez choisir votre structure...</option>
+            <!--Mantis 68055 value = 0 -->
+            <option value="0">Veuillez choisir votre structure...</option>
             <option
               v-for="structure in listeStructures"
               :key="structure.str_id"
@@ -70,7 +72,7 @@
             aria-describedby="structLocFeedback"
             id="structLocaleInput"
             type="text"
-            text=""
+            text
             v-model="user.structureLocale"
             required
             placeholder="Nom de la structure locale"
@@ -116,7 +118,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex'
+import { mapState } from "vuex";
 export default {
   data() {
     return {
@@ -131,50 +133,53 @@ export default {
           this.$emit("submit");
         }
       });
-        
     },
     validateState(ref) {
-      if(!this.veeFields){ return null}
-      if (this.veeFields[ref] && (this.veeFields[ref].dirty || this.veeFields[ref].validated)) {
-        return !this.errors.has(ref)
+      if (!this.veeFields) {
+        return null;
       }
-      
-      return null
+      if (
+        this.veeFields[ref] &&
+        (this.veeFields[ref].dirty || this.veeFields[ref].validated)
+      ) {
+        return !this.errors.has(ref);
+      }
+
+      return null;
     },
     // true si la structure sélectionnée est une fédération
-    isFederation(id){
-
-       var structure = this.structures.find(str => {
-         return str.str_id == id
-       })
-       if(!structure){return false}
-       return structure.str_federation
-      
+    isFederation(id) {
+      var structure = this.structures.find(str => {
+        return str.str_id == id;
+      });
+      if (!structure) {
+        return false;
+      }
+      return structure.str_federation;
     }
   },
-  async mounted(){
-    await this.$store.dispatch('get_structures')
+  async mounted() {
+    await this.$store.dispatch("get_structures");
     // Mantis 68055
-    this.user.structureId = 0
+    if (! this.$store.state.utilisateurCourant.validated) {
+      this.user.structureId = 0;
+    }
   },
-  computed:{
-    ...mapState(['structures']),
+  computed: {
+    ...mapState(["structures"]),
     listeStructures() {
-      var liste = this.structures
-      if (this.user.mail.indexOf('.gouv.fr') != -1) {
-      return(liste)
-      }
-      else {
-        liste =  this.structures.filter( str => {
+      var liste = this.structures;
+      if (this.user.mail.indexOf(".gouv.fr") != -1) {
+        return liste;
+      } else {
+        liste = this.structures.filter(str => {
           var isMatch = true;
-        isMatch =
-          isMatch &  String(str.str_libellecourt) != 'DS';
-        return isMatch;
-        })
-        return(liste)
+          isMatch = isMatch & (String(str.str_libellecourt) != "DS");
+          return isMatch;
+        });
+        return liste;
       }
     }
-   
   }
 };
 </script>

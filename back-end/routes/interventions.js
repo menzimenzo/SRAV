@@ -134,7 +134,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 newIntervention.codeinsee = intervention.int_com_codeinsee
                 newIntervention.dep_num = intervention.int_dep_num
                 newIntervention.reg_num = intervention.int_reg_num
-                newIntervention.dateIntervention = newIntervention.dateIntervention.toISOString(),
+                newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
                 newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
                 newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
                 delete newIntervention.structureCode;
@@ -296,30 +296,28 @@ router.put('/:id', async function (req, res) {
     const requete = `UPDATE intervention 
         SET cai_id = $1,
         blo_id = $2,
-        uti_id = $3,
-        int_com_codeinsee = $4,
-        int_com_codepostal = $5,
-        int_com_libelle = $6,
-        int_nombreenfant = $7,
-        int_nombregarcon = $8,
-        int_nombrefille = $9, 
-        INT_NOMBREMOINSSIX = $10, 
-        INT_NOMBRESIXHUIT = $11, 
-        INT_NOMBRENEUFDIX = $12, 
-        INT_NOMBREPLUSDIX = $13, 
-        int_dateintervention = $14,
+        int_com_codeinsee = $3,
+        int_com_codepostal = $4,
+        int_com_libelle = $5,
+        int_nombreenfant = $6,
+        int_nombregarcon = $7,
+        int_nombrefille = $8, 
+        INT_NOMBREMOINSSIX = $9, 
+        INT_NOMBRESIXHUIT = $10, 
+        INT_NOMBRENEUFDIX = $11, 
+        INT_NOMBREPLUSDIX = $12, 
+        int_dateintervention = $13,
         int_datemaj = now(),
-        int_commentaire = $15,
-        int_dep_num = $16,
-        int_reg_num = $17,
-        int_siteintervention = $18
+        int_commentaire = $14,
+        int_dep_num = $15,
+        int_reg_num = $16,
+        int_siteintervention = $17
         WHERE int_id = ${id}
         RETURNING *
         ;`    
     
     pgPool.query(requete, [cai,
         blocId,
-        utilisateurId,
         commune.cpi_codeinsee,
         cp,
         commune.com_libellemaj,
