@@ -693,7 +693,6 @@ export default {
           },
           {
             backgroundColor: [
-              "#29BF12",
               "#9543D8",
               "#E4FC2E",
               "#29BF12",
@@ -701,18 +700,19 @@ export default {
               "#E4FC2E",
               "#29BF12",
               "#9543D8",
-              "#E4FC2E"
+              "#E4FC2E",
+              "#29BF12"
             ],
             labels: [
-              "Bloc 1 / scolaire",
               "Bloc 1 / péri-scolaire",
               "Bloc 1 / extra-scolaire",
-              "Bloc 2 / scolaire",
+              "Bloc 1 / scolaire",
               "Bloc 2 / péri-scolaire",
-              "Bloc 2 / extra-scolaire",
-              "Bloc 3 / scolaire",
+              "Bloc 2 / extra-scolaire", 
+              "Bloc 2 / scolaire",
               "Bloc 3 / péri-scolaire",
-              "Bloc 3 / extra-scolaire"
+              "Bloc 3 / extra-scolaire",
+              "Bloc 3 / scolaire"
             ],
             data: [
               this.$store.state.statStructure[str1].IntParBlocParCadre[0],
