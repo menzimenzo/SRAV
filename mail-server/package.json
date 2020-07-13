@@ -45,7 +45,7 @@
     "jest-cli": "^19.0.2",
     "nodemon": "^1.18.4",
     "should": "^13.2.3",
-    "standard-version": "^4.3.0",
+    "standard-version": "^8.0.1",
     "supertest": "^3.3.0",
     "validate-commit-msg": "^2.14.0"
   },
