@@ -73,9 +73,8 @@
           >
         </b-form-group>
         <!-- Cas d'une structure non collectivite territoriale
-            La page est chargé dans 2 cas : création de compte (structure non créée en base) et consultation du profil (structure créée)
             le champ structureLocale ne doit apparaitre que si la structure n'est pas une collectivité
-             quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999->
+             quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999-> -->
         <div v-if="user.structureId != 99999 && ! user.typeCollectivite" >
           <b-form-group
             id="structLocaleGroup"
