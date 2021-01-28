@@ -172,8 +172,10 @@
                   >
                     <b-form-select v-model="structure1" v-on:change="viewCarte(structure1)">
                       <option :value="'nationale'">Toutes</option>
+                      <option :value="'COM'">Commune</option>
+                      <option :value="'DEP'">Départements</option>
                       <option
-                        v-for="structure in structures"
+                        v-for="structure in filteredStructures"
                         :key="structure.str_libellecourt"
                         :value="structure.str_libellecourt"
                       >{{ structure.str_libellecourt}}</option>
@@ -209,7 +211,7 @@
                 <carte
                   v-if="loading === false"
                   :remplissage="remplissage"
-                  :struc="structures"
+                  :struc="filteredStructures"
                   :nb="statStructure"
                 />
                 <b-img fluid v-else :src="require('assets/giphy.gif')" />
@@ -228,8 +230,10 @@
                       v-on:change="viewHisto(structure2,structure3);viewDoughnut(structure2)"
                     >
                       <option :value="'nationale'">Toutes</option>
+                      <option :value="'COM'">Commune</option>
+                      <option :value="'DEP'">Départements</option>
                       <option
-                        v-for="structure in structures"
+                        v-for="structure in filteredStructures"
                         :key="structure.str_libellecourt"
                         :value="structure.str_libellecourt"
                       >{{ structure.str_libellecourt}}</option>
@@ -243,8 +247,10 @@
                     >
                       <option :value="''"></option>
                       <option :value="'nationale'">Toutes</option>
+                      <option :value="'COM'">Commune</option>
+                      <option :value="'DEP'">Départements</option>
                       <option
-                        v-for="structure in structures"
+                        v-for="structure in filteredStructures"
                         :key="structure.str_libellecourt"
                         :value="structure.str_libellecourt"
                       >{{ structure.str_libellecourt}}</option>
@@ -1061,6 +1067,18 @@ export default {
 
         return isMatch;
       });
+    },
+    filteredStructures: function() {
+      return this.structures.filter((str) => {
+          var isMatch = true;
+          isMatch =
+            isMatch &
+            (String(str.str_libellecourt) != "DS") &
+            (String(str.str_libellecourt) != "DEP") &
+            (String(str.str_libellecourt) != "COM") &
+            (String(str.str_libellecourt) != "COMCOM");
+          return isMatch;
+        });
     }
   },
   async mounted() {

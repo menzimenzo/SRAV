@@ -37,14 +37,78 @@ export default {
                     IntParDepartement: [],
                     CouleurParDepartement: [],
                     CouleurParDepartementAdmin: [],
+                },
+                COM: {
+                    nbInt: 0,
+                    nbAttestations: 0,
+                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbSco: 0,
+                    nbScoRel: 0,
+                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbPer: 0,
+                    nbPerRel: 0,
+                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbExt: 0,
+                    nbExtRel: 0,
+                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc1: 0,
+                    nbBloc1Rel: 0,
+                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc2: 0,
+                    nbBloc2Rel: 0,
+                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc3: 0,
+                    nbBloc3Rel: 0,
+                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    IntParDepartement: [],
+                    CouleurParDepartement: [],
+                    CouleurParDepartementAdmin: []
+                },
+                DEP: {
+                    nbInt: 0,
+                    nbAttestations: 0,
+                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbSco: 0,
+                    nbScoRel: 0,
+                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbPer: 0,
+                    nbPerRel: 0,
+                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbExt: 0,
+                    nbExtRel: 0,
+                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc1: 0,
+                    nbBloc1Rel: 0,
+                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc2: 0,
+                    nbBloc2Rel: 0,
+                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc3: 0,
+                    nbBloc3Rel: 0,
+                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    IntParDepartement: [],
+                    CouleurParDepartement: [],
+                    CouleurParDepartementAdmin: []
                 }
+
+
             }                
             for (var i = 0; i < 102; i++) {
                     statStructure['nationale'].IntParDepartement[i] = 0
                     statStructure['nationale'].CouleurParDepartementAdmin[i] = '#3f3f3f'
                     statStructure['nationale'].CouleurParDepartement[i] = '#3f3f3f'
+                    statStructure['COM'].IntParDepartement[i] = 0
+                    statStructure['COM'].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                    statStructure['COM'].CouleurParDepartement[i] = '#3f3f3f'
+                    statStructure['DEP'].IntParDepartement[i] = 0
+                    statStructure['DEP'].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                    statStructure['DEP'].CouleurParDepartement[i] = '#3f3f3f'
                 }
-            //structures.push('nationale')
+           
             structures.forEach(element => {
                 statStructure[element.str_libellecourt] = {
                     nbInt: 0,

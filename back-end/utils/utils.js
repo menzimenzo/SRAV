@@ -27,8 +27,10 @@ module.exports = {
   , formatUtilisateur : (utilisateur, toClient = true) => {
     let dateNaissance = moment(utilisateur.uti_datenaissance, "YYYY-MM-DD");
 
-    if(toClient){
+        if(toClient){
         dateNaissance = dateNaissance.format("YYYY-MM-DD");
+        console.log('encore la')
+        console.log(utilisateur)
         return {
             id: utilisateur.uti_id,
             profilId: utilisateur.pro_id,
@@ -40,10 +42,12 @@ module.exports = {
             dateNaissance: dateNaissance,
             structureLocale: utilisateur.uti_structurelocale,
             tokenFc: utilisateur.uti_tockenfranceconnect,
-            validated: utilisateur.validated
+            validated: utilisateur.validated,
+            typeCollectivite: utilisateur.str_typecollectivite,
+            libelleCollectivite: utilisateur.str_libelle
         }
-    } else {
-        return {
+    } else { 
+      return {
             uti_id : utilisateur.id ,
             pro_id : utilisateur.profilId ,
             str_id : utilisateur.structureId ,
@@ -54,7 +58,9 @@ module.exports = {
             uti_datenaissance: dateNaissance.toISOString(),
             uti_structurelocale : utilisateur.structureLocale ,
             uti_tockenfranceconnect : utilisateur.tokenFc ,
-            validated: utilisateur.validated
+            validated: utilisateur.validated,
+            typeCollectivite: utilisateur.typeCollectivite,
+            libelleCollectivite: utilisateur.libelleCollectivite
         }
     }
 }
