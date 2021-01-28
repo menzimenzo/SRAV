@@ -50,7 +50,7 @@ services:
       - front-end
     tty: true
   pg:
-    image: postgres:11
+    image: postgres:11.6
     restart: always
     ports:
       - 5432:5432
