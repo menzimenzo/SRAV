@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h2 class="mb-3 interventionTitle">USERinfo.vue</h2>
     <b-card class="mb-3">
       <b-form-group label="Prénom :">
         <b-form-input type="text" v-model="user.prenom" disabled />
@@ -75,7 +74,7 @@
         <!-- Cas d'une structure non collectivite territoriale
             le champ structureLocale ne doit apparaitre que si la structure n'est pas une collectivité
              quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999-> -->
-        <div v-if="user.structureId != 99999 && ! user.typeCollectivite" >
+        <div v-if="user.structureId != 99999 || ! user.typeCollectivite === NULL" >
           <b-form-group
             id="structLocaleGroup"
             label="Structure locale :"
@@ -279,6 +278,7 @@ import { mapState } from "vuex";
 export default {
   data() {
     return {
+      typeCollectivite: null,
       isLegalChecked: "false",
       listtypecol: [
         { text: "Commune", value: 1 },
@@ -373,10 +373,6 @@ export default {
     resetFields: function() {
         if (!this.$store.state.utilisateurCourant.typeCollectivite)
         {
-          /*console.log('AVANT')  
-          console.log(this.user)
-          console.log('cp:'+this.user.cp)
-          console.log('departement:'+this.user.departement)*/
           this.user.typeCollectivite = null;
         }
     }
@@ -384,15 +380,6 @@ export default {
   watch: {
     "user.cp"() {
       this.recherchecommune();
-    },
-    "user.structureId"() {
-      console.log('BBB')
-      this.resetFields();
-    },
-    "user.typeCollectivite"(){
-      console.log('AAAAAA');
-      this.user.libelleCollectivite = null;
-      //this.resetFields();
     }
   },
   async mounted() {
@@ -418,8 +405,7 @@ export default {
             isMatch &
             (String(str.str_libellecourt) != "DS") &
             (String(str.str_libellecourt) != "DEP") &
-            (String(str.str_libellecourt) != "COM") &
-            (String(str.str_libellecourt) != "COMCOM");
+            (String(str.str_libellecourt) != "COM") ;
           return isMatch;
         });
         }

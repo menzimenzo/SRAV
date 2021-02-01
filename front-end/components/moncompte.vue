@@ -61,13 +61,6 @@
           </b-form-select>
           
         </b-form-group>
-        <!-- Cas d'une structure non collectivite territoriale
-            La page est chargé dans 2 cas : création de compte (structure non créée en base) et consultation du profil (structure créée)
-            le champ structureLocale ne doit apparaitre que si la structure n'est pas une collectivité
-             quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999
-             quand consultation du profil, ce qui définit une collectivité c'est typeCollectivite
-             une structure de type collectivite n'a pas de structurelocale => user.typeCollectivite non NULL
-            Il doit apparaitre quand le user.typeCollectivite est défini seulement -->
         <div v-if="user.structureLocale != ''" >
           <b-form-group
             id="structLocaleGroup"
@@ -90,21 +83,6 @@
               La structure locale est obligatoire.
             </b-form-invalid-feedback>
           </b-form-group>
-        </div>
-        <!-- FIN Cas d'une structure non collectivite territoriale--> 
-
-        <b-form-group>
-          <span style="color: red">*</span> : Champ obligatoire
-        </b-form-group>
-        <div class="mb-3 text-right">
-          <b-button
-            @click="submit"
-            variant="success"
-            :disabled="
-              errors.any() || (isLegalChecked == 'false' && !user.validated)
-            "
-            >{{ submitTxt }}</b-button
-          >
         </div>
       </b-form>
     </b-card>
