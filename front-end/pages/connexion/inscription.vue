@@ -29,6 +29,9 @@ export default {
     confirmRegistration(){
       const url = process.env.API_URL + '/connexion/verify'
       const body = JSON.parse(JSON.stringify(this.user))
+      if (this.user.email) {
+        body['mail'] = this.user.email
+      }
       return this.$axios.$post(url, body)
         .then(async response => {
           await this.$store.dispatch('set_utilisateur', response.user);
