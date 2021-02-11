@@ -7,11 +7,12 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
     // Transition states
     if (
         route.path.indexOf('/connexion/login') === 0 ||
-        route.path.indexOf('/connexion/logout') === 0 ){
+        route.path.indexOf('/connexion/logout') === 0 || 
+        route.path.indexOf('/register') === 0 ){
         return
     }
     
-    if(!store.state.utilisateurCourant || !store.state.utilisateurCourant.id){
+    if(!store.state.utilisateurCourant || !(store.state.utilisateurCourant.id || store.state.utilisateurCourant._id)){
         if(logedOutRoutes.indexOf(route.path) < 0){
             return redirect('/')
         }

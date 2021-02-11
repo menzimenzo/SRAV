@@ -287,7 +287,8 @@ create table UTILISATEUR (
    UTI_PRENOM           VARCHAR(50)          not null,
    UTI_DATENAISSANCE    DATE                 not null,
    UTI_STRUCTURELOCALE  VARCHAR(100)         null,
-   UTI_TOCKENFRANCECONNECT VARCHAR(100)          not null,
+   UTI_AUTHID           VARCHAR(100)         null,
+   UTI_TOCKENFRANCECONNECT VARCHAR(100)      null,
    constraint PK_UTILISATEUR primary key (UTI_ID)
 );
 

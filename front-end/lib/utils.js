@@ -11,3 +11,5 @@ export const parseErrorMessage = error => {
     }
     return message
 }
+
+export const formatEmail = email => email && email.trim().toLowerCase()
