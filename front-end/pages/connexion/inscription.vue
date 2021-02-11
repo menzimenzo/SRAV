@@ -19,23 +19,27 @@
 import { mapState } from 'vuex'
 import userInfos from '~/components/userInfos.vue'
 export default {
-  data() {
-    return {
-      user: JSON.parse(JSON.stringify(this.$store.state.utilisateurCourant))
-    };
+  computed: {
+    ...mapState({
+      'user': state => state.utilisateurCourant
+    }),
   },
   methods: {
     // Validation de l'inscription
     confirmRegistration(){
       const url = process.env.API_URL + '/connexion/verify'
-      return this.$axios.$post(url, this.user)
-      .then(async response => {
-        await this.$store.dispatch('set_utilisateur', response.user);
-        this.$router.push('/interventions')
-        this.$toast.success('Inscription validée.')
-      }).catch(err => {
-        console.log(err)
-      })
+      const body = JSON.parse(JSON.stringify(this.user))
+      if (this.user.email) {
+        body['mail'] = this.user.email
+      }
+      return this.$axios.$post(url, body)
+        .then(async response => {
+          await this.$store.dispatch('set_utilisateur', response.user);
+          this.$router.push('/interventions')
+          this.$toast.success('Inscription validée.')
+        }).catch(err => {
+          console.log(err)
+        })
     },
 
   },
