@@ -2,7 +2,7 @@ import Vue from 'vue'
 import { get } from 'lodash'
 import { parseErrorMessage, formatEmail } from '~/lib/utils'
 import logger from '~/plugins/logger'
-const log = logger('lca:store:index')
+const log = logger('srav:store:index')
 
 export const state = () => ({
   interventions         : [],
@@ -27,7 +27,7 @@ export const mutations = {
   },
   SET(state, { key, value }) {
       console.log(`mutations::SET:${key}`, { value, key })
-      const splitted = key.split('.')
+      const splitted = key && key.split('.')
       const lastKey = splitted.pop()
       let origin = state
       splitted.forEach(p => {
@@ -127,19 +127,18 @@ export const mutations = {
 export const actions = {
   async nuxtServerInit({ commit }, { req, route }) {
     // Transition states
-    console.log('Loading user')
+    log.i('actions::nuxtServerInit - Loading user')
     if (route.path.indexOf('/connexion/logout') === 0) {
       return
     }
-    await this.$axios.$get(process.env.API_SERVER_URL + '/connexion/user').then(utilisateur => {
+    await this.$axios.$get(process.env.API_URL + '/connexion/user').then(utilisateur => {
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
-      console.log("Error - nuxtServerInit")
-      console.log(err)
+      log.w('actions::nuxtServerInit - Error - nuxtServerInit', err.stack)
     })
   },
   async get_interventions({ commit, state }) {
-    console.info("get_interventions");
+    log.i("get_interventions - In");
     const url = process.env.API_URL + "/interventions";
     return await this.$axios
       .$get(url)
@@ -149,13 +148,13 @@ export const actions = {
           intervention.dateIntervention = new Date(intervention.dateIntervention)
         })
         commit("set_interventionCourrantes", response.interventions);
-        console.info("fetched interventions - done", {
+        log.i("fetched interventions - Done", {
           interventions: this.interventions
         });
         // this.interventions = response.interventions
       })
       .catch(error => {
-        console.error(
+        log.w(
           "Une erreur est survenue lors de la récupération des interventions",
           error
         );
@@ -345,19 +344,29 @@ export const actions = {
     log.i('actions::login - In', email)
     const url = process.env.API_AUTH_URL + "/login"
     return this.$axios.$post(url, { email, password })
-        .then(res => {
-            log.i('login - Done', res)
-
-            console.log(res)
-            // setToken(res.token, res)
-            // setRefreshToken(res.refreshToken, res)
-            // commit('EXTEND', res)
-            commit("set_utilisateurCourant", res)
-            this.$toast.success(`Bienvenue ${res.prenom}`)
-          })
+        .then(authUser => {
+            log.d('login - authserver response', authUser)
+            if(authUser && !authUser._id) {
+              log.w('login - authserver, user not found')              
+              throw new Error('Email ou mot de passe incorrect.')
+            } else if (authUser && authUser.applications && !authUser.applications.includes('SRAV')) {
+              log.w('login - authserver, user cannot access this application.')
+              throw new Error('L\'utilisateur existe mais ne peut accéder à cette application.')
+            }
+            const params = {
+              token: authUser.token
+            }
+            return this.$axios.$get(`${process.env.API_URL}/connexion/login-from-auth/${authUser._id}`, {params} )
+              .then(res => {
+                const user = res.user
+                log.i('login - Done', { user })
+                commit("set_utilisateurCourant", user)
+                this.$toast.success(`Bienvenue ${user.prenom}`)
+              })
+        })
         .catch(err => {
             log.w('login - error', err)
-            const message = parseErrorMessage(get(err, 'response.data.message'))
+            const message = err.message || parseErrorMessage(get(err, 'response.data.message'))
             this.$toast.error(message)
             throw new Error(message)
         })
@@ -383,10 +392,7 @@ export const actions = {
                   throw new Error('EMAIL_EXISTS')
               }
               log.i('actions::registered - done, with success to auth-server' )
-              // setToken(user.token, res)
-              // setRefreshToken(user.refreshToken, res)
-              // commit('EXTEND', user)
-              // commit('SET_DEFAULT_ROLE')
+              user['mail'] = user.email
               return commit("set_utilisateurCourant", user)
           })
           .catch((err) => {

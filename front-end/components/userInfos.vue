@@ -171,7 +171,7 @@ export default {
     ...mapMutations({ set : 'SET'}),
     mail: {
       get() {
-        return this.user.mail || this.user.email // FRANCO || AUTH
+        return this.user.mail
       },
       set(value) {
         this.set({ key:'utilisateurCourant.mail', value })
