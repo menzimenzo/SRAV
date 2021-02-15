@@ -7,6 +7,7 @@ services:
     environment:
       - PORT=3000
       - HOST=0.0.0.0
+      - DEBUG=srav-frontend:*
     tty: true
   back-end:
     build: ./back-end
@@ -18,6 +19,7 @@ services:
       - pg
     environment:
       - MAIL_URL=http://mail-server:3000
+      - DEBUG=srav-backend:*
   auth-server:
     # image: docker.app.synaltic.eu/common/dev/auth-server:v1.2.11
     build: ../auth-server

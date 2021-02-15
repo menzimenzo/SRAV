@@ -1,6 +1,8 @@
 import Vue from 'vue'
 import { get } from 'lodash'
 import { parseErrorMessage, formatEmail } from '~/lib/utils'
+import logger from '~/plugins/logger'
+const log = logger('lca:store:index')
 
 export const state = () => ({
   interventions         : [],
@@ -340,11 +342,13 @@ export const actions = {
     })
   },
   login({ commit }, { email, password }) {
-    console.log('actions::login - In', email)
+    log.i('actions::login - In', email)
     const url = process.env.API_AUTH_URL + "/login"
     return this.$axios.$post(url, { email, password })
         .then(res => {
-            console.log('login - Done', res)
+            log.i('login - Done', res)
+
+            console.log(res)
             // setToken(res.token, res)
             // setRefreshToken(res.refreshToken, res)
             // commit('EXTEND', res)
@@ -352,7 +356,7 @@ export const actions = {
             this.$toast.success(`Bienvenue ${res.prenom}`)
           })
         .catch(err => {
-            console.log('login - error', err)
+            log.w('login - error', err)
             const message = parseErrorMessage(get(err, 'response.data.message'))
             this.$toast.error(message)
             throw new Error(message)
@@ -362,7 +366,7 @@ export const actions = {
       params.user.email = params.user && params.user.email && formatEmail(params.user.email)
       const { email, password, confirm } = params.user
       const url = params.url
-      console.log('actions::register - In', email, password, confirm )
+      log.i('actions::register - In', email, password, confirm )
       let user = null
 
       return this.$axios.$get(`${process.env.API_AUTH_URL}/users/${email}/verify`)
@@ -370,7 +374,7 @@ export const actions = {
               if (isEmailTaken) {
                   throw new Error('Un utilisateur utilise déjà cet adresse mail.')
               }
-              console.log('actions::register to auth' )
+              log.d('actions::register to auth' )
               return this.$axios.$post(`${process.env.API_AUTH_URL}/register`, { applications: ['SRAV'], email, password, confirm, url })
           })
           .then(res => {
@@ -378,7 +382,7 @@ export const actions = {
               if (!user || !user._id) {
                   throw new Error('EMAIL_EXISTS')
               }
-              console.log('actions::registered with success to auth-server' )
+              log.i('actions::registered - done, with success to auth-server' )
               // setToken(user.token, res)
               // setRefreshToken(user.refreshToken, res)
               // commit('EXTEND', user)
@@ -386,7 +390,7 @@ export const actions = {
               return commit("set_utilisateurCourant", user)
           })
           .catch((err) => {
-              console.log('actions::register', err)
+              log.w('actions::register', err)
               throw new Error(message)
           })
   },
