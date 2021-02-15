@@ -463,13 +463,12 @@ export default {
   },
   computed: {
     ...mapState(["structures"]),
-    ...mapMutations({ set : 'SET'}),
     mail: {
       get() {
-        return this.user.mail || this.user.email // FRANCO || AUTH
+        return this.$store.state.utilisateurCourant.mail
       },
       set(value) {
-        this.set({ key:'utilisateurCourant.mail', value })
+        return this.$store.dispatch('set_state_element',{ key:'utilisateurCourant.mail', value })
       }
     },
     isUserRegisteredInAuth() {

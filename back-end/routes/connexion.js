@@ -10,12 +10,15 @@ var moment = require('moment');
 var {
     oauthCallback
 } = require('../controllers/oauthCallback')
+const { loginFromAuthServer } = require('../controllers/loginFromAuthServer')
 moment().format();
 
 
 router.get('/login', (req, res) => {
     return res.send({url: getAuthorizationUrl()});
 });
+
+router.get('/login-from-auth/:id', loginFromAuthServer)
 
 // Gère une connexion validée avec FC
 router.get('/callback', oauthCallback);
