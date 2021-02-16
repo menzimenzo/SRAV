@@ -77,8 +77,7 @@ export const mutations = {
     state.intervention = state.interventions[index];
   },
   set_utilisateurCourant(state, utilisateur) {
-    console.info("set_utilisateurCourant BEGIN");
-    console.log('%O', utilisateur)
+    log.i("::mutations::set_utilisateurCourant - In");
     state.utilisateurCourant = utilisateur;
   },
   set_utilisateurSelectionne(state, utilisateur) {
@@ -378,6 +377,7 @@ export const actions = {
       const url = params.url
       log.i('actions::register - In', email, password, confirm )
       let user = null
+      let path = null
 
       return this.$axios.$get(`${process.env.API_AUTH_URL}/users/${email}/verify`)
           .then(isEmailTaken => {
@@ -387,19 +387,35 @@ export const actions = {
               log.d('actions::register to auth' )
               return this.$axios.$post(`${process.env.API_AUTH_URL}/register`, { applications: ['SRAV'], email, password, confirm, url })
           })
-          .then(res => {
-              user = res
+          .then(authRes => {
+              user = authRes
               if (!user || !user._id) {
                   throw new Error('EMAIL_EXISTS')
               }
               log.i('actions::registered - done, with success to auth-server' )
               user['mail'] = user.email
-              return commit("set_utilisateurCourant", user)
+              // CHECK IF ACCOUNT EXIST WITH FC
+              return this.$axios.$post(`${process.env.API_URL}/connexion/check-mail`, { user })
+          })
+          .then(apiRes => {
+              if(apiRes && apiRes.id) {
+                log.d('actions::register - User already use FC')
+                user = apiRes
+                path = '/interventions'
+                this.$toast.success(`Bienvenue ${user.prenom}`)
+                this.$toast.info(`Vous pouvez maintenant vous connecter via France Connect et via mot de passe!`)
+              } else {
+                path= '/connexion/inscription'
+                log.d('actions::register - User not recorded with FC')
+              }
+              commit("set_utilisateurCourant", user)
+              return Vue.nextTick(this.$router.push(path))
           })
           .catch((err) => {
-              log.w('actions::register', err)
-              const message = err.message || parseErrorMessage(get(err, 'response.data.message'))
-              throw new Error(message)
+            log.w('actions::register', err)
+            const message = err.message || parseErrorMessage(get(err, 'response.data.message'))
+            this.$toast.error(message)
+            throw new Error(message)
           })
   },
   set_state_element({ commit }, {key,value }) {

@@ -77,12 +77,6 @@ export default {
             confirm: this.confirmation
           }
           return this.$store.dispatch('register', { user, url: window.location.origin + this.$router.options.base })
-            .then(() => {
-                return Vue.nextTick(this.$router.push('/connexion/inscription'))
-            })
-            .catch(e => {
-              this.$toast.error(e.message)
-            })
         } else {
           this.$toast.error('Veuillez vérifier la validité des champs.')
         }
