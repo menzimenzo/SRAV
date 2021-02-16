@@ -98,6 +98,20 @@ body {
     background-color: #3b8070;
 }
 
+.button--blue {
+    display: inline-block;
+    border-radius: 0px;
+    border: 1px solid #2e4ea2;
+    color: #2e4ea2;
+    text-decoration: none;
+    padding: 10px 30px;
+}
+
+.button--blue:hover {
+    color: #fff;
+    background-color: #2e4ea2;
+}
+
 .button--grey {
     display: inline-block;
     border-radius: 4px;
