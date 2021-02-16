@@ -1,33 +1,30 @@
 <template>
   <b-container>
-  
     <b-row class="text-center">
       <b-col cols="3">
-        
-        <b-img :src="require('assets/image_gauche.png')" style="width: 100%;  margin-top:15%; "/>
+        <b-img :src="require('assets/image_gauche.png')" style="width: 100%;  margin:15% 0; "/>
       </b-col>
       <b-col cols="6">
-        
-        <p style="font-size: 150%;text-transform: uppercase;color: rgb(0,0,128)"><br>Je suis Intervenant<br>Savoir Rouler à Vélo, <br>je m’identifie et renseigne<br>mes interventions</p>
+        <p class="srav-welcome-title">Je suis Intervenant Savoir Rouler à Vélo, <br>je m’identifie et renseigne<br>mes interventions</p>
       </b-col>
       <b-col cols="3">
-        
-        <b-img :src="require('assets/‎image_droite.png')" style="width: 100%;margin-top:15%;" />
+        <b-img :src="require('assets/‎image_droite.png')" style="width: 100%;margin:15% 0;" />
       </b-col>
     </b-row>
 
     <b-row>
-      <b-col cols="6" style="text-align: right;">
-        <b-button variant="outline-primary" class="settingsBtn" @click="showConnectionForm">Connexion</b-button>
+      <b-col cols="4" style="text-align: right;">
+        <b-button variant="outline-primary" class="button--blue link-alignement" @click="showConnectionForm">Connexion par mail</b-button>
       </b-col>
-      <b-col cols="6">
-        <b-img class="fcBtn" @click="connexionutilisateur()"  fluid  :src="require('assets/FCboutons-10.png')" border="0" style="size: 100%;padding-top:10px" />
-        <br>
+      <b-col cols="4" style="text-align: center;">
+        <b-img class="fcBtn" @click="connexionutilisateur()"  fluid  :src="require('assets/FCboutons-10.png')" border="0" style="size: 100%;" />
+      </b-col>
+      <b-col cols="4" style="text-align: left;">
         <a
           href="https://franceconnect.gouv.fr/"
           target="_blank"
-          class="button--green"
-          style="size: 100%;margin-top:10px;margin-bottom:10px" 
+          class="button--green link-alignement"
+          style="text-align:center;" 
           >A propos de FranceConnect</a>
       </b-col>
     </b-row>
@@ -104,7 +101,6 @@ export default {
 
 
 <style>
-
 .subtitle {
   font-weight: 300;
   font-size: 42px;
@@ -112,13 +108,26 @@ export default {
   word-spacing: 5px;
   padding-bottom: 15px;
 }
-
 .links {
   padding-top: 15px;
 }
-
 .fcBtn{
   cursor: pointer;
+}
+.srav-welcome-title {
+  margin-top: 5vw;
+  font-size: 150%;
+  text-transform: uppercase;
+  color: rgb(0,0,128)
+}
+.link-alignement {
+  min-width: 80%;
+  min-height: 56px;
+}
+@media screen and (min-width: 2000px) {
+  .srav-welcome-title {
+    margin-top: 100px;
+  }
 }
 </style>
 
