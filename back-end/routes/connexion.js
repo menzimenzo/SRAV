@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
+const logger = require('../utils/logger')
+const log = logger(module.filename)
+
 const pgPool = require('../pgpool').getPool();
 const config = require('../config');
 const {sendEmail} = require('../utils/mail-service')
@@ -105,6 +108,44 @@ router.post('/verify', async (req,res) => {
     req.session.user = bddRes.rows[0]
     user = formatUtilisateur(bddRes.rows[0])
     return res.send({user})
+})
+
+// Vérifie l'existence d'un email en base pour adapter les infos concernant le user suivant la méthode de connexion.
+router.post('/check-mail', async (req,res) => {
+    const mail = req.body && req.body.user && req.body.user.mail
+    const authId = req.body && req.body.user && req.body.user._id
+    log.i('::check-mail - In', { mail, authId })
+
+    if(!mail) {
+        throw new Error("Le paramètre 'mail' manque pour effectuer la vérification.")
+    }
+    const requete = `SELECT * FROM utilisateur WHERE uti_mail='${mail}'`
+    const bddRes = await pgPool.query(requete).catch(err => {
+        log.w('::check-mail - Erreur pendant la vérification de l\'email', err)
+        throw err
+    })
+    const emailAlreadyExist = bddRes && bddRes.rowCount && bddRes.rowCount > 0
+    const existingUser = bddRes && bddRes.rows && bddRes.rows[0]
+
+    if(emailAlreadyExist && !(existingUser && existingUser.uti_authid)) {
+        log.d('::check-mail - email existe mais n\'a pas d\'authid')
+        const bddUpdate =  await pgPool.query("UPDATE utilisateur SET uti_authid = $1\
+        WHERE uti_id = $2 RETURNING *", 
+        [authId, existingUser.uti_id]).catch(err => {
+            log.w('::check-mail - Erreur pendant l\'update des infos du user', err)
+            throw err
+        })
+        
+        const updatedUser = bddUpdate.rows && bddUpdate.rows[0]
+        log.d('::check-mail - Done, renvois du user mis à jour', updatedUser)
+        req.session.user = updatedUser
+        req.accessToken = updatedUser.uti_tockenfranceconnect;
+        req.session.accessToken = updatedUser.uti_tockenfranceconnect;
+        return res.send(formatUtilisateur(updatedUser))
+    } else {
+        log.d('::check-mail - Done, nouveau user à ajouter.')
+        return res.send('New Entry')
+    }
 })
 
 // Envoie l'utilisateur de la session
