@@ -9,10 +9,11 @@ const loginFromAuthServer = async function(req, res) {
     const authId = req.params && req.params.id
     const token = req.query && req.query.token
     if(!authId) {
-        log.w('uauthId is missing')
+        log.w('authId is missing')
         return res.status(400).json({ message: 'L\'identifiant manque à la requête.'});
     }
     if(!token) {
+        log.w('token is missing')
         return res.status(400).json({ message: 'Le Token est manquant.'});
     }
 
@@ -27,12 +28,14 @@ const loginFromAuthServer = async function(req, res) {
             log.d('Getting user')
             const user = result.rows && result.rows.length && result.rows[0];
             if (!user) {
+                log.w('Utilisateur inexistant')
                 return res.status(400).json({ message: 'Utilisateur inexistant' });
             }
             req.session.user = user
             req.accessToken = token;
             req.session.accessToken = token;
-            res.json({ user: formatUtilisateur(user) });
+            log.i('Done', { user })            
+            return res.json({ user: formatUtilisateur(user) });
         }
     })
 }

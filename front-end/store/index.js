@@ -2,7 +2,7 @@ import Vue from 'vue'
 import { get } from 'lodash'
 import { parseErrorMessage, formatEmail } from '~/lib/utils'
 import logger from '~/plugins/logger'
-const log = logger('srav:store:index')
+const log = logger('store:index')
 
 export const state = () => ({
   interventions         : [],
@@ -26,7 +26,7 @@ export const mutations = {
       })
   },
   SET(state, { key, value }) {
-      console.log(`mutations::SET:${key}`, { value, key })
+      log.i(`mutations::SET:${key}`, { value, key })
       const splitted = key && key.split('.')
       const lastKey = splitted.pop()
       let origin = state
@@ -266,7 +266,7 @@ export const actions = {
       });
   }, 
   async logout({ commit }) {
-    commit("set_utilisateurCourant", {})
+    commit("set_utilisateurCourant", null)
   },
   async get_structures({commit}) {
     const url = process.env.API_URL + '/structures'

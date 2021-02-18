@@ -78,7 +78,7 @@ export default {
           }
           return this.$store.dispatch('register', { user, url: window.location.origin + this.$router.options.base })
             .then(() => {
-                return Vue.nextTick(this.$router.push('/connexion/inscription'))
+                return this.$router.push('/connexion/inscription')
             })
             .catch(e => {
               this.$toast.error(e.message)

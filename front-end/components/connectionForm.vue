@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     submit: function() {
-      this.$validator.validateAll().then(isValid => {
+      return this.$validator.validateAll().then(isValid => {
         if (isValid) {
           return this.$emit("submit", { email: this.mail, password: this.password});
         }

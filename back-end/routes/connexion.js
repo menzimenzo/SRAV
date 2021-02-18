@@ -116,8 +116,11 @@ router.get('/user', (req,res) => {
 })
 
 // Envoie l'url FC pour se déconnecter
-router.get('/logout', (req, res) => {
-    res.send({url: getLogoutUrl(req)});
+router.get('/logout', async(req, res) => {
+    let url
+    if(req.session.idToken) url = await getLogoutUrl(req)
+    req.session && req.session.destroy()
+    res.send({url});
 });
 
 // Nettoie la session de l'utilisateur
