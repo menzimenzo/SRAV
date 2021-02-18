@@ -5,6 +5,7 @@ services:
     volumes:
       - ./front-end:/app
     environment:
+      - PROXY_URL=http://proxy
       - PORT=3000
       - HOST=0.0.0.0
       - DEBUG=srav-frontend:*
