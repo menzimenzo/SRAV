@@ -69,7 +69,8 @@ module.exports = {
     // Utilisé par le serveur Nuxt, url locale ou publique
     API_SERVER_URL: process.env.API_SERVER_URL || 'http://localhost/backend/api',
     // Authentification server
-    API_AUTH_URL: process.env.AUTH_SERVER_URL || 'http://localhost/auth-server/api'
+    API_AUTH_URL: process.env.AUTH_SERVER_URL || 'http://localhost/auth-server/api',
+    PROXY_URL: process.env.PROXY_URL || 'http://proxy'
 
   },
   router: {

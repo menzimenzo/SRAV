@@ -131,7 +131,8 @@ export const actions = {
     if (route.path.indexOf('/connexion/logout') === 0) {
       return
     }
-    await this.$axios.$get(process.env.API_URL + '/connexion/user').then(utilisateur => {
+    await this.$axios.$get(process.env.PROXY_URL + '/backend/api/connexion/user').then(utilisateur => {
+      log.i('actions::nuxtServerInit - Done')      
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
       log.w('actions::nuxtServerInit - Error - nuxtServerInit', err.stack)
