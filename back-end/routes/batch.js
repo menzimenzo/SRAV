@@ -7,6 +7,8 @@ const config = require('../config');
 const {sendEmail} = require('../utils/mail-service');
 moment().format();
 
+const logger = require('../utils/logger')
+const log = logger(module.filename)
 
 const formatIntervention = intervention => {
 
@@ -61,7 +63,7 @@ const formatIntervention = intervention => {
 // A compléter en V1.0.2
 // Mantis N°68057
 router.get('/mailrelance', async function (req, res) {
-
+    log.i('::mailrelance - In')
     // Lancement du batch http://localhost:3001/api/batch/mailrelance
 
     var objetMail;
@@ -111,18 +113,14 @@ router.get('/mailrelance', async function (req, res) {
             LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id ` + clauseWhere 
             + ` order by utilisateur.uti_id, intervention.int_dateintervention`;
 
-    console.log(requete)
-
     pgPool.query(requete, (err, result) => {
         if (err) {
-            console.log(err.stack);
+            log.w('::mailrelance - erreur lors de la requete',{ requete, erreur: err.stack});
             logTrace('srav-mailrelance',2,startTime);
             return res.status(400).json('[BATCH-RELANCEMAIL] erreur lors de la récupération des interventions');
         }
         else {
-            
-            //console.info(result.rows);
-            //console.info(result.rows.length);
+            log.d('::mailrelance - rows: ',result.rows.length);
             const nombreInterventions = result.rows.length;
             const interventions = result.rows.map(formatIntervention);
             premierUtilisateur = true;
@@ -136,13 +134,13 @@ router.get('/mailrelance', async function (req, res) {
             interventions.forEach(intervention => {
 
                 compteInterventions = compteInterventions + 1;
-                console.info(`Traitement de l'enregistrement N°` + compteInterventions);
+                log.d(`::mailrelance - Traitement de l'enregistrement N°` + compteInterventions);
 
                 dateaffichee = intervention.dateIntervention;
 
                 if (premierUtilisateur == true) {
-                    console.info(`Premier enregistrement`);
-                    console.info(`Premier enregistrement ! ` + intervention.uti_mail);
+                    log.i(`::mailrelance - Premier enregistrement`);
+                    log.d(`::mailrelance - Premier enregistrement ! ` + intervention.uti_mail);
                     idUtilisateurCourant = intervention.utiId;
                     nomUtilisateurCourant = intervention.nom;
                     mailUtilisateurCourant = intervention.uti_mail;
@@ -151,7 +149,7 @@ router.get('/mailrelance', async function (req, res) {
                 }
                 // On choppe le denier enregistremetn pour envoyer le mail 
                 if (compteInterventions == nombreInterventions) {
-                    console.info(`Dernier enregistrement`);
+                    log.i(`::mailrelance - Dernier enregistrement`);
                     dernierEnregistrement = true;
                 }
 
@@ -180,13 +178,13 @@ router.get('/mailrelance', async function (req, res) {
                     if (intervention.commentaire == null || intervention.commentaire == '') { corpsMailTemp = corpsMailTemp + `- Commentaires<br/>` }
                     interventionACompleter = true;
                     intervention.interventionACompleter = true;
-                    console.log('interventionAVerifier',interventionAVerifier);
+                    log.d('::mailrelance - interventionAVerifier',interventionAVerifier);
                 }
                 else
                 {
                     corpsMailTemp = corpsMailTemp + `Merci de retourner sur l’intervention et de vérifier les informations saisies<br/>`
                     corpsMailTemp = corpsMailTemp + `Enregistrez l’intervention même si aucune information n’est modifiée<br/>`
-                    console.log('interventionAVerifier',interventionAVerifier);
+                    log.d('::mailrelance - interventionAVerifier',interventionAVerifier);
                     interventionAVerifier = true;
                     //intervention.interventionAVerifier = true;
                 }
@@ -237,16 +235,15 @@ STATE_DEPENDENT=4
             const requete = `UPDATE intervention 
             SET int_relancemail = int_relancemail + 1 `
             + clauseWhere  + ` RETURNING * ;`    
-            console.log(requete);
             pgPool.query(requete, (err, result) => {
                 if (err) {
-                    console.log(requete);
-                    console.log(err.stack);
+                    log.w('::mailrelance - erreur lors de la mise à jour',{requete, erreur: err.stack});
                     logTrace('srav-mailrelance',1,startTime);
                     return res.status(400).json('[BATCH-RELANCEMAIL] erreur lors de la mise à jour de la relance mail');
                 }
             })
             logTrace('srav-mailrelance',0,startTime);
+            log.i('::mailrelance - Done')
             res.json({ interventions });
         }
     })
@@ -291,7 +288,7 @@ function EnvoyerMail(idUtilisateurCourant,IdUtilisateurIntervention,nomUtilisate
         
       });    
       */
-    console.log ('EMail to  : ' + mailUtilisateurCourant);
+    log.i ('EMail to  : ' + mailUtilisateurCourant);
 
     sendEmail({
         to: mailUtilisateurCourant,
@@ -305,7 +302,7 @@ router.get('/testmail', function (req, res) {
 
     var startTime = new Date();
     v_email = req.query.email;
-    console.log ('EMail  : ' + v_email);
+    log.i('::testmail - In, EMail  : ' + v_email);
     // Lancement du batch http://localhost:3001/api/batch/mailrelance
     sendEmail({
         to: v_email,
@@ -316,7 +313,7 @@ router.get('/testmail', function (req, res) {
     });
     //return res.statusCode(400).json({ message: 'erreur sur la requete de listcommune' });
     logTrace('srav-testmail',0,startTime)
-
+    log.i('::testmail - Done')
     return res.send(formatDate());
 });
 
@@ -333,10 +330,10 @@ function logTrace(batch,codeerreur,startTime) {
     }    
     var contenu = formatDate() + '|' + codeerreur + '|' + checkLog + '|ExecTime=' + execTime;
 
-    console.log(contenu + ' - Path Supervision');
+    log.i('::logTrace - contenu:' + contenu + ' - Path Supervision');
     fs.writeFile(fichierSupervision + '/batch.' + batch + '.txt', contenu, function (err) {
         if (err) throw err;
-        console.log(contenu + ' - Saved!');
+        log.i('::logTrace - contenu:' + contenu + ' - Saved!');
       });    
  } 
 

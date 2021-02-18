@@ -5,6 +5,8 @@ const pgPool = require('../pgpool').getPool();
 var moment = require('moment');
 moment().format();
 
+const logger = require('../utils/logger')
+const log = logger(module.filename)
 
 const formatUser = user => {
 
@@ -48,11 +50,11 @@ const formatUserCSV = user => {
 /* route d'extraction de la liste d'utilisateurs pour le CSV */
 /* Pas d'argument, on utilise la structure de l'utilisateur en session */
 router.get('/csv', async function (req, res) {
-
+    log.i('::csv - In')
     const utilisateurCourant = req.session.user;
     var requete = "";
 
-    console.log("Profil de l'utilisateur : " + req.session.user.pro_id);
+    log.d('::csv - Profil de l\'utilisateur : ' + req.session.user.pro_id);
     // Je suis utilisateur "Administrateur" ==> Export de la liste des tous les utilisateurs
     if ( utilisateurCourant.pro_id == 1 ) {
         requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
@@ -75,17 +77,16 @@ router.get('/csv', async function (req, res) {
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
         where uti.str_id=${utilisateurCourant.str_id} order by 3,4 asc`;
     }
-    console.log( requete);
 
     pgPool.query(requete, (err, result) => {
         if (err) {
-            console.log(err.stack);
+            log.w('::csv - Erreur lors de la requête.', { requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la récupération des utilisateurs');
         }
         else {
-            //console.info(result.rows)
             const users = result.rows;//.map(formatUser);
             if (!users || !users.length) {
+                log.w('::csv - Utilisateurs inexistants.')
                 return res.status(400).json({ message: 'Utilisateurs inexistants' });
             }
             stringify(users, {
@@ -93,10 +94,10 @@ router.get('/csv', async function (req, res) {
                 header: true
             }, (err, csvContent) => {
                 if(err){
-                    console.log(err)
+                    log.w('::csv - erreur',err)
                     return res.status(500)
                 } else {
-
+                    log.i('::csv - Done')
                     return res.send(csvContent)
                 }
             })            
@@ -106,8 +107,8 @@ router.get('/csv', async function (req, res) {
 });
 
 router.get('/:id', async function (req, res) {
-    
     const id = req.params.id;
+    log.i('::get - In', { id })
     const utilisateurCourant = req.session.user
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
@@ -126,25 +127,26 @@ router.get('/:id', async function (req, res) {
         order by uti_id asc `;
     }
 
-    console.log('select un USER'+requete)
-
+    log.d('::get - select un USER'+requete)
     pgPool.query(requete, (err, result) => {
         if (err) { 
-            console.log(err.stack);
+            log.w('::get - Erreur lors de la requête', err.stack)
             return res.status(400).json('erreur lors de la récupération de l\'utilisateur');
         }
         else {
             const user = result.rows && result.rows.length && result.rows[0];
             if (!user) {
+                log.w('::get - Utilisateur inexistant')
                 return res.status(400).json({ message: 'Utilisateur inexistant' });
             }
+            log.d('::get - Done')
             res.json({ user: formatUser(user) });
         }
     })
 });
 
 router.get('/', async function (req, res) {
-    
+    log.i('::list - In')
     const utilisateurCourant = req.session.user
     //const utilisateurId = 1; // TODO à récupérer via GET ?
     
@@ -166,15 +168,14 @@ router.get('/', async function (req, res) {
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
         where uti.str_id=${utilisateurCourant.str_id} order by uti_id asc  `;
     }
-    console.log( requete)
-
+    log.d('::list - requete',{ requete })
     pgPool.query(requete, (err, result) => {
         if (err) {
-            console.log(err.stack);
+            log.w('::list - erreur lors de la récupération.',err.stack);
             return res.status(400).json('erreur lors de la récupération des utilisateurs');
         }
         else {
-            //console.info(result.rows)
+            log.i('::list - Done')
             const users = result.rows.map(formatUser);
             res.json({ users });
         }
@@ -184,6 +185,7 @@ router.get('/', async function (req, res) {
 router.put('/:id', async function (req, res) {
     const user = req.body.utilisateurSelectionne
     const id = req.params.id
+    log.i('::update - In', { id })
     let { nom, prenom, mail, profil, validated,structure, structureLocale, statut } = user
 
     //insert dans la table intervention
@@ -199,7 +201,6 @@ router.put('/:id', async function (req, res) {
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
-    console.log(requete)
     pgPool.query(requete,[nom,
         prenom,
         mail,
@@ -209,17 +210,14 @@ router.put('/:id', async function (req, res) {
         structureLocale,
         statut], (err, result) => {
         if (err) {
-            console.log(requete);
-            console.log(err.stack);
+            log.w('::update - erreur lors de l\'update', {requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');
         }
         else {
-            console.log(result.rows)
+            log.i('::update - Done')
             return res.status(200).json({ user: formatUser(result.rows[0])});
         }
     })
 })
-
-
 
 module.exports = router;

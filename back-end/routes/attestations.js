@@ -4,20 +4,21 @@ const config = require('../config');
 const bodyParser = require('body-parser');
 const pgPool = require('../pgpool').getPool();
 
-const PDFDocument = require('pdfkit');
+const logger = require('../utils/logger')
+const log = logger(module.filename)
 
+const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 
 
 router.get('/', async function (req, res) {
     res.send("done root");
-
 });
 
 router.get('/pdf/:id', async function (req, res) {
-
     const id = req.params.id
+    log.i('::pdf - In', { id })
     var doc = new PDFDocument({
         size: 'legal',
         layout: 'landscape' // default is portrait
@@ -111,7 +112,7 @@ router.get('/pdf/:id', async function (req, res) {
 
     })
 */
-console.info(doc)
+log.d('::pdf - document prêt:', { doc })
 
 res.json({ message: 'Le document a été uploadé'});
     /*
@@ -174,6 +175,7 @@ router.get('/', async function (req, res) {
 
 
 router.post('/', function (req, res) {
+    log.i('::post - In')
     const nbEnfants = req.body.params.nbenfants
     var nbGarcons = req.body.params.nbgarcons
     var nbFilles = req.body.params.nbfilles
@@ -195,13 +197,14 @@ router.post('/', function (req, res) {
     const requete = `insert into intervention 
                     (cai_id,blo_id,int_com_codeinsee,int_com_codepostal,int_com_libelle,int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,int_datecreation,int_commentaire,int_dep_num,int_reg_num,int_siteintervention) 
                     values(` + cai + `,` + blo_id + `,` + commune.cpi_codeinsee + `,` + codepostal + `,'` + commune.com_libellemaj + `',` + nbEnfants + `,` + nbGarcons + `,` + nbFilles + `,'` + dateintervention + `','` + datecreation + `','` + commentaire + `',` + commune.dep_num + `,94,'` + siteintervention + `')`
-    //console.log(requete)
+    log.d('::post - requete', { requete })
     pgPool.query(requete, (err, result) => {
         if (err) {
-            console.log(err.stack)
+            log.w(err.stack)
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention')
         }
         else {
+            log.i('::post - Done')
             return res.status(200).json('OK')
         }
     })

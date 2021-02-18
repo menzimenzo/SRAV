@@ -2,24 +2,25 @@ const express = require('express');
 const router = express.Router();
 const pgPool = require('../pgpool').getPool();
 
+const logger = require('../utils/logger')
+const log = logger(module.filename)
 
 router.get('/:id', async function (req, res) {
         const id = req.params.id;
-        console.log('Recherche d\'une structure - id = ' + id);
-
+        log.i('::get - In', { id })
         const requete = `SELECT * from Structure where str_id=${id}`;
-        console.log(requete)
-
         pgPool.query(requete, (err, result) => {
             if (err) {
-                console.log(err.stack);
+                log.w('::get - Erreur lors de la requete', { id, requete, erreur: err.stack })
                 return res.status(400).json('erreur lors de la récupération de la structure');
             }
             else {
                 const structures = result.rows[0];
                 if (!structures) {
+                    log.w('::get - Structure inexistante')
                     return res.status(400).json({ message: 'Structure inexistante' });
                 }
+                log.i('::get - Done')
                 return res.status(200).json({ structures });
             }
         })
@@ -28,16 +29,15 @@ router.get('/:id', async function (req, res) {
 router.get('/',
 
     function (req, res) {
-
-        console.log('Getting structures');
+        log.i('::list - In')
         // La méthode get est appelée sans paramètre : On retourne la liste
         pgPool.query(
             `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on FROM structure order by str_libellecourt`,
             function (err, result) {
                 if (err) {
-                    console.log(err);
+                    log.w('::list - Erreur lors de la requete', { requete, erreur: err.stack })
                 } else {
-                    console.log('Fin de la transaction structures (sans paramètres)', result.length);
+                    log.i('::list - Fin de la transaction structures (sans paramètres)', result.length);
                     return res.send(result.rows);
                 }
             });
@@ -48,8 +48,8 @@ router.get('/',
     router.put('/:id', async function (req, res) {
         const structure = req.body.structureSelectionnee    
         const id = req.params.id
+        log.i('::update - In', { id })
         let { str_libelle, str_libellecourt, str_actif,str_federation } = structure
-        console.log('str_libelle', str_libelle)
     
         //insert dans la table intervention
         const requete = `UPDATE structure 
@@ -60,24 +60,23 @@ router.get('/',
             WHERE str_id = ${id}
             RETURNING *
             ;`    
-        console.log(requete)
         pgPool.query(requete,[str_libelle,
             str_libellecourt,
             str_actif,
             str_federation], (err, result) => {
             if (err) {
-                console.log(requete);
-                console.log(err.stack);
+                log.w('::update - Erreur lors de la mise à jour', { requete , erreur: err.stack})
                 return res.status(400).json('erreur lors de la sauvegarde de la structure');
             }
             else {
-                console.log(result.rows)
+                log.i('::update - Done')
                 return res.status(200).json({ structure: (result.rows[0])});
             }
         })
     })
 
     router.post('/', function (req, res) {
+        log.i('::post - In')
         const structure = req.body.structure
         //console.log(structure)
        let { str_libelle,  str_libellecourt, str_actif, str_federation } = structure
@@ -93,12 +92,12 @@ router.get('/',
         //console.log({ requete });
         pgPool.query(requete, [str_libelle,  str_libellecourt, str_actif, str_federation],(err, result) => {
             if (err) {
-                console.log(err.stack);
+                log.w('::update - Erreur lors de la création.', { requete , erreur: err.stack})                
                 return res.status(400).json('erreur lors de la création de la structure');
             }
             else {
-                console.log({ result, rows: result.rows });
-    return res.status(200).json({ structure: (result.rows[0]) });
+                log.i('::post - Done')
+                return res.status(200).json({ structure: (result.rows[0]) });
             }
         })
     })
