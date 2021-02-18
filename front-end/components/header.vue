@@ -50,7 +50,7 @@ export default {
     logout(){
       return this.$axios.$get(process.env.API_URL + '/connexion/logout').then(async response => {
         await this.$store.dispatch('logout')
-        window.location.replace(response.url)
+        response.url ? window.location.replace(response.url) : this.$router.push('/')
       })
     }
   }

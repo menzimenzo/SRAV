@@ -266,7 +266,7 @@ export const actions = {
       });
   }, 
   async logout({ commit }) {
-    commit("set_utilisateurCourant", {})
+    commit("set_utilisateurCourant", null)
   },
   async get_structures({commit}) {
     const url = process.env.API_URL + '/structures'
