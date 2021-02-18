@@ -6,6 +6,8 @@ const myPdf = require('../utils/pdf')
 var moment = require('moment');
 moment().format();
 
+const logger = require('../utils/logger')
+const log = logger(module.filename)
 
 const formatIntervention = intervention => {
 
@@ -61,8 +63,8 @@ const formatIntervention = intervention => {
 
 router.get('/delete/:id', async function (req, res) {
     const intervention = req.body.intervention;
-
     const id = req.params.id;
+    log.i('::delete - In', { id })
 
     //insert dans la table intervention
     const requete = `DELETE FROM  intervention 
@@ -72,12 +74,11 @@ router.get('/delete/:id', async function (req, res) {
     
     pgPool.query(requete, [id], (err, result) => {
         if (err) {
-            console.log(requete);
-            console.log(err.stack);
+            log.w('::delete - Erreur survenue lors de la suppression.', { requete, err: err.stack})
             return res.status(400).json('erreur lors de la suppression de l\'intervention ' + id);
         }
         else {
-            
+            log.i('::delete - Done')
             // Suppression effectuée avec succès
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
 
@@ -100,6 +101,8 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     const utilisateurId = user.uti_id
     const stru = user.uti_id
 
+    log.i('::csv - In', { utilisateurId, stru })
+
     /* Pour un profil Admin, on exporte toutes les interventions */
     var whereClause = ""
     /* Pour un profil Intervenant on exporte que ces interventions */
@@ -118,11 +121,11 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     ${whereClause} 
     INNER JOIN structure ON structure.str_id = utilisateur.str_id 
     order by int_id asc`;
-    console.log(requete)
+    log.d('::csv - requet', { requete })
 
     pgPool.query(requete, (err, result) => {
         if (err) {
-            console.log(err.stack);
+            log.w('::csv - erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la récupération de l\'intervention');
         }
         else {
@@ -149,6 +152,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 return newIntervention
             })
             if (!interventions || !interventions.length) {
+                log.w('::csv - Intervention inexistante.',err.stack);
                 return res.status(400).json({ message: 'Interventions inexistante' });
             }
             stringify(interventions, {
@@ -156,10 +160,10 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 header: true
             }, (err, csvContent) => {
                 if(err){
-                    console.log(err)
+                    log.w('::csv - Erreur lors callback après stringify.',err.stack);
                     return res.status(500)
                 } else {
-
+                    log.i('::csv - Done')
                     return res.send(csvContent)
                 }
             })
@@ -208,8 +212,9 @@ router.get('/csv/:utilisateurId', async function (req, res) {
 });*/
 
 router.get('/:id', async function (req, res) {
-
+    log.i('::get - In')
     if(!req.session.user){
+        log.w('::get - User manquant.')
         return res.sendStatus(403)
     }
     const id = req.params.id
@@ -223,25 +228,29 @@ router.get('/:id', async function (req, res) {
     }
 
     const requete =`SELECT * from intervention where int_id=${id} ${whereClause} order by int_id asc`;
-    console.log(requete)
+    log.d('::get - récuperation via la requête.',{ requete })
 
     pgPool.query(requete, (err, result) => {
         if (err) {
-            console.log(err.stack);
+            log.w('::get - Erreur survenue lors de la récupération.',err.stack);
             return res.status(400).json('erreur lors de la récupération de l\'intervention');
         }
         else {
             const intervention = result.rows && result.rows.length && result.rows[0];
             if (!intervention) {
+                log.w('::get - Intervention inexistante.')
                 return res.status(400).json({ message: 'Intervention inexistante' });
             }
+            log.i('::get - Done')
             res.json({ intervention: formatIntervention(intervention) });
         }
     })
 });
 
 router.get('/', async function (req, res) {
+    log.i('::list - In')
     if(!req.session.user){ 
+        log.w('::list - User manquant.')
         return res.sendStatus(403) 
     }
 
@@ -264,15 +273,15 @@ router.get('/', async function (req, res) {
     }
 
     const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
-    console.log(requete)
+    log.d('::list - récuperation via la requête.',{ requete })
 
     pgPool.query(requete, (err, result) => {
         if (err) {
-            console.log(err.stack);
+            log.w('::list - Erreur survenue lors de la récupération.',err.stack);
             return res.status(400).json('erreur lors de la récupération des interventions');
         }
         else {
-            //console.info(result.rows)
+            log.i('::list - Done')
             const interventions = result.rows.map(formatIntervention);
             res.json({ interventions });
         }
@@ -283,6 +292,8 @@ router.put('/:id', async function (req, res) {
     const intervention = req.body.intervention
 
     const id = req.params.id
+    log.i('::update - In', { id })
+
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
         commentaire, cp, utilisateurId,siteintervention,
         nbmoinssix, nbsixhuit, nbneufdix, nbplusdix  } = intervention
@@ -318,6 +329,7 @@ router.put('/:id', async function (req, res) {
         RETURNING *
         ;`    
     
+    log.d('::update - requete', { requete })
     pgPool.query(requete, [cai,
         blocId,
         commune.cpi_codeinsee,
@@ -336,13 +348,11 @@ router.put('/:id', async function (req, res) {
         commune.reg_num,
         siteintervention], (err, result) => {
         if (err) {
-            console.log(requete);
-            console.log(err.stack);
+            log.w('::update - erreur lors de la récupération', { requete, erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
-            
         }
         else {
-            
+            log.i('::update - Done')
             // generation du pdf (synchrone)
             if (blocId == 3 ) {
                 myPdf.generate(id,nbEnfants, dateIntervention)  
@@ -354,6 +364,7 @@ router.put('/:id', async function (req, res) {
 })
 
 router.post('/', function (req, res) {
+    log.i('::post - In')
     const intervention = req.body.intervention
 
     let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
@@ -376,26 +387,23 @@ router.post('/', function (req, res) {
                         INT_NOMBREMOINSSIX, INT_NOMBRESIXHUIT, INT_NOMBRENEUFDIX, INT_NOMBREPLUSDIX) 
                     values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20 ) RETURNING *`;
     
-    console.log({ requete });
+    log.d('::post - requete',{ requete });
     pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
     nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
     commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix],(err, result) => {
         if (err) {
-            console.log(err.stack);
+            log.w('::post - Erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
         }
         else {
-            console.log({ result, rows: result.rows });
-
+            log.i('::post - Done', { rows: result.rows })
             // generation du pdf (synchrone)
             if (blocId == 3) {
               myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants,dateIntervention);
             }
-            
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
         }
     })
 })
-
 
 module.exports = router;

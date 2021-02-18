@@ -18,6 +18,7 @@ moment().format();
 
 
 router.get('/login', (req, res) => {
+    log.i('::login via France Connect')
     return res.send({url: getAuthorizationUrl()});
 });
 
@@ -28,7 +29,9 @@ router.get('/callback', oauthCallback);
 
 // Valide un compte utilisateur avec les infomations complémentaires
 router.post('/verify', async (req,res) => {
+    log.i('::verify - In')
     if(!(req.body.id || req.body._id)){
+        log.w('::verify - Aucun ID à ajouter en base.') 
         return res.sendStatus(500)
     }
     var wasValidated = req.body.validated
@@ -70,12 +73,13 @@ router.post('/verify', async (req,res) => {
     }
 
     if(!user.uti_authid && !user.uti_tockenfranceconnect) {
+        log.w('::verify - Le user n\'est inscrit dans aucune base.')   
         throw new Error("L'utilisateur n'existe ni auprès du serveur d'authentification ni auprès de France Connect")
     }
 
     let bddRes
     if(req.body._id) {
-        // Nouveau user, authentifié depuis authserver, à ajouter en base
+        log.d('::verify - Nouveau user, authentifié depuis authserver, à ajouter en base')        
         bddRes = await pgPool.query(
             'INSERT INTO utilisateur(pro_id, stu_id, str_id, uti_mail, uti_nom, uti_prenom, uti_datenaissance, validated, uti_structurelocale, uti_authid)\
             VALUES($1, $2, $3, $4, upper($5), $6, $7, $8, $9, $10) RETURNING *'
@@ -85,7 +89,7 @@ router.post('/verify', async (req,res) => {
             throw err
           })
     } else {
-        // Mise à jour de l'utilisateur existant
+        log.d('::verify - Mise à jour de l\'utilisateur existant')        
         bddRes = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, validated = true \
              WHERE uti_id = $4 RETURNING *", 
              [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_id]).catch(err => {
@@ -95,6 +99,7 @@ router.post('/verify', async (req,res) => {
     }
     // Envoie de l'email de confirmation
     if(!wasValidated){
+        log.d('::verify - Mail de confirmation envoyé.')
         sendEmail({
             to: user.uti_mail,
             subject: 'création compte savoir rouler à vélo',
@@ -107,6 +112,7 @@ router.post('/verify', async (req,res) => {
 
     req.session.user = bddRes.rows[0]
     user = formatUtilisateur(bddRes.rows[0])
+    log.i('::verify - Done')
     return res.send({user})
 })
 
@@ -158,6 +164,7 @@ router.get('/user', (req,res) => {
 
 // Envoie l'url FC pour se déconnecter
 router.get('/logout', async(req, res) => {
+    log.i('::logout - In')
     let url
     if(req.session.idToken) url = await getLogoutUrl(req)
     req.session && req.session.destroy()
@@ -166,6 +173,7 @@ router.get('/logout', async(req, res) => {
 
 // Nettoie la session de l'utilisateur
 router.get('/logged-out', (req, res) => {
+    log.i('::logged-out - In')    
     // Resetting the id token hint.
     req.session.idToken = null;
     // Resetting the userInfo.
