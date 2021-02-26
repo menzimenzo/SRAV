@@ -47,7 +47,7 @@ router.post('/verify', async (req,res) => {
                 libelleCourt = 'DEP'
             }
             if (user.typeCollectivite == 3) {
-                libelleCourt = 'COMCOM'
+                libelleCourt = 'EPCI'
             }
             const insertRes = await pgPool.query("INSERT INTO structure (str_libellecourt,str_libelle,str_actif,str_federation,str_typecollectivite) \
          VALUES ($1,$2,'true','false',$3) RETURNING *",
@@ -62,9 +62,9 @@ router.post('/verify', async (req,res) => {
             console.log('structure déjà existante.Str_id : '+idStructure);
         }
         // Mise à jour de l'utilisateur
-        const updatResCollectivite = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_structurelocale = '', uti_mail = $2, validated = true \
+        const updatResCollectivite = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_structurelocale = $4, uti_mail = $2, validated = true \
     WHERE uti_id = $3 RETURNING *",
-            [idStructure, user.uti_mail, user.uti_id]).catch(err => {
+            [idStructure, user.uti_mail, user.uti_id,user.libelleCollectivite]).catch(err => {
                 console.log(err)
                 throw err
             })

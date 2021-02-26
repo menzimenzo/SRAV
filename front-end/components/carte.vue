@@ -914,6 +914,10 @@
           <b-col cols="9" class="nom">Départements</b-col>
           <b-col>{{nb['DEP'].IntParDepartement[id]}}</b-col>
         </b-row>
+                       <b-row class="liste" v-if="hover">
+          <b-col cols="9" class="nom">EPCI</b-col>
+          <b-col>{{nb['EPCI'].IntParDepartement[id]}}</b-col>
+        </b-row>
         <b-row
           cols="9"
           class="liste"

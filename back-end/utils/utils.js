@@ -29,8 +29,6 @@ module.exports = {
 
         if(toClient){
         dateNaissance = dateNaissance.format("YYYY-MM-DD");
-        console.log('encore la')
-        console.log(utilisateur)
         return {
             id: utilisateur.uti_id,
             profilId: utilisateur.pro_id,

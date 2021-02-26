@@ -174,6 +174,7 @@
                       <option :value="'nationale'">Toutes</option>
                       <option :value="'COM'">Commune</option>
                       <option :value="'DEP'">Départements</option>
+                      <option :value="'EPCI'">EPCI</option>
                       <option
                         v-for="structure in filteredStructures"
                         :key="structure.str_libellecourt"
@@ -232,6 +233,7 @@
                       <option :value="'nationale'">Toutes</option>
                       <option :value="'COM'">Commune</option>
                       <option :value="'DEP'">Départements</option>
+                      <option :value="'EPCI'">EPCI</option>
                       <option
                         v-for="structure in filteredStructures"
                         :key="structure.str_libellecourt"
@@ -1076,7 +1078,7 @@ export default {
             (String(str.str_libellecourt) != "DS") &
             (String(str.str_libellecourt) != "DEP") &
             (String(str.str_libellecourt) != "COM") &
-            (String(str.str_libellecourt) != "COMCOM");
+            (String(str.str_libellecourt) != "EPCI");
           return isMatch;
         });
     }
