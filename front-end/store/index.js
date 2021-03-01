@@ -395,7 +395,7 @@ export const actions = {
               log.i('actions::registered - done, with success to auth-server' )
               user['mail'] = user.email
               // CHECK IF ACCOUNT EXIST WITH FC
-              return this.$axios.$post(`${process.env.API_URL}/connexion/check-mail`, { user })
+              return this.$axios.$post(`${process.env.API_URL}/connexion/france-connect-identified`, { user })
           })
           .then(apiRes => {
               if(apiRes && apiRes.id) {
