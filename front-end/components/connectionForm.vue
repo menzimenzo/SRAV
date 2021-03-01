@@ -1,5 +1,6 @@
 <template>
     <b-card class="mb-3">
+      <b-card-text style="color:#35495e;">{{information}}</b-card-text>
       <b-form>
         <b-form-group id="emailInputGroup" label="Courriel :" label-for="emailInput" required>
           <b-form-input
@@ -12,6 +13,7 @@
             aria-describedby="emailFeedback"
             placeholder="Courriel"
             :state="validateState('mail')"
+            :disabled="hasToConfirmMail"
           />
           <b-form-invalid-feedback
             id="emailFeedback"
@@ -38,7 +40,7 @@
             @click="submit"
             variant="success"
             :disabled="errors.any()"
-          >Connexion</b-button>
+          >{{ hasToConfirmMail ? 'Validation' : 'Connexion'}}</b-button>
         </div>
       </b-form>
       <b-row align-h="center" class="text-center">
@@ -57,13 +59,26 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
 export default {
   data() {
       return {
           mail: '',
           password: ''
       }
+  },
+  props: {
+    information: {
+      type: String
+    },
+    hasToConfirmMail: {
+      type: Boolean,
+      default: false
+    }
+  },
+  mounted() {
+    if(this.hasToConfirmMail) {
+      this.mail = this.$store.state.utilisateurCourant.mail
+    }
   },
   methods: {
     submit: function() {
