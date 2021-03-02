@@ -1,83 +1,31 @@
-import _ from 'lodash';
+import { templateStat } from '../helpers.js'
 
 export default {
     methods: {
-        statCal: function (intervention, structures) {
+        statCal: function (interventions, structures) {
             let labelsHisto = [];
             let DataToDisplay = [];
             let SubDataToDisplay = [];
             let LabelsToDisplay = [];
             let SubLabelsToDisplay = [];
             let nb = 0;
-            let statStructure = {
-                nationale: {
-                    nbInt: 0,
-                    nbAttestations: 0,
-                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbSco: 0,
-                    nbScoRel: 0,
-                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbPer: 0,
-                    nbPerRel: 0,
-                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbExt: 0,
-                    nbExtRel: 0,
-                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbBloc1: 0,
-                    nbBloc1Rel: 0,
-                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbBloc2: 0,
-                    nbBloc2Rel: 0,
-                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbBloc3: 0,
-                    nbBloc3Rel: 0,
-                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    IntParDepartement: [],
-                    CouleurParDepartement: [],
-                    CouleurParDepartementAdmin: [],
-                }
-            }                
+            let statStructure = {}
+            
+            statStructure['nationale'] = templateStat
+            
+            // Colorisation des structures nationales et autres pour tous les départements.
             for (var i = 0; i < 102; i++) {
                     statStructure['nationale'].IntParDepartement[i] = 0
                     statStructure['nationale'].CouleurParDepartementAdmin[i] = '#3f3f3f'
                     statStructure['nationale'].CouleurParDepartement[i] = '#3f3f3f'
-                }
-            //structures.push('nationale')
-            structures.forEach(element => {
-                statStructure[element.str_libellecourt] = {
-                    nbInt: 0,
-                    nbAttestations: 0,
-                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbSco: 0,
-                    nbScoRel: 0,
-                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbPer: 0,
-                    nbPerRel: 0,
-                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbExt: 0,
-                    nbExtRel: 0,
-                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbBloc1: 0,
-                    nbBloc1Rel: 0,
-                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbBloc2: 0,
-                    nbBloc2Rel: 0,
-                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    nbBloc3: 0,
-                    nbBloc3Rel: 0,
-                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
-                    IntParDepartement: [],
-                    CouleurParDepartement: [],
-                    CouleurParDepartementAdmin: [],
-                }
+                }            
+            structures.map(structure => {
+                statStructure[structure.str_libellecourt] = templateStat
+                // Structure à travers chaque département.
                 for (var i = 0; i < 102; i++) {
-                    statStructure[element.str_libellecourt].IntParDepartement[i] = 0
-                    statStructure[element.str_libellecourt].CouleurParDepartementAdmin[i] = '#3f3f3f'
-                    statStructure[element.str_libellecourt].CouleurParDepartement[i] = '#3f3f3f'
+                    statStructure[structure.str_libellecourt].IntParDepartement[i] = 0
+                    statStructure[structure.str_libellecourt].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                    statStructure[structure.str_libellecourt].CouleurParDepartement[i] = '#3f3f3f'
                 }
             })
 
@@ -88,37 +36,27 @@ export default {
             const moisCourant = Number(today.getMonth()) + 1;
             const anneeCourant = Number(today.getYear());
 
-            intervention.forEach(element => {
-                let mois = Number(element.dateIntervention.getMonth()) + 1;
-                let annee = Number(element.dateIntervention.getYear());
-                let blocId = Number(element.blocId);
-                let nbEnfants = Number(element.nbEnfants);
-                let departement = element.departement
-                let cai = Number(element.cai);
-                let structure = element.structureCode;
-                let indice = 0;
-                let indiceMensuel = -1
-                let indDepartement = 0
-
-                // Si blocid = 3 alors il y a attestation
-                if (blocId === 3) {
-                    statStructure[structure].nbAttestations =statStructure[structure].nbAttestations + nbEnfants;
-                    statStructure['nationale'].nbAttestations =statStructure['nationale'].nbAttestations + nbEnfants;
-                }
+            interventions.forEach(intervention => {
+                const mois = Number(intervention.dateIntervention.getMonth()) + 1;
+                const annee = Number(intervention.dateIntervention.getYear());
+                const blocId = Number(intervention.blocId);
+                const nbEnfants = Number(intervention.nbEnfants);
+                const departement = intervention.departement
+                const cai = Number(intervention.cai);
+                const structure = intervention.structureCode;
+                const indice = 0;
+                const indiceMensuel = -1
+                const indDepartement = 0
 
                 // tous les tableaux sont indicés sur indiceMensuel qui est a 12 pour le mois courant
                 // et 0 pour le même mois l'année dernière
-                if ((anneeCourant - annee) === 1) {
-                    // sur l'année d'avant on ne prend que les mois à venir
-                    if ((mois - moisCourant) >= 0) {
+                // sur l'année d'avant on ne prend que les mois à venir
+                if ((anneeCourant - annee) === 1 && (mois - moisCourant) >= 0 ) {
                         indiceMensuel = mois - moisCourant;
-                    }
                 }
                 else {
                     // on ne calcule pas l'indice si l'intervention a eu lieu  plus de 12 mois auparavant
-                    if ((anneeCourant - annee) >= 0) {
-                        indiceMensuel = (annee - anneeCourant + 1) * 12 + (mois - moisCourant);
-                    }
+                    indiceMensuel = (annee - anneeCourant + 1) * 12 + (mois - moisCourant);
                 }
                 // on ne garde que les intervention dans [dateDuJour - 12 mois; dateDuJour + 2 mois]
                 if (indiceMensuel >= 0 && indiceMensuel < 15) {
@@ -156,8 +94,13 @@ export default {
                     statStructure[structure].IntParDepartement[indDepartement]++;
                     statStructure['nationale'].IntParDepartement[indDepartement]++;
 
+                    
                     // MAJ du tableau des attestations
                     if (blocId === 3) {
+                        // Si blocid = 3 alors il y a attestation
+                        statStructure[structure].nbAttestations = statStructure[structure].nbAttestations + nbEnfants;
+                        statStructure['nationale'].nbAttestations = statStructure['nationale'].nbAttestations + nbEnfants;
+                        
                         nb = nb + nbEnfants
                         statStructure[structure].nbAtt[indiceMensuel] += nbEnfants;
                         statStructure['nationale'].nbAtt[indiceMensuel] += nbEnfants;
@@ -206,99 +149,103 @@ export default {
                     }
                 }
             })
-
             // fin boucle sur interventions
+            
             // on parcourt les objets créés pour compléter et faire les calculs
-            var clef = Object.keys(statStructure);
-            clef.forEach(element => {
+            const libellesStructures  = Object.keys(statStructure);
+            libellesStructures.forEach(structure => {
                 for (var i = 0; i < 15; i++) {
                     // Calcul des interventions cumulees
                     if (i == 0) {
-                        statStructure[element].nbAttCumule[i] = statStructure[element].nbAtt[i];
+                        statStructure[structure].nbAttCumule[i] = statStructure[structure].nbAtt[i];
                     } else {
-                        statStructure[element].nbAttCumule[i] = statStructure[element].nbAttCumule[i - 1] + statStructure[element].nbAtt[i];
+                        statStructure[structure].nbAttCumule[i] = statStructure[structure].nbAttCumule[i - 1] + statStructure[structure].nbAtt[i];
                     }
                 }
-                if (statStructure[element].nbInt != 0) {
+
+                // Pas d'interventions à afficher pour la structure
+                if (statStructure[structure].nbInt === 0)  {
+                    return
+                }
+
                 // Mise à jour des variables utilisés pour les doughnut chart
                 for (var i = 0; i < 9; i++) {
                     //on passe des valeurs absolues en pourcentage
-                    statStructure[element].IntParBlocParCadre[i] = Math.round(
-                        (statStructure[element].IntParBlocParCadre[i] / statStructure[element].nbInt) * 10000
+                    statStructure[structure].IntParBlocParCadre[i] = Math.round(
+                        (statStructure[structure].IntParBlocParCadre[i] / statStructure[structure].nbInt) * 10000
                     ) / 100;
                 }
 
                 // calcul des sommes nbBloc1, nbBloc2 et nbBloc3 et de leur valeur relative (%)
-                statStructure[element].nbBloc1 = statStructure[element].nbIntBloc1.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbBloc1Rel = Math.round(
-                    (statStructure[element].nbBloc1 / statStructure[element].nbInt) * 10000
+                statStructure[structure].nbBloc1 = statStructure[structure].nbIntBloc1.reduce((pv, cv) => pv + cv, 0);
+                statStructure[structure].nbBloc1Rel = Math.round(
+                    (statStructure[structure].nbBloc1 / statStructure[structure].nbInt) * 10000
                 ) / 100;
-                statStructure[element].nbBloc2 = statStructure[element].nbIntBloc2.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbBloc2Rel = Math.round(
-                    (statStructure[element].nbBloc2 / statStructure[element].nbInt) * 10000
+                statStructure[structure].nbBloc2 = statStructure[structure].nbIntBloc2.reduce((pv, cv) => pv + cv, 0);
+                statStructure[structure].nbBloc2Rel = Math.round(
+                    (statStructure[structure].nbBloc2 / statStructure[structure].nbInt) * 10000
                 ) / 100;
-                statStructure[element].nbBloc3 = statStructure[element].nbIntBloc3.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbBloc3Rel = Math.round(
-                    (statStructure[element].nbBloc3 / statStructure[element].nbInt) * 10000
+                statStructure[structure].nbBloc3 = statStructure[structure].nbIntBloc3.reduce((pv, cv) => pv + cv, 0);
+                statStructure[structure].nbBloc3Rel = Math.round(
+                    (statStructure[structure].nbBloc3 / statStructure[structure].nbInt) * 10000
                 ) / 100;
-                statStructure[element].nbSco = statStructure[element].nbIntSco.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbScoRel = Math.round(
-                    (statStructure[element].nbSco / statStructure[element].nbInt) * 10000
+                statStructure[structure].nbSco = statStructure[structure].nbIntSco.reduce((pv, cv) => pv + cv, 0);
+                statStructure[structure].nbScoRel = Math.round(
+                    (statStructure[structure].nbSco / statStructure[structure].nbInt) * 10000
                 ) / 100;
-                statStructure[element].nbPer = statStructure[element].nbIntPer.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbPerRel = Math.round(
-                    (statStructure[element].nbPer / statStructure[element].nbInt) * 10000
+                statStructure[structure].nbPer = statStructure[structure].nbIntPer.reduce((pv, cv) => pv + cv, 0);
+                statStructure[structure].nbPerRel = Math.round(
+                    (statStructure[structure].nbPer / statStructure[structure].nbInt) * 10000
                 ) / 100;
-                statStructure[element].nbExt = statStructure[element].nbIntExt.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbExtRel = Math.round(
-                    (statStructure[element].nbExt / statStructure[element].nbInt) * 10000
+                statStructure[structure].nbExt = statStructure[structure].nbIntExt.reduce((pv, cv) => pv + cv, 0);
+                statStructure[structure].nbExtRel = Math.round(
+                    (statStructure[structure].nbExt / statStructure[structure].nbInt) * 10000
                 ) / 100;
 
                 // initialisation du nombre d'int par département pour la choroplethe
                 for (var i = 0; i < 102; i++) {
                     // choix de la couleur
                     switch (true) {
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 12):
-                            statStructure[element].CouleurParDepartement[i] = '#191970'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#ff0000'
+                        case ((statStructure[structure].IntParDepartement[i] / statStructure[structure].nbInt) * 100 > 12):
+                            statStructure[structure].CouleurParDepartement[i] = '#191970'
+                            statStructure[structure].CouleurParDepartementAdmin[i] = '#ff0000'
                             break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 9):
-                            statStructure[element].CouleurParDepartement[i] = '#4169E1'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#d85454'
+                        case ((statStructure[structure].IntParDepartement[i] / statStructure[structure].nbInt) * 100 > 9):
+                            statStructure[structure].CouleurParDepartement[i] = '#4169E1'
+                            statStructure[structure].CouleurParDepartementAdmin[i] = '#d85454'
                             break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 6):
-                            statStructure[element].CouleurParDepartement[i] = '#318CE7'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#f69696'
+                        case ((statStructure[structure].IntParDepartement[i] / statStructure[structure].nbInt) * 100 > 6):
+                            statStructure[structure].CouleurParDepartement[i] = '#318CE7'
+                            statStructure[structure].CouleurParDepartementAdmin[i] = '#f69696'
                             break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 3):
-                            statStructure[element].CouleurParDepartement[i] = '#77B5FE'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#f7c3c3'
+                        case ((statStructure[structure].IntParDepartement[i] / statStructure[structure].nbInt) * 100 > 3):
+                            statStructure[structure].CouleurParDepartement[i] = '#77B5FE'
+                            statStructure[structure].CouleurParDepartementAdmin[i] = '#f7c3c3'
                             break;
-                        case (statStructure[element].IntParDepartement[i] === 0):
-                            statStructure[element].CouleurParDepartement[i] = '#3f3f3f' // =0
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                        case (statStructure[structure].IntParDepartement[i] === 0):
+                            statStructure[structure].CouleurParDepartement[i] = '#3f3f3f' // =0
+                            statStructure[structure].CouleurParDepartementAdmin[i] = '#3f3f3f'
                             break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 0): // +0
-                            statStructure[element].CouleurParDepartement[i] = '#B0E0E6'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#fbe5e5'
+                        case ((statStructure[structure].IntParDepartement[i] / statStructure[structure].nbInt) * 100 > 0): // +0
+                            statStructure[structure].CouleurParDepartement[i] = '#B0E0E6'
+                            statStructure[structure].CouleurParDepartementAdmin[i] = '#fbe5e5'
                             break;
                     }
-                }
             }
             });
 
             // 4 eme graphique, que pour les admin
-            // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
-            var keys = Object.keys(statStructure);
             // on enleve la structure nationale
-            keys.splice(0, 1)
-            keys.sort(function (a, b) {
+            libellesStructures.splice(0, 1)
+            // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
+            libellesStructures.sort(function (a, b) {
                 return statStructure[b].nbInt - statStructure[a].nbInt;
             });
-            if (keys.length >= nbMaxStructureAffichees) {
+            
+            if (libellesStructures.length >= nbMaxStructureAffichees) {
                 let nbAutre = { nbInt: 0, nbBloc1: 0, nbBloc2: 0, nbBloc3: 0 };
                 let i = 0;
-                keys.forEach(function (k) {
+                libellesStructures.forEach(function (k) {
                     i++;
                     if (i > nbMaxStructureAffichees) {
                         nbAutre.nbInt += statStructure[k].nbInt;
@@ -349,7 +296,7 @@ export default {
                 SubLabelsToDisplay.push("Autre / bloc 2");
                 SubLabelsToDisplay.push("Autre / bloc 3");
             } else {
-                keys.forEach(function (k) {
+                libellesStructures.forEach(function (k) {
                     DataToDisplay.push(
                         Math.round(
                             (Number(statStructure[k].nbInt) / statStructure['nationale'].nbInt) * 10000
@@ -377,7 +324,7 @@ export default {
                 });
             }
             // Définition de l'objet Data envoyé au 4eme graphique
-            this.data4 = {
+            const data4 = {
                 datasets: [
                     {
                         backgroundColor: [
@@ -431,8 +378,8 @@ export default {
             };
             // sauvegarde du tableau des labels dans l'objet qui sera sauvegardé dans le store
             statStructure['nationale'].labelsHisto = labelsHisto
-            statStructure['nationale'].data4 = this.data4
-            this.$store.commit('set_statStructure', statStructure)
+            statStructure['nationale'].data4 = data4
+            return this.$store.commit('set_statStructure', statStructure)
         }
 
     }

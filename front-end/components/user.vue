@@ -101,7 +101,6 @@ export default {
       type: Object,
       default: () => {
         return {}
-        //return { id: 5 }
       }
     }
   },
@@ -155,20 +154,7 @@ export default {
           console.error('Une erreur est survenue lors de la mise à jour de l\'utilisateur', error)
         })
     },
-    // MANTIS 68205 : Suppression de la règle sur la structure locale : Cela devient obligatoire
-    /*
-    // true si la structure sélectionnée est une fédération
-    isFederation(id){
-       var structure = this.structures.find(str => {
-         return str.str_id == id
-       })
-       if(!structure){return false}
-       return structure.str_federation
-      
-    },*/
-    // true si l'utilisateur connecté est Admin, sinon false
     isAdmin: function(){
-      //this.$toast.success(`Utilisateur ${this.$store.state.utilisateurCourant.nom} ${this.$store.state.utilisateurCourant.prenom} profil ${this.$store.state.utilisateurCourant.profilId}`, [])
       if(this.$store.state.utilisateurCourant.profilId=="1")
         return true;
       else
