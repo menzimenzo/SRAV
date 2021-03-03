@@ -8,6 +8,9 @@ export default {
         getObjectValue(item, path) {
             return _.get(item, path)
         },
+        setObjectValue(item, path, value) {
+            return _.set(item, path, value)
+        },
         optionsValues(column) {
             if (_.isFunction(column.options)) {
                 return column.options(this.clonedItem)
