@@ -3,6 +3,7 @@ import _ from 'lodash';
 export default {
     methods: {
         statCal: function (intervention, structures) {
+                        let maStructureId = this.$store.state.utilisateurCourant.structureId;
             let labelsHisto = [];
             let DataToDisplay = [];
             let SubDataToDisplay = [];
@@ -37,14 +38,139 @@ export default {
                     IntParDepartement: [],
                     CouleurParDepartement: [],
                     CouleurParDepartementAdmin: [],
+                },
+                COM: {
+                    nbInt: 0,
+                    nbAttestations: 0,
+                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbSco: 0,
+                    nbScoRel: 0,
+                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbPer: 0,
+                    nbPerRel: 0,
+                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbExt: 0,
+                    nbExtRel: 0,
+                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc1: 0,
+                    nbBloc1Rel: 0,
+                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc2: 0,
+                    nbBloc2Rel: 0,
+                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc3: 0,
+                    nbBloc3Rel: 0,
+                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    IntParDepartement: [],
+                    CouleurParDepartement: [],
+                    CouleurParDepartementAdmin: []
+                },
+                DEP: {
+                    nbInt: 0,
+                    nbAttestations: 0,
+                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbSco: 0,
+                    nbScoRel: 0,
+                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbPer: 0,
+                    nbPerRel: 0,
+                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbExt: 0,
+                    nbExtRel: 0,
+                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc1: 0,
+                    nbBloc1Rel: 0,
+                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc2: 0,
+                    nbBloc2Rel: 0,
+                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc3: 0,
+                    nbBloc3Rel: 0,
+                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    IntParDepartement: [],
+                    CouleurParDepartement: [],
+                    CouleurParDepartementAdmin: []
+                },
+                EPCI: {
+                    nbInt: 0,
+                    nbAttestations: 0,
+                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbSco: 0,
+                    nbScoRel: 0,
+                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbPer: 0,
+                    nbPerRel: 0,
+                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbExt: 0,
+                    nbExtRel: 0,
+                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc1: 0,
+                    nbBloc1Rel: 0,
+                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc2: 0,
+                    nbBloc2Rel: 0,
+                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc3: 0,
+                    nbBloc3Rel: 0,
+                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    IntParDepartement: [],
+                    CouleurParDepartement: [],
+                    CouleurParDepartementAdmin: []
+                },
+                MaStructure: {
+                    nbInt: 0,
+                    nbAttestations: 0,
+                    nbAtt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbAttCumule: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbIntSco: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbSco: 0,
+                    nbScoRel: 0,
+                    nbIntPer: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbPer: 0,
+                    nbPerRel: 0,
+                    nbIntExt: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbExt: 0,
+                    nbExtRel: 0,
+                    nbIntBloc1: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc1: 0,
+                    nbBloc1Rel: 0,
+                    nbIntBloc2: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc2: 0,
+                    nbBloc2Rel: 0,
+                    nbIntBloc3: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    nbBloc3: 0,
+                    nbBloc3Rel: 0,
+                    IntParBlocParCadre: [0, 0, 0, 0, 0, 0, 0, 0, 0],
+                    IntParDepartement: [],
+                    CouleurParDepartement: [],
+                    CouleurParDepartementAdmin: []
                 }
-            }                
+
+            }
             for (var i = 0; i < 102; i++) {
-                    statStructure['nationale'].IntParDepartement[i] = 0
-                    statStructure['nationale'].CouleurParDepartementAdmin[i] = '#3f3f3f'
-                    statStructure['nationale'].CouleurParDepartement[i] = '#3f3f3f'
-                }
-            //structures.push('nationale')
+                statStructure['nationale'].IntParDepartement[i] = 0
+                statStructure['nationale'].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                statStructure['nationale'].CouleurParDepartement[i] = '#3f3f3f'
+                statStructure['COM'].IntParDepartement[i] = 0
+                statStructure['COM'].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                statStructure['COM'].CouleurParDepartement[i] = '#3f3f3f'
+                statStructure['DEP'].IntParDepartement[i] = 0
+                statStructure['DEP'].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                statStructure['DEP'].CouleurParDepartement[i] = '#3f3f3f'
+                statStructure['EPCI'].IntParDepartement[i] = 0
+                statStructure['EPCI'].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                statStructure['EPCI'].CouleurParDepartement[i] = '#3f3f3f'
+                statStructure['MaStructure'].IntParDepartement[i] = 0
+                statStructure['MaStructure'].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                statStructure['MaStructure'].CouleurParDepartement[i] = '#3f3f3f'
+            }
+
             structures.forEach(element => {
                 statStructure[element.str_libellecourt] = {
                     nbInt: 0,
@@ -96,14 +222,18 @@ export default {
                 let departement = element.departement
                 let cai = Number(element.cai);
                 let structure = element.structureCode;
+                let structureId = element.structureId;
                 let indice = 0;
                 let indiceMensuel = -1
                 let indDepartement = 0
 
                 // Si blocid = 3 alors il y a attestation
                 if (blocId === 3) {
-                    statStructure[structure].nbAttestations =statStructure[structure].nbAttestations + nbEnfants;
-                    statStructure['nationale'].nbAttestations =statStructure['nationale'].nbAttestations + nbEnfants;
+                    statStructure[structure].nbAttestations = statStructure[structure].nbAttestations + nbEnfants;
+                    statStructure['nationale'].nbAttestations = statStructure['nationale'].nbAttestations + nbEnfants;
+                    if (structureId == maStructureId) {
+                        statStructure['MaStructure'].nbAttestations = statStructure['MaStructure'].nbAttestations + nbEnfants;
+                    }
                 }
 
                 // tous les tableaux sont indicés sur indiceMensuel qui est a 12 pour le mois courant
@@ -149,24 +279,36 @@ export default {
                             indDepartement = Number(departement);
                     }
                     // MAJ Nb intervention total par structure
-                    statStructure[structure].nbInt++
-                    statStructure['nationale'].nbInt++
+                    statStructure[structure].nbInt++;
+                    statStructure['nationale'].nbInt++;
+                    if (structureId == maStructureId) {
+                        statStructure['MaStructure'].nbInt++;
+                    }
 
                     // calcul du nombre d'intervention par departement et par structure
                     statStructure[structure].IntParDepartement[indDepartement]++;
                     statStructure['nationale'].IntParDepartement[indDepartement]++;
+                    if (structureId == maStructureId) {
+                        statStructure['MaStructure'].IntParDepartement[indDepartement]++;
+                    }
 
                     // MAJ du tableau des attestations
                     if (blocId === 3) {
                         nb = nb + nbEnfants
                         statStructure[structure].nbAtt[indiceMensuel] += nbEnfants;
                         statStructure['nationale'].nbAtt[indiceMensuel] += nbEnfants;
+                        if (structureId == maStructureId) {
+                            statStructure['MaStructure'].nbAtt[indiceMensuel] += nbEnfants;
+                        }
                     }
 
                     // Mise a jour du tableau pour 1er cercle concentrique qui contient 3*3 élements 
                     indice = (blocId - 1) * 3 + cai - 1;
                     statStructure[structure].IntParBlocParCadre[indice]++;
                     statStructure['nationale'].IntParBlocParCadre[indice]++;
+                    if (structureId == maStructureId) {
+                        statStructure['MaStructure'].IntParBlocParCadre[indice]++;
+                    }
 
                     // incrementation du tableau des etiquettes d'abscisses
                     if (mois < 10) {
@@ -180,28 +322,46 @@ export default {
                         case 1:
                             statStructure[structure].nbIntBloc1[indiceMensuel]++;
                             statStructure['nationale'].nbIntBloc1[indiceMensuel]++;
+                            if (structureId == maStructureId) {
+                                statStructure['MaStructure'].nbIntBloc1[indiceMensuel]++;
+                            }
                             break;
                         case 2:
                             statStructure[structure].nbIntBloc2[indiceMensuel]++;
                             statStructure['nationale'].nbIntBloc2[indiceMensuel]++;
+                            if (structureId == maStructureId) {
+                                statStructure['MaStructure'].nbIntBloc2[indiceMensuel]++;
+                            }
                             break;
                         case 3:
                             statStructure[structure].nbIntBloc3[indiceMensuel]++;
                             statStructure['nationale'].nbIntBloc3[indiceMensuel]++;
+                            if (structureId == maStructureId) {
+                                statStructure['MaStructure'].nbIntBloc3[indiceMensuel]++;
+                            }
                             break;
                     }
                     switch (cai) {
                         case 1:
                             statStructure[structure].nbIntPer[indiceMensuel]++;
                             statStructure['nationale'].nbIntPer[indiceMensuel]++
+                            if (structureId == maStructureId) {
+                                statStructure['MaStructure'].nbIntPer[indiceMensuel]++
+                            }
                             break;
                         case 2:
                             statStructure[structure].nbIntExt[indiceMensuel]++;
                             statStructure['nationale'].nbIntExt[indiceMensuel]++
+                            if (structureId == maStructureId) {
+                                statStructure['MaStructure'].nbIntExt[indiceMensuel]++
+                            }
                             break;
                         case 3:
                             statStructure[structure].nbIntSco[indiceMensuel]++;
                             statStructure['nationale'].nbIntSco[indiceMensuel]++;
+                            if (structureId == maStructureId) {
+                                statStructure['MaStructure'].nbIntSco[indiceMensuel]++
+                            }
                             break;
                     }
                 }
@@ -220,74 +380,74 @@ export default {
                     }
                 }
                 if (statStructure[element].nbInt != 0) {
-                // Mise à jour des variables utilisés pour les doughnut chart
-                for (var i = 0; i < 9; i++) {
-                    //on passe des valeurs absolues en pourcentage
-                    statStructure[element].IntParBlocParCadre[i] = Math.round(
-                        (statStructure[element].IntParBlocParCadre[i] / statStructure[element].nbInt) * 10000
+                    // Mise à jour des variables utilisés pour les doughnut chart
+                    for (var i = 0; i < 9; i++) {
+                        //on passe des valeurs absolues en pourcentage
+                        statStructure[element].IntParBlocParCadre[i] = Math.round(
+                            (statStructure[element].IntParBlocParCadre[i] / statStructure[element].nbInt) * 10000
+                        ) / 100;
+                    }
+
+                    // calcul des sommes nbBloc1, nbBloc2 et nbBloc3 et de leur valeur relative (%)
+                    statStructure[element].nbBloc1 = statStructure[element].nbIntBloc1.reduce((pv, cv) => pv + cv, 0);
+                    statStructure[element].nbBloc1Rel = Math.round(
+                        (statStructure[element].nbBloc1 / statStructure[element].nbInt) * 10000
                     ) / 100;
-                }
+                    statStructure[element].nbBloc2 = statStructure[element].nbIntBloc2.reduce((pv, cv) => pv + cv, 0);
+                    statStructure[element].nbBloc2Rel = Math.round(
+                        (statStructure[element].nbBloc2 / statStructure[element].nbInt) * 10000
+                    ) / 100;
+                    statStructure[element].nbBloc3 = statStructure[element].nbIntBloc3.reduce((pv, cv) => pv + cv, 0);
+                    statStructure[element].nbBloc3Rel = Math.round(
+                        (statStructure[element].nbBloc3 / statStructure[element].nbInt) * 10000
+                    ) / 100;
+                    statStructure[element].nbSco = statStructure[element].nbIntSco.reduce((pv, cv) => pv + cv, 0);
+                    statStructure[element].nbScoRel = Math.round(
+                        (statStructure[element].nbSco / statStructure[element].nbInt) * 10000
+                    ) / 100;
+                    statStructure[element].nbPer = statStructure[element].nbIntPer.reduce((pv, cv) => pv + cv, 0);
+                    statStructure[element].nbPerRel = Math.round(
+                        (statStructure[element].nbPer / statStructure[element].nbInt) * 10000
+                    ) / 100;
+                    statStructure[element].nbExt = statStructure[element].nbIntExt.reduce((pv, cv) => pv + cv, 0);
+                    statStructure[element].nbExtRel = Math.round(
+                        (statStructure[element].nbExt / statStructure[element].nbInt) * 10000
+                    ) / 100;
 
-                // calcul des sommes nbBloc1, nbBloc2 et nbBloc3 et de leur valeur relative (%)
-                statStructure[element].nbBloc1 = statStructure[element].nbIntBloc1.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbBloc1Rel = Math.round(
-                    (statStructure[element].nbBloc1 / statStructure[element].nbInt) * 10000
-                ) / 100;
-                statStructure[element].nbBloc2 = statStructure[element].nbIntBloc2.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbBloc2Rel = Math.round(
-                    (statStructure[element].nbBloc2 / statStructure[element].nbInt) * 10000
-                ) / 100;
-                statStructure[element].nbBloc3 = statStructure[element].nbIntBloc3.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbBloc3Rel = Math.round(
-                    (statStructure[element].nbBloc3 / statStructure[element].nbInt) * 10000
-                ) / 100;
-                statStructure[element].nbSco = statStructure[element].nbIntSco.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbScoRel = Math.round(
-                    (statStructure[element].nbSco / statStructure[element].nbInt) * 10000
-                ) / 100;
-                statStructure[element].nbPer = statStructure[element].nbIntPer.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbPerRel = Math.round(
-                    (statStructure[element].nbPer / statStructure[element].nbInt) * 10000
-                ) / 100;
-                statStructure[element].nbExt = statStructure[element].nbIntExt.reduce((pv, cv) => pv + cv, 0);
-                statStructure[element].nbExtRel = Math.round(
-                    (statStructure[element].nbExt / statStructure[element].nbInt) * 10000
-                ) / 100;
-
-                // initialisation du nombre d'int par département pour la choroplethe
-                for (var i = 0; i < 102; i++) {
-                    // choix de la couleur
-                    switch (true) {
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 12):
-                            statStructure[element].CouleurParDepartement[i] = '#191970'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#ff0000'
-                            break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 9):
-                            statStructure[element].CouleurParDepartement[i] = '#4169E1'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#d85454'
-                            break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 6):
-                            statStructure[element].CouleurParDepartement[i] = '#318CE7'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#f69696'
-                            break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 3):
-                            statStructure[element].CouleurParDepartement[i] = '#77B5FE'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#f7c3c3'
-                            break;
-                        case (statStructure[element].IntParDepartement[i] === 0):
-                            statStructure[element].CouleurParDepartement[i] = '#3f3f3f' // =0
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#3f3f3f'
-                            break;
-                        case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 0): // +0
-                            statStructure[element].CouleurParDepartement[i] = '#B0E0E6'
-                            statStructure[element].CouleurParDepartementAdmin[i] = '#fbe5e5'
-                            break;
+                    // initialisation du nombre d'int par département pour la choroplethe
+                    for (var i = 0; i < 102; i++) {
+                        // choix de la couleur
+                        switch (true) {
+                            case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 12):
+                                statStructure[element].CouleurParDepartement[i] = '#191970'
+                                statStructure[element].CouleurParDepartementAdmin[i] = '#ff0000'
+                                break;
+                            case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 9):
+                                statStructure[element].CouleurParDepartement[i] = '#4169E1'
+                                statStructure[element].CouleurParDepartementAdmin[i] = '#d85454'
+                                break;
+                            case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 6):
+                                statStructure[element].CouleurParDepartement[i] = '#318CE7'
+                                statStructure[element].CouleurParDepartementAdmin[i] = '#f69696'
+                                break;
+                            case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 3):
+                                statStructure[element].CouleurParDepartement[i] = '#77B5FE'
+                                statStructure[element].CouleurParDepartementAdmin[i] = '#f7c3c3'
+                                break;
+                            case (statStructure[element].IntParDepartement[i] === 0):
+                                statStructure[element].CouleurParDepartement[i] = '#3f3f3f' // =0
+                                statStructure[element].CouleurParDepartementAdmin[i] = '#3f3f3f'
+                                break;
+                            case ((statStructure[element].IntParDepartement[i] / statStructure[element].nbInt) * 100 > 0): // +0
+                                statStructure[element].CouleurParDepartement[i] = '#B0E0E6'
+                                statStructure[element].CouleurParDepartementAdmin[i] = '#fbe5e5'
+                                break;
+                        }
                     }
                 }
-            }
             });
 
-            // 4 eme graphique, que pour les admin
+            // 4 eme graphique
             // Tri par ordre decroissant et regroupement des petites structures entre elles si trop nombreuses
             var keys = Object.keys(statStructure);
             // on enleve la structure nationale
@@ -299,13 +459,60 @@ export default {
                 let nbAutre = { nbInt: 0, nbBloc1: 0, nbBloc2: 0, nbBloc3: 0 };
                 let i = 0;
                 keys.forEach(function (k) {
-                    i++;
-                    if (i > nbMaxStructureAffichees) {
-                        nbAutre.nbInt += statStructure[k].nbInt;
-                        nbAutre.nbBloc1 += statStructure[k].nbBloc1;
-                        nbAutre.nbBloc2 += statStructure[k].nbBloc2;
-                        nbAutre.nbBloc3 += statStructure[k].nbBloc3;
-                    } else {
+                    if (k != 'MaStructure') {
+                        i++;
+                        if (i > nbMaxStructureAffichees) {
+                            nbAutre.nbInt += statStructure[k].nbInt;
+                            nbAutre.nbBloc1 += statStructure[k].nbBloc1;
+                            nbAutre.nbBloc2 += statStructure[k].nbBloc2;
+                            nbAutre.nbBloc3 += statStructure[k].nbBloc3;
+                        } else {
+                            DataToDisplay.push(
+                                Math.round(
+                                    (Number(statStructure[k].nbInt) / statStructure['nationale'].nbInt) * 10000
+                                ) / 100
+                            );
+                            SubDataToDisplay.push(
+                                Math.round(
+                                    (Number(statStructure[k].nbBloc1) / statStructure['nationale'].nbInt) * 10000
+                                ) / 100
+                            );
+                            SubDataToDisplay.push(
+                                Math.round(
+                                    (Number(statStructure[k].nbBloc2) / statStructure['nationale'].nbInt) * 10000
+                                ) / 100
+                            );
+                            SubDataToDisplay.push(
+                                Math.round(
+                                    (Number(statStructure[k].nbBloc3) / statStructure['nationale'].nbInt) * 10000
+                                ) / 100
+                            );
+                            LabelsToDisplay.push(k);
+                            SubLabelsToDisplay.push(k + " / bloc 1");
+                            SubLabelsToDisplay.push(k + " / bloc 2");
+                            SubLabelsToDisplay.push(k + " / bloc 3");
+                        }
+                    }
+                });
+                DataToDisplay.push(
+                    Math.round((nbAutre.nbInt / statStructure['nationale'].nbInt) * 10000) / 100
+                );
+                SubDataToDisplay.push(
+                    Math.round((nbAutre.nbBloc1 / statStructure['nationale'].nbInt) * 10000) / 100
+                );
+                SubDataToDisplay.push(
+                    Math.round((nbAutre.nbBloc2 / statStructure['nationale'].nbInt) * 10000) / 100
+                );
+                SubDataToDisplay.push(
+                    Math.round((nbAutre.nbBloc3 / statStructure['nationale'].nbInt) * 10000) / 100
+                );
+                LabelsToDisplay.push("Autre");
+                SubLabelsToDisplay.push("Autre / bloc 1");
+                SubLabelsToDisplay.push("Autre / bloc 2");
+                SubLabelsToDisplay.push("Autre / bloc 3");
+            } else {
+                keys.forEach(function (k) {
+                    if (k != 'MaStructure') {
                         DataToDisplay.push(
                             Math.round(
                                 (Number(statStructure[k].nbInt) / statStructure['nationale'].nbInt) * 10000
@@ -331,49 +538,6 @@ export default {
                         SubLabelsToDisplay.push(k + " / bloc 2");
                         SubLabelsToDisplay.push(k + " / bloc 3");
                     }
-                });
-                DataToDisplay.push(
-                    Math.round((nbAutre.nbInt / statStructure['nationale'].nbInt) * 10000) / 100
-                );
-                SubDataToDisplay.push(
-                    Math.round((nbAutre.nbBloc1 / statStructure['nationale'].nbInt) * 10000) / 100
-                );
-                SubDataToDisplay.push(
-                    Math.round((nbAutre.nbBloc2 / statStructure['nationale'].nbInt) * 10000) / 100
-                );
-                SubDataToDisplay.push(
-                    Math.round((nbAutre.nbBloc3 / statStructure['nationale'].nbInt) * 10000) / 100
-                );
-                LabelsToDisplay.push("Autre");
-                SubLabelsToDisplay.push("Autre / bloc 1");
-                SubLabelsToDisplay.push("Autre / bloc 2");
-                SubLabelsToDisplay.push("Autre / bloc 3");
-            } else {
-                keys.forEach(function (k) {
-                    DataToDisplay.push(
-                        Math.round(
-                            (Number(statStructure[k].nbInt) / statStructure['nationale'].nbInt) * 10000
-                        ) / 100
-                    );
-                    SubDataToDisplay.push(
-                        Math.round(
-                            (Number(statStructure[k].nbBloc1) / statStructure['nationale'].nbInt) * 10000
-                        ) / 100
-                    );
-                    SubDataToDisplay.push(
-                        Math.round(
-                            (Number(statStructure[k].nbBloc2) / statStructure['nationale'].nbInt) * 10000
-                        ) / 100
-                    );
-                    SubDataToDisplay.push(
-                        Math.round(
-                            (Number(statStructure[k].nbBloc3) / statStructure['nationale'].nbInt) * 10000
-                        ) / 100
-                    );
-                    LabelsToDisplay.push(k);
-                    SubLabelsToDisplay.push(k + " / bloc 1");
-                    SubLabelsToDisplay.push(k + " / bloc 2");
-                    SubLabelsToDisplay.push(k + " / bloc 3");
                 });
             }
             // Définition de l'objet Data envoyé au 4eme graphique

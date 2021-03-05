@@ -142,7 +142,9 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 delete newIntervention.StructureLocaleUtilisateur;
                 newIntervention.structureCode = intervention.str_libellecourt;
                 newIntervention.structureLibelle = intervention.str_libelle;
-                newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;                
+                newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
+                // Suppression du commentaire dans l'export CSV
+                delete newIntervention.commentaire                
                 
                 return newIntervention
             })

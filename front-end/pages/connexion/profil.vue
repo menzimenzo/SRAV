@@ -17,7 +17,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import userInfos from '~/components/userInfos.vue'
+import userInfos from '~/components/moncompte.vue'
 export default {
   data() {
     return {

@@ -49,6 +49,8 @@ app.use(session({
 const connexion     = require('./routes/connexion');
 const interventions = require('./routes/interventions');
 const listecommune  = require('./routes/listecommune');
+const listedepartement  = require('./routes/listedepartement');
+const listepci  = require('./routes/listepci');
 const attestations  = require('./routes/attestations');
 const structures    = require('./routes/structures');
 const pdf           = require('./routes/pdf');
@@ -62,6 +64,10 @@ app.use(config.URL_PREFIX + '/connexion', connexion);
 app.use(config.URL_PREFIX + '/interventions', interventions);
 
 app.use(config.URL_PREFIX + '/listecommune', listecommune);
+
+app.use(config.URL_PREFIX + '/listedepartement', listedepartement);
+
+app.use(config.URL_PREFIX + '/listepci', listepci);
 
 app.use(config.URL_PREFIX + '/attestations', attestations);
 

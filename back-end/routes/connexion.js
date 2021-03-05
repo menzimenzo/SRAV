@@ -27,14 +27,64 @@ router.post('/verify', async (req,res) => {
     }
     var wasValidated = req.body.validated
     var user = formatUtilisateur(req.body, false)
+    
+    if (user.str_id == 99999) {
+        // La structure spécifiée n'existe peut être pas encore
+        const selectRes = await pgPool.query("SELECT str_id from structure where str_typecollectivite is not null and str_libelle = $1",
+            [user.libelleCollectivite]).catch(err => {
+                console.log(err)
+                throw err
+            })
 
-    // Mise à jour de l'utilisateur
-    const updatRes = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, validated = true \
-         WHERE uti_id = $4 RETURNING *", 
-         [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_id]).catch(err => {
-             console.log(err)
-             throw err
-         })
+        var libelleCourt = ''
+        if (!selectRes.rows[0]) {
+            // Si la structure n'existe pas on la créé
+            console.log('strucure a créer')
+            if (user.typeCollectivite == 1) {
+                libelleCourt = 'COM'
+            }
+            if (user.typeCollectivite == 2) {
+                libelleCourt = 'DEP'
+            }
+            if (user.typeCollectivite == 3) {
+                libelleCourt = 'EPCI'
+            }
+            const insertRes = await pgPool.query("INSERT INTO structure (str_libellecourt,str_libelle,str_actif,str_federation,str_typecollectivite) \
+         VALUES ($1,$2,'true','false',$3) RETURNING *",
+                [libelleCourt,user.libelleCollectivite, user.typeCollectivite]).catch(err => {
+                    console.log(err)
+                    throw err
+                })
+            idStructure = insertRes.rows[0].str_id
+        }
+        else {
+            idStructure = selectRes.rows[0].str_id
+            console.log('structure déjà existante.Str_id : '+idStructure);
+        }
+        // Mise à jour de l'utilisateur
+        const updatResCollectivite = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_structurelocale = $4, uti_mail = $2, validated = true \
+    WHERE uti_id = $3 RETURNING *",
+            [idStructure, user.uti_mail, user.uti_id,user.libelleCollectivite]).catch(err => {
+                console.log(err)
+                throw err
+            })
+    }
+    else {
+        // Mise à jour de l'utilisateur
+        const updatResHorsCollectivite = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, validated = true \
+         WHERE uti_id = $4 RETURNING *",
+            [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_id]).catch(err => {
+                console.log(err)
+                throw err
+            })
+    }
+    const selectRes = await pgPool.query("SELECT uti.*, struct.str_typecollectivite, struct.str_libellecourt,struct.str_libelle from utilisateur uti \
+    join structure struct on uti.Str_id = struct.str_id \
+    WHERE uti_id = $1",
+            [user.uti_id]).catch(err => {
+                console.log(err)
+                throw err
+            })
     // Envoie de l'email de confirmation
     if(!wasValidated){
         sendEmail({
@@ -46,8 +96,8 @@ router.post('/verify', async (req,res) => {
                 Le site <a href="www.savoirrouleravelo.fr">www.savoirrouleravelo.fr</a> est à votre disposition pour toute information sur le programme Savoir Rouler à Vélo.<br/></p>`
         })
     }
-    req.session.user = updatRes.rows[0]
-    user = formatUtilisateur(updatRes.rows[0])
+    req.session.user = selectRes.rows[0]
+    user = formatUtilisateur(selectRes.rows[0])
     return res.send({user})
 })
 

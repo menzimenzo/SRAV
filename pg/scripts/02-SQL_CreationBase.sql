@@ -22,6 +22,10 @@ drop index IF EXISTS IDX_COM_DEP_NUM CASCADE;
 
 drop table IF EXISTS COMMUNE CASCADE;
 
+drop table IF EXISTS EPCI CASCADE;
+
+drop table IF EXISTS IDX_EPCI_CODEINSE CASCADE;
+
 drop index IF EXISTS DEP_REG_NUM CASCADE;
 
 drop index IF EXISTS IDX_DEP_NUM CASCADE;
@@ -48,6 +52,7 @@ drop table IF EXISTS TRANCHEAGEINTER CASCADE;
 
 drop table IF EXISTS UTILISATEUR CASCADE;
 
+drop table IF EXISTS USER_SESSIONS CASCADE;
 
 /*==============================================================*/
 /* Table : ATTESTATION                                          */
@@ -128,11 +133,32 @@ create table COMMUNE (
    constraint PK_COMMUNE primary key (COM_ID)
 );
 
+
 /*==============================================================*/
 /* Index : IDX_COM_DEP_NUM                                      */
 /*==============================================================*/
 create  index IDX_COM_DEP_NUM on COMMUNE (
 DEP_NUM
+);
+
+/*==============================================================*/
+/* Table : EPCI                                              */
+/*==============================================================*/
+create table EPCI (
+   EPCI_ID               BIGINT               not null,
+   COM_CODEINSEE        VARCHAR(5)           null,
+   EPCI_CODE           VARCHAR(9)          null,
+   EPCI_LIBELLE       VARCHAR(90)          null,
+   EPCI_DEP             VARCHAR(3)          null,
+   EPCI_REG          VARCHAR(2)          null,
+      constraint PK_EPCI primary key (EPCI_ID)
+);
+
+/*==============================================================*/
+/* Index : IDX_EPCI_CODEINSE                                    */
+/*==============================================================*/
+create  index IDX_EPCI_CODEINSEE on EPCI (
+COM_CODEINSEE
 );
 
 /*==============================================================*/
@@ -295,13 +321,13 @@ create table UTILISATEUR (
 /* Table : user_sessions                                        */
 /* Stockage des sessions des utilisateurs                       */
 /*==============================================================*/
-CREATE TABLE "user_sessions" (
+CREATE TABLE "USER_SESSIONS" (
   "sid" varchar NOT NULL COLLATE "default",
 	"sess" json NOT NULL,
 	"expire" timestamp(6) NOT NULL
 )
 WITH (OIDS=FALSE);
-ALTER TABLE "user_sessions" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
+ALTER TABLE "USER_SESSIONS" ADD CONSTRAINT "session_pkey" PRIMARY KEY ("sid") NOT DEFERRABLE INITIALLY IMMEDIATE;
 
 ALTER TABLE UTILISATEUR 
    ALTER COLUMN VALIDATED
