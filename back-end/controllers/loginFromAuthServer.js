@@ -13,7 +13,7 @@ const loginFromAuthServer = async function(req, res) {
         return res.status(400).json({ message: 'L\'identifiant manque à la requête.'});
     }
     if(!token) {
-        log.w('token is missing')
+        log.w('Token is missing.')
         return res.status(400).json({ message: 'Le Token est manquant.'});
     }
 
@@ -31,6 +31,7 @@ const loginFromAuthServer = async function(req, res) {
                 log.w('Utilisateur inexistant')
                 return res.status(400).json({ message: 'Utilisateur inexistant' });
             }
+            log.i('Done')
             req.session.user = user
             req.accessToken = token;
             req.session.accessToken = token;

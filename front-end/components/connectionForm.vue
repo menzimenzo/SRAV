@@ -1,31 +1,37 @@
 <template>
     <b-card class="mb-3">
       <b-form>
-        <b-form-group label="Courriel :" label-for="emailInput" required>
+        <b-form-group id="emailInputGroup" label="Courriel :" label-for="emailInput" required>
           <b-form-input
             id="emailInput"
             type="email"
             v-model="mail"
+            required
             name="mail"
             v-validate="{required: true, email: true}"
             aria-describedby="emailFeedback"
             placeholder="Courriel"
             :state="validateState('mail')"
           />
-          <b-form-invalid-feedback>{{ errors.first('mail') }}</b-form-invalid-feedback>
+          <b-form-invalid-feedback
+            id="emailFeedback"
+          >Le courriel est obligatoire et doit être valide.</b-form-invalid-feedback>
         </b-form-group>
-        <b-form-group label="Mot de passe :" label-for="pwdInput" required>
+        <b-form-group id="emailInputGroup" label="Mot de passe :" label-for="pwdInput" required>
           <b-form-input
             id="pwdInput"
             type="password"
             v-model="password"
-            name="password"
+            required
+            name="mail"
             v-validate="{required: true, min:8}"
             aria-describedby="pwdFeedback"
             placeholder="Mot de passe"
             :state="validateState('password')"
           />
-          <b-form-invalid-feedback>{{ errors.first('password') }}</b-form-invalid-feedback>
+          <b-form-invalid-feedback
+            id="emailFeedback"
+          >Le mot de passe est obligatoire.</b-form-invalid-feedback>
         </b-form-group>
         <div class="mb-3 text-right">
           <b-button
@@ -61,7 +67,7 @@ export default {
   },
   methods: {
     submit: function() {
-      return this.$validator.validateAll().then(isValid => {
+      this.$validator.validateAll().then(isValid => {
         if (isValid) {
           return this.$emit("submit", { email: this.mail, password: this.password});
         }
