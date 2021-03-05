@@ -45,7 +45,7 @@ router.get('/:docId', function (req, res, next) {
 })
 
 router.delete('/:docId', function (req, res, next) {
-    log.i('::delete - In', { id: req.params;docId});
+    log.i('::delete - In', { id: req.params.docId});
     pgPool.query(
         'DELETE FROM document WHERE doc_id = $1', [req.params.docId],
         function (err, results) {

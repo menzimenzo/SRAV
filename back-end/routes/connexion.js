@@ -10,9 +10,7 @@ const {sendEmail} = require('../utils/mail-service')
 const {getAuthorizationUrl, getLogoutUrl, formatUtilisateur} = require('../utils/utils')
 const bodyParser = require('body-parser');
 var moment = require('moment');
-var {
-    oauthCallback
-} = require('../controllers/oauthCallback')
+const { oauthCallback } = require('../controllers/oauthCallback')
 const { loginFromAuthServer } = require('../controllers/loginFromAuthServer')
 moment().format();
 
@@ -77,6 +75,17 @@ router.post('/verify', async (req,res) => {
         throw new Error("L'utilisateur n'existe ni auprès du serveur d'authentification ni auprès de France Connect")
     }
 
+    // Vérifier si l'email est déjà utilisé en base.
+    const mailExistenceQuery = await pgPool.query(`SELECT uti_mail,uti_authid FROM utilisateur WHERE uti_mail='${user.uti_mail}'`).catch(err => {
+        log.w(err)
+        throw err
+    })
+
+    if(mailExistenceQuery && mailExistenceQuery.rowCount > 0 && mailExistenceQuery.rows[0].uti_authid) {
+        log.w('Vérifications complémentaires nécessaires avant ajout en base. ')
+        return res.status(200).json({ existingUser: formatUtilisateur(mailExistenceQuery.rows[0]) })
+    } 
+
     let bddRes
     if(req.body._id) {
         log.d('::verify - Nouveau user, authentifié depuis authserver, à ajouter en base')        
@@ -116,42 +125,72 @@ router.post('/verify', async (req,res) => {
     return res.send({user})
 })
 
+// Nouveau user sur AUTH-SERVER mais qui est a déjà un pass FC.
 // Vérifie l'existence d'un email en base pour adapter les infos concernant le user suivant la méthode de connexion.
-router.post('/check-mail', async (req,res) => {
+router.post('/france-connect-identified', async (req,res) => {
     const mail = req.body && req.body.user && req.body.user.mail
     const authId = req.body && req.body.user && req.body.user._id
-    log.i('::check-mail - In', { mail, authId })
+    log.i('::FC-identified - In', { mail, authId })
 
     if(!mail) {
         throw new Error("Le paramètre 'mail' manque pour effectuer la vérification.")
     }
     const requete = `SELECT * FROM utilisateur WHERE uti_mail='${mail}'`
     const bddRes = await pgPool.query(requete).catch(err => {
-        log.w('::check-mail - Erreur pendant la vérification de l\'email', err)
+        log.w('::FC-identified - Erreur pendant la vérification de l\'email', err)
         throw err
     })
     const emailAlreadyExist = bddRes && bddRes.rowCount && bddRes.rowCount > 0
     const existingUser = bddRes && bddRes.rows && bddRes.rows[0]
 
     if(emailAlreadyExist && !(existingUser && existingUser.uti_authid)) {
-        log.d('::check-mail - email existe mais n\'a pas d\'authid')
+        log.d('::FC-identified - email existe mais n\'a pas d\'authid')
         const bddUpdate =  await pgPool.query("UPDATE utilisateur SET uti_authid = $1\
         WHERE uti_id = $2 RETURNING *", 
         [authId, existingUser.uti_id]).catch(err => {
-            log.w('::check-mail - Erreur pendant l\'update des infos du user', err)
+            log.w('::FC-identified - Erreur pendant l\'update des infos du user', err)
             throw err
         })
         
         const updatedUser = bddUpdate.rows && bddUpdate.rows[0]
-        log.d('::check-mail - Done, renvois du user mis à jour', updatedUser)
+        log.d('::FC-identified - Done, renvois du user mis à jour', updatedUser)
         req.session.user = updatedUser
         req.accessToken = updatedUser.uti_tockenfranceconnect;
         req.session.accessToken = updatedUser.uti_tockenfranceconnect;
         return res.send(formatUtilisateur(updatedUser))
     } else {
-        log.d('::check-mail - Done, nouveau user à ajouter.')
+        log.d('::FC-identified - Done, nouveau user à ajouter.')
         return res.send('New Entry')
     }
+})
+
+// Nouveur user FC mais qui a déjà une connexion AUTH-SERVER
+// Vérification des duplicatas en base sur base de tokenFC et update du user existant
+router.put('/auth-identified', async (req,res) => {
+    const user = req.body && req.body.user
+    const mail = user && user.mail
+    const tokenFc = user && user.tokenFc
+    const authId = user && user.authId
+    log.i('::auth-identified - In', {mail , authId, tokenFc})
+
+    await pgPool.query(`DELETE FROM utilisateur WHERE uti_tockenfranceconnect='${tokenFc}' RETURNING *`).catch(err => {
+        log.w('::auth-identified - Erreur pendant la suppression des users.', err)
+        throw err
+    })
+
+    const bddUpdate =  await pgPool.query("UPDATE utilisateur SET uti_tockenfranceconnect = $1, uti_mail = $2, uti_structurelocale= $3, str_id = $4, uti_prenom = $5, uti_nom = $6, uti_datenaissance = $7 \
+    WHERE uti_authid = $8 RETURNING *", 
+    [tokenFc, mail, user.structureLocale, user.structureId, user.prenom, user.nom, user.dateNaissance, authId]).catch(err => {
+        log.w('::auth-identified - Erreur pendant l\'update des infos du user', err)
+        throw err
+    })
+    
+    const updatedUser = bddUpdate.rows && bddUpdate.rows[0]
+    log.d('::FC-identified - Done, renvois du user mis à jour', updatedUser)
+    req.session.user = updatedUser
+    req.accessToken = updatedUser.uti_tockenfranceconnect;
+    req.session.accessToken = updatedUser.uti_tockenfranceconnect;
+    return res.send(formatUtilisateur(updatedUser))
 })
 
 // Envoie l'utilisateur de la session
