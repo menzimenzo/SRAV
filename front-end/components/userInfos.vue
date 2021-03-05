@@ -2,14 +2,14 @@
   <div>
     <b-card class="mb-3">
       <b-form-group label="Prénom :">
-        <b-form-input type="text" v-model="user.prenom" disabled />
+        <b-form-input type="text" v-model="user.prenom" :disabled="isUserRegisteredInAuth" />
       </b-form-group>
       <b-form-group label="Nom :">
-        <b-form-input type="text" v-model="user.nom" disabled />
+        <b-form-input type="text" v-model="user.nom" :disabled="isUserRegisteredInAuth" />
       </b-form-group>
 
       <b-form-group label="Date de naissance :">
-        <b-form-input type="date" v-model="user.dateNaissance" disabled />
+        <b-form-input type="date" v-model="user.dateNaissance" :disabled="isUserRegisteredInAuth" />
       </b-form-group>
     </b-card>
     <b-card class="mb-3">
@@ -23,7 +23,7 @@
           <b-form-input
             id="emailInput"
             type="email"
-            v-model="user.mail"
+            v-model="mail"
             required
             name="mail"
             key="email-input"
@@ -31,6 +31,7 @@
             aria-describedby="emailFeedback"
             placeholder="Courriel"
             :state="validateState('mail')"
+            :disabled="!isUserRegisteredInAuth"
           />
 
           <b-form-invalid-feedback id="emailFeedback"
@@ -306,7 +307,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
@@ -462,9 +463,20 @@ export default {
   },
   computed: {
     ...mapState(["structures"]),
+    mail: {
+      get() {
+        return this.$store.state.utilisateurCourant.mail
+      },
+      set(value) {
+        return this.$store.dispatch('set_state_element',{ key:'utilisateurCourant.mail', value })
+      }
+    },
+    isUserRegisteredInAuth() {
+      return !(this.user && this.user._id)
+    },
     listeStructures() {
       var liste = this.structures;
-      if (this.user.mail.indexOf(".gouv.fr") != -1) {
+      if (this.mail && this.mail.indexOf(".gouv.fr") != -1) {
         return liste;
       } else {
         if (!this.$store.state.utilisateurCourant.typeCollectivite) {

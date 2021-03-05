@@ -1,4 +1,8 @@
 import Vue from 'vue'
+import { get } from 'lodash'
+import { parseErrorMessage, formatEmail } from '~/lib/utils'
+import logger from '~/plugins/logger'
+const log = logger('store:index')
 
 export const state = () => ({
   interventions         : [],
@@ -14,6 +18,37 @@ export const state = () => ({
 });
 
 export const mutations = {
+  CLEAR(state) {
+      log.i('mutations::demande/CLEAR')
+      const initial = defaultState()
+      Object.keys(initial).forEach(k => {
+          state[k] = initial[k]
+      })
+  },
+  SET(state, { key, value }) {
+      log.i(`mutations::SET:${key}`, { value, key })
+      const splitted = key && key.split('.')
+      const lastKey = splitted.pop()
+      let origin = state
+      splitted.forEach(p => {
+          // Si origin est vide et n'est pas un Boolean alors définir origin comme Object vide
+          if (!origin[p] && typeof origin[p] !== 'boolean') Vue.set(origin, p, {})
+          origin = origin[p]
+      })
+      Vue.set(origin, lastKey, value)
+  },
+  UNSET(state, { key }) {
+      log.i(`mutations::UNSET:${key}`)
+      const splitted = key.split('.')
+      const lastKey = splitted.pop()
+      let origin = state
+      splitted.forEach(p => {
+          // Si origin est vide et n'est pas un Boolean alors définir origin comme Object vide
+          if (!origin[p] && typeof origin[p] !== 'boolean') Vue.set(origin, p, {})
+          origin = origin[p]
+      })
+      Vue.set(origin, lastKey, null)
+  },
   set_statStructure(state, statStructure) {
     state.statStructure = statStructure;
   },
@@ -92,19 +127,19 @@ export const mutations = {
 export const actions = {
   async nuxtServerInit({ commit }, { req, route }) {
     // Transition states
-    console.log('Loading user')
+    log.i('actions::nuxtServerInit - Loading user')
     if (route.path.indexOf('/connexion/logout') === 0) {
       return
     }
-    await this.$axios.$get(process.env.API_SERVER_URL + '/connexion/user').then(utilisateur => {
+    await this.$axios.$get(process.env.PROXY_URL + '/backend/api/connexion/user').then(utilisateur => {
+      log.i('actions::nuxtServerInit - Done')      
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
-      console.log("Error - nuxtServerInit")
-      console.log(err)
+      log.w('actions::nuxtServerInit - Error - nuxtServerInit', err.stack)
     })
   },
   async get_interventions({ commit, state }) {
-    console.info("get_interventions");
+    log.i("get_interventions - In");
     const url = process.env.API_URL + "/interventions";
     return await this.$axios
       .$get(url)
@@ -114,13 +149,13 @@ export const actions = {
           intervention.dateIntervention = new Date(intervention.dateIntervention)
         })
         commit("set_interventionCourrantes", response.interventions);
-        console.info("fetched interventions - done", {
+        log.i("fetched interventions - Done", {
           interventions: this.interventions
         });
         // this.interventions = response.interventions
       })
       .catch(error => {
-        console.error(
+        log.w(
           "Une erreur est survenue lors de la récupération des interventions",
           error
         );
@@ -169,7 +204,6 @@ export const actions = {
   async set_utilisateur({ commit }, utilisateur) {
     commit("set_utilisateurCourant", utilisateur)
   },
-
   async get_users({ commit, state }) {
     console.info("get_users :" + state.utilisateurCourant);
     const url = process.env.API_URL + "/user/";
@@ -207,7 +241,6 @@ export const actions = {
         );
       });
   },
-
   async put_user({ commit, state }, utilisateurSelectionne) {
     const url = process.env.API_URL + "/user/" + utilisateurSelectionne.id;
     console.info('url:' + url)
@@ -233,7 +266,7 @@ export const actions = {
       });
   }, 
   async logout({ commit }) {
-    commit("set_utilisateurCourant", {})
+    commit("set_utilisateurCourant", null)
   },
   async get_structures({commit}) {
     const url = process.env.API_URL + '/structures'
@@ -287,7 +320,6 @@ export const actions = {
         );
       });
   }, 
-
   async post_structure({ commit, state }, structure) {
     const url  = process.env.API_URL + "/structures";
           
@@ -297,7 +329,6 @@ export const actions = {
       return structure
     });
   },
-
   async get_documents({commit}) {
     const url = process.env.API_URL + '/documents'
     return this.$axios.get(url).then(response => {
@@ -309,6 +340,71 @@ export const actions = {
     }).catch(err => {
       console.log(err)
     })
+  },
+  login({ commit }, { email, password }) {
+    log.i('actions::login - In', email)
+    const url = process.env.API_AUTH_URL + "/login"
+    return this.$axios.$post(url, { email, password })
+        .then(authUser => {
+            log.d('login - authserver response', authUser)
+            if(authUser && !authUser._id) {
+              log.w('login - authserver, user not found')              
+              throw new Error('Email ou mot de passe incorrect.')
+            } else if (authUser && authUser.applications && !authUser.applications.includes('SRAV')) {
+              log.w('login - authserver, user cannot access this application.')
+              throw new Error('L\'utilisateur existe mais ne peut accéder à cette application.')
+            }
+            const params = {
+              token: authUser.token
+            }
+            return this.$axios.$get(`${process.env.API_URL}/connexion/login-from-auth/${authUser._id}`, {params} )
+              .then(res => {
+                const user = res.user
+                log.i('login - Done', { user })
+                commit("set_utilisateurCourant", user)
+                this.$toast.success(`Bienvenue ${user.prenom}`)
+              })
+        })
+        .catch(err => {
+            log.w('login - error', err)
+            const message = err.message || parseErrorMessage(get(err, 'response.data.message'))
+            this.$toast.error(message)
+            throw new Error(message)
+        })
+  },
+  register({ commit }, params) {
+      params.user.email = params.user && params.user.email && formatEmail(params.user.email)
+      const { email, password, confirm } = params.user
+      const url = params.url
+      log.i('actions::register - In', email, password, confirm )
+      let user = null
+
+      return this.$axios.$get(`${process.env.API_AUTH_URL}/users/${email}/verify`)
+          .then(isEmailTaken => {
+              if (isEmailTaken) {
+                  throw new Error('Un utilisateur utilise déjà cette adresse mail.')
+              }
+              log.d('actions::register to auth' )
+              return this.$axios.$post(`${process.env.API_AUTH_URL}/register`, { applications: ['SRAV'], email, password, confirm, url })
+          })
+          .then(res => {
+              user = res
+              if (!user || !user._id) {
+                  throw new Error('EMAIL_EXISTS')
+              }
+              log.i('actions::registered - done, with success to auth-server' )
+              user['mail'] = user.email
+              return commit("set_utilisateurCourant", user)
+          })
+          .catch((err) => {
+              log.w('actions::register', err)
+              const message = err.message || parseErrorMessage(get(err, 'response.data.message'))
+              throw new Error(message)
+          })
+  },
+  set_state_element({ commit }, {key,value }) {
+    log.i('actions::set_state_element - In',{key , value} )
+    return commit('SET', { key, value })
   }
 };
 
