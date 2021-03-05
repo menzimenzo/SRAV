@@ -15,30 +15,34 @@
             Renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun.<br>
             Seule la réalisation du bloc 3 permet l'impression de l'attestation.
           </p>
-        </div>Type de bloc * :
-        <span class="liste-deroulante">
-          <b-form-select v-model="formIntervention.blocId" :options="listebloc"/>
-        </span>
+        </div>
+        <div class="input-group-display">
+          <span>Type de bloc * :</span>
+          <b-form-select 
+            class="liste-deroulante"
+            v-model="formIntervention.blocId" 
+            :options="listebloc"/>
+        </div>
         <br>
-        <div class="mb-3 mt-3">
+        <div>
           Lieu d'intervention :
           <ul>
-            <li>
-              Code Postal * :
-              <span class="text-cinq-car">
-                <b-form-input
-                  aria-describedby="inputFormatterHelp"
-                  maxlength="5"
-                  v-model="formIntervention.cp"
-                  type="number"
-                  placeholder
-                ></b-form-input>
-              </span>
+            <li class="input-group-display">
+              <span>Code Postal * :</span>
+              <b-form-input
+                class="text-cinq-car"
+                aria-describedby="inputFormatterHelp"
+                maxlength="5"
+                v-model="formIntervention.cp"
+                type="number"
+                placeholder
+              ></b-form-input>
             </li>
-            <li>
-              Commune * :
-              <span class="liste-deroulante">
-                <b-form-select v-model="selectedCommune">
+            <li class="input-group-display">
+              <span>Commune * :</span>
+                <b-form-select 
+                  class="liste-deroulante"
+                  v-model="selectedCommune">
                   <option :value="null">-- Choix de la commune --</option>
                   <option
                     v-for="commune in listecommune"
@@ -46,64 +50,77 @@
                     :value="commune.cpi_codeinsee"
                   >{{ commune.com_libellemaj}}</option>
                 </b-form-select>
-              </span>
             </li>
           </ul>
-        </div>Nombre d'enfants * :
-        <span class="text-trois-car">
-          <b-form-input v-model="formIntervention.nbEnfants" type="number" min="0"></b-form-input>
-        </span>
-        <ul>
-          <li>
-            Dont
-            <span class="text-trois-car">
-              <b-form-input v-model="formIntervention.nbGarcons" type="number" min="0"></b-form-input>
-            </span>
-            garçons et
-            <span class="text-trois-car">
-              <b-form-input v-model="formIntervention.nbFilles" type="number" min="0"></b-form-input>
-            </span>
-            filles
-          </li>
-          <li>
-            Classe d'âge :
-            <ul>
-              <li>
-                <span class="text-trois-car">
-                  <b-form-input v-model="formIntervention.nbmoinssix" type="number" min="0"></b-form-input>
-                </span>
-                moins de 6 ans
-              </li>
-              <li>
-                <span class="text-trois-car">
-                  <b-form-input v-model="formIntervention.nbsixhuit" type="number" min="0"></b-form-input>
-                </span>
-                6-7-8 ans
-              </li>
-              <li>
-                <span class="text-trois-car">
-                  <b-form-input v-model="formIntervention.nbneufdix" type="number" min="0"></b-form-input>
-                </span>
-                9-10 ans
-              </li>
-              <li>
-                <span class="text-trois-car">
-                  <b-form-input v-model="formIntervention.nbplusdix" type="number" min="0"></b-form-input>
-                </span>
-                plus de 10 ans
-              </li>
-            </ul>
-          </li>
-        </ul>
+        </div>
+        <div class="input-group-display">
+          <span>Nombre d'enfants * :</span>
+            <b-form-input 
+              v-model="formIntervention.nbEnfants" 
+              type="number" 
+              min="0"
+              class="text-cinq-car"></b-form-input>
+        </div>
+        <div class="ageList">
+          <ul>
+            <li>
+              Dont
+              <b-form-input 
+                v-model="formIntervention.nbGarcons" 
+                type="number" 
+                min="0"
+                class="text-cinq-car"
+                ></b-form-input>
+              garçons et
+              <b-form-input 
+                v-model="formIntervention.nbFilles" 
+                type="number" 
+                min="0"
+                class="text-cinq-car"></b-form-input>
+              filles
+            </li>
+            <li>
+              Classe d'âge :
+              <ul>
+                <li>
+                  <span class="text-cinq-car">
+                    <b-form-input v-model="formIntervention.nbmoinssix" type="number" min="0"></b-form-input>
+                  </span>
+                  moins de 6 ans
+                </li>
+                <li>
+                  <span class="text-cinq-car">
+                    <b-form-input v-model="formIntervention.nbsixhuit" type="number" min="0"></b-form-input>
+                  </span>
+                  6-7-8 ans
+                </li>
+                <li>
+                  <span class="text-cinq-car">
+                    <b-form-input v-model="formIntervention.nbneufdix" type="number" min="0"></b-form-input>
+                  </span>
+                  9-10 ans
+                </li>
+                <li>
+                  <span class="text-cinq-car">
+                    <b-form-input v-model="formIntervention.nbplusdix" type="number" min="0"></b-form-input>
+                  </span>
+                  plus de 10 ans
+                </li>
+              </ul>
+            </li>
+          </ul>
+        </div>
       </b-col>
 
       <!-- SECONDE BLOC DE SAISIE INTERVENTION -->
       <b-col cols="6">
-        <div class="mb-3 mt-3">
-          Date d'intervention * :
-          <span class="text-date">
-            <b-form-input maxlength="10" v-model="formIntervention.dateIntervention" type="date"></b-form-input>
-          </span>
+        <div class="input-group-display">
+          <span>Date d'intervention * :</span>
+          <b-form-input 
+            maxlength="10" 
+            v-model="formIntervention.dateIntervention" 
+            type="date"
+            class="text-date date-input-width"></b-form-input>
         </div>
         <div class="mb-3 mt-3">
           Cadre d'intervention *
@@ -123,17 +140,18 @@
             />
           </b-form-group>
         </div>
-        <div class="mb-3 mt-3">
-          Site d'intervention :
-          <span class="text">
-            <b-form-input maxlength="100" v-model="formIntervention.siteintervention" type="text"></b-form-input>
-          </span>
+        <div class="input-group-display">
+            <span>Site d'intervention :</span>
+            <b-form-input 
+              v-model="formIntervention.siteintervention" 
+              type="text"
+              class="text"></b-form-input>
         </div>
 
         <div class="mb-3 mt-3">
-          Commentaires libres :
+          <span>Commentaires libres :</span>
           <b-form-textarea
-            id="textarea1"
+            id="textarea1" 
             v-model="formIntervention.commentaire"
             placeholder
             :rows="3"
@@ -477,4 +495,19 @@ export default {
 .interventionTitle {
   color: #252195;
 }
+.input-group-display {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.input-group-display span {  
+  margin-top: 5px;
+}
+ul {
+  list-style-type: none;
+}
+.date-input-width {
+  width: 190px;
+}
+
 </style>

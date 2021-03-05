@@ -170,7 +170,7 @@
     <modal
       name="editIntervention"
       height="auto"
-      width="900px"
+      width="1100px"
       @closed="clearIntervention()"
       :scrollabe="true"
     >
