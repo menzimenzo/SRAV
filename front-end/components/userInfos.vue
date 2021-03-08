@@ -338,7 +338,8 @@ export default {
     submit: function () {
       this.$validator.validateAll().then((isValid) => {
         if (isValid) {
-          this.$emit("submit");
+          this.$store.dispatch('set_state_element',{ key:'utilisateurCourant', value: this.user })
+          return this.$emit("submit");
         }
       });
     },

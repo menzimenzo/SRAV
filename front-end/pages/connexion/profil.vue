@@ -19,10 +19,10 @@
 import { mapState } from 'vuex'
 import userInfos from '~/components/moncompte.vue'
 export default {
-  data() {
-    return {
-      user: JSON.parse(JSON.stringify(this.$store.state.utilisateurCourant))
-    };
+  computed: {
+    ...mapState({
+      'user': state => JSON.parse(JSON.stringify(state.utilisateurCourant))
+    }),
   },
   methods: {
     // Validation de l'inscription
