@@ -55,10 +55,11 @@
             :state="validateState('struct')"
             aria-describedby="structFeedback"
             :disabled="!checkLegal"
+            @change="emitUser"
           >
             <!--Mantis 68055 value = 0 -->
             <option value="0">Veuillez choisir votre structure...</option>
-            <option value="99999">Collectivités territoriales</option>
+            <option :value="99999">Collectivités territoriales</option>
             <option
               v-for="structure in listeStructures"
               :key="structure.str_id"
@@ -115,6 +116,7 @@
               :state="validateState('typeCol')"
               aria-describedby="typeColFeedback"
               :disabled="!checkLegal"
+              @change="emitUser"
             >
               <option
                 v-for="type in listtypecol"
@@ -129,7 +131,6 @@
               collectivité.</b-form-invalid-feedback
             >
           </b-form-group>
-        
           <!-- DEPARTEMENT -->
           <div v-if="user.typeCollectivite == 2">
             <b-form-group
@@ -165,7 +166,7 @@
           <div v-if="user.typeCollectivite == 1">
             <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
               <b-form-input
-                v-model="user.cp"
+                v-model="cp"
                 name="cp"
                 key="cp"
                 :state="validateState('cp')"
@@ -311,7 +312,7 @@ import { mapState, mapMutations } from "vuex";
 export default {
   data() {
     return {
-      typeCollectivite: null,
+      cp: null,
       isLegalChecked: "false",
       listtypecol: [
         { text: "Commune", value: 1 },
@@ -385,11 +386,12 @@ export default {
 
     // Get liste des communes correspondant au code postal
     recherchecommune: function () {
-      if (this.user.cp.length === 5) {
+      if (this.cp.length === 5) {
         // Le code postal fait bien 5 caractères
         console.info("Recherche de la commune");
+        this.user.cp = this.cp
         const url =
-          process.env.API_URL + "/listecommune?codepostal=" + this.user.cp;
+          process.env.API_URL + "/listecommune?codepostal=" + this.cp;
         console.info(url);
         return this.$axios
           .$get(url)
@@ -436,9 +438,12 @@ export default {
         return Promise.resolve(null);
       }
     },
+    emitUser: function() {
+      return this.$store.dispatch('set_state_element',{ key:'utilisateurCourant', value: this.user }) 
+    }
   },
   watch: {
-    "user.cp"() {
+    cp() {
       this.recherchecommune();
     },
     cpEpci() {
@@ -457,7 +462,7 @@ export default {
   async mounted() {
     await this.$store.dispatch("get_structures");
     // Mantis 68055
-    if (!this.$store.state.utilisateurCourant.validated) {
+    if (!this.user.validated) {
       this.user.structureId = 0;
     }
     this.getDepartements().then((res) => {});
@@ -480,7 +485,7 @@ export default {
       if (this.mail && this.mail.indexOf(".gouv.fr") != -1) {
         return liste;
       } else {
-        if (!this.$store.state.utilisateurCourant.typeCollectivite) {
+        if (!this.user.typeCollectivite) {
           liste = this.structures.filter((str) => {
             var isMatch = true;
             isMatch =
