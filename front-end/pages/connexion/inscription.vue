@@ -32,7 +32,7 @@ export default {
   },
   computed: {
     ...mapState({
-      'user': state => state.utilisateurCourant
+      'user': state => JSON.parse(JSON.stringify(state.utilisateurCourant))
     }),
   },
   methods: {
