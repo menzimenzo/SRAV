@@ -17,3 +17,6 @@ psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/06-SQL_Updat
 echo '05-SQL_V1.0.2 :'
 psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/05-SQL_V1.0.2.sql
 
+echo '07- SQL_enableCrypto :'
+psql -d srv_dev -f /docker-entrypoint-initdb.d/scripts/07-SQL_enableCrypto.sql
+

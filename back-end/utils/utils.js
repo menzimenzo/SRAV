@@ -25,12 +25,8 @@ module.exports = {
     + `${config.franceConnect.LOGOUT_FS_PATH}`
 
   , formatUtilisateur : (utilisateur, toClient = true) => {
-    let dateNaissance 
-    utilisateur.uti_datenaissance ? dateNaissance = moment(utilisateur.uti_datenaissance, "YYYY-MM-DD") : dateNaissance = moment(utilisateur.dateNaissance, "YYYY-MM-DD")
-
-        if(toClient){
-        dateNaissance = dateNaissance.format("YYYY-MM-DD");
-        return {
+    if(toClient){
+      return {
             id: utilisateur.uti_id,
             authId: utilisateur.uti_authid,
             profilId: utilisateur.pro_id,
@@ -39,13 +35,12 @@ module.exports = {
             mail: utilisateur.uti_mail,
             nom: utilisateur.uti_nom,
             prenom: utilisateur.uti_prenom,
-            dateNaissance: dateNaissance,
             structureLocale: utilisateur.uti_structurelocale,
             tokenFc: utilisateur.uti_tockenfranceconnect,
             validated: utilisateur.validated,
             typeCollectivite: utilisateur.str_typecollectivite,
             libelleCollectivite: utilisateur.str_libelle
-        }
+      }
     } else { 
       return {
             uti_id : utilisateur.id ,
@@ -56,7 +51,6 @@ module.exports = {
             uti_mail : utilisateur.mail && utilisateur.mail.toLowerCase() ,
             uti_nom : utilisateur.nom ,
             uti_prenom : utilisateur.prenom ,
-            uti_datenaissance: dateNaissance.toISOString(),
             uti_structurelocale : utilisateur.structureLocale ,
             uti_tockenfranceconnect : utilisateur.tokenFc ,
             validated: utilisateur.validated,
