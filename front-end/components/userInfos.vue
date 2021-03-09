@@ -52,7 +52,7 @@
             @change="emitUser"
           >
             <!--Mantis 68055 value = 0 -->
-            <option value="0">Veuillez choisir votre structure...</option>
+            <option :value="0">Veuillez choisir votre structure...</option>
             <option :value="99999">Collectivités territoriales</option>
             <option
               v-for="structure in listeStructures"
@@ -443,22 +443,13 @@ export default {
     cpEpci() {
       this.rechercheepci();
     },
-    /*"user.structureId"() {
-      if (this.user.structureId != 99999) {
-        console.log('changement structure')
-        //this.user.typeCollectivite = null;
-      }
-    },
-    "user.typeCollectivite"() {
-      console.log("changement collectivité : ")
-    }*/
   },
   async mounted() {
-    await this.$store.dispatch("get_structures");
     // Mantis 68055
     if (!this.user.validated) {
       this.user.structureId = 0;
     }
+    await this.$store.dispatch("get_structures");
     this.getDepartements().then((res) => {});
   },
   computed: {
@@ -490,13 +481,7 @@ export default {
               (String(str.str_libellecourt) != "COM");
             return isMatch;
           });
-        } /*else {
-          liste = this.structures.filter((str) => {
-            var isMatch = true;
-            isMatch = isMatch & (String(str.str_libellecourt) != "DS");
-            return isMatch;
-          });
-        }*/
+        } 
         return liste;
       }
     },

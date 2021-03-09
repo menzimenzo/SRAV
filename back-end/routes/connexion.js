@@ -37,7 +37,6 @@ router.post('/verify', async (req,res) => {
     var wasValidated = req.body.validated
     const tokenFc = req.body.tokenFc
     var user = formatUtilisateur(req.body, false)
-    
     if (user.str_id == 99999) {
         // La structure spécifiée n'existe peut être pas encore
         const selectRes = await pgPool.query("SELECT str_id from structure where str_typecollectivite is not null and str_libelle = $1",
@@ -49,7 +48,7 @@ router.post('/verify', async (req,res) => {
         var libelleCourt = ''
         if (!selectRes.rows[0]) {
             // Si la structure n'existe pas on la créé
-            console.log('strucure a créer')
+            log.d('::verify - structure a créer')
             if (user.typeCollectivite == 1) {
                 libelleCourt = 'COM'
             }
@@ -65,12 +64,14 @@ router.post('/verify', async (req,res) => {
                     console.log(err)
                     throw err
                 })
-            idStructure = insertRes.rows[0].str_id
+                user.str_id = insertRes.rows[0].str_id
+            log.d('::verify - structure créée. Str_id : '+user.str_id );
         }
         else {
-            idStructure = selectRes.rows[0].str_id
-            console.log('structure déjà existante.Str_id : '+idStructure);
+            user.str_id = selectRes.rows[0].str_id
+            log.d('::verify - structure déjà existante. Str_id : '+user.str_id );
         }
+        user.uti_structurelocale = user.libelleCollectivite
     }
 
     // Vérifier si l'email est déjà utilisé en base.
