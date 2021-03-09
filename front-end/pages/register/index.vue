@@ -8,7 +8,7 @@
                     <b-form-input
                     id="emailInput"
                     type="email"
-                    v-model="email"
+                    v-model="mail"
                     name="mail"
                     v-validate="{required: true, email: true}"
                     placeholder="Courriel"
@@ -62,7 +62,7 @@ import Vue from 'vue'
 export default {
   data() {
     return {
-      email:'',
+      mail:'',
       password:'',
       confirmation:''
     };
@@ -72,17 +72,11 @@ export default {
       this.$validator.validateAll().then(isValid => {
         if (isValid) {
           const user = {
-            email: this.email,
+            mail: this.mail,
             password: this.password,
             confirm: this.confirmation
           }
-          return this.$store.dispatch('register', { user, url: window.location.origin + this.$router.options.base })
-            .then(() => {
-                return this.$router.push('/connexion/inscription')
-            })
-            .catch(e => {
-              this.$toast.error(e.message)
-            })
+          return this.$store.dispatch('register', { user })
         } else {
           this.$toast.error('Veuillez vérifier la validité des champs.')
         }

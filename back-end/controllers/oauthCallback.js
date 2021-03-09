@@ -83,9 +83,9 @@ const oauthCallback = async (req, res, next) => {
             url = "/connexion/inscription"
             
             const { rows } = await pgPool.query(
-              'INSERT INTO utilisateur(pro_id, stu_id, str_id, uti_mail, uti_nom, uti_prenom, uti_datenaissance,\
-                uti_tockenfranceconnect) VALUES($1, $2, $3, $4, upper($5), $6, $7, $8) RETURNING *'
-              , [3, 1, 1, userInfo.email, nom, userInfo.given_name, userInfo.birthdate, userInfo.sub]
+              'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, uti_nom, uti_prenom,\
+                uti_tockenfranceconnect) VALUES($1, $2, $3, upper($4), $5, $6) RETURNING *'
+              , [3, 1, userInfo.email, nom, userInfo.given_name, userInfo.sub]
             ).catch(err => {
               console.log(err)
               throw err
