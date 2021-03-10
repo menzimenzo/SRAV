@@ -44,15 +44,27 @@
         </div>
       </b-form>
       <b-row align-h="center" class="text-center">
-          <b-col cols="6"> 
+          <b-col cols="4"> 
             <nuxt-link to="/">
                 Mot de passe oublié
             </nuxt-link>
           </b-col>
-          <b-col cols="6"> 
+          <b-col cols="4"> 
             <nuxt-link to="/register">
-                Je n'ai pas encore de compte
+                Créer un compte
             </nuxt-link>
+            <br>
+          </b-col>
+          <b-col cols="4">           
+            <nuxt-link :to="{
+              name:'register',
+              params:{ FCauthentified: true }
+            }" id="FC-target">
+                Je me suis déjà connecté via FranceConnect
+            </nuxt-link>
+            <b-tooltip target="FC-target" triggers="hover">
+                Vous pouvez associer un mot de passe au courriel utilisé lors votre inscription via FranceConnect.
+            </b-tooltip>
           </b-col>
       </b-row>
     </b-card>

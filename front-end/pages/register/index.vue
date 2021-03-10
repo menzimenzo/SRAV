@@ -3,6 +3,11 @@
       <b-row align-h="center">
         <b-col cols="6">
           <b-card title="Données d'accès">
+              <b-alert :show="FCauthentified">
+                <p>Si vous vous êtes déjà connecté via FranceConnect, vous pouvez désormais aussi vous connecter sans passer par FranceConnect.</p>
+                <p>Vous devez en revanche impérativement utiliser <b>le même courriel</b> que celui renseigné lors de votre inscription initiale.</p>
+                <p>Ce nouvel accès ne sera effectif que lorsque vous aurez cliqué sur le lien d'activation que vous recevrez à l'adresse courriel renseignée.</p> 
+              </b-alert>
               <b-form>
                 <b-form-group label="Courriel :" label-for="emailInput" required>
                     <b-form-input
@@ -47,6 +52,7 @@
                     variant="success"
                     :disabled="errors.any()"
                   >Inscription</b-button>
+                  {{ coucou }}
                 </div>
               </b-form>
           </b-card>
@@ -66,6 +72,11 @@ export default {
       password:'',
       confirmation:''
     };
+  },
+  computed: {
+    FCauthentified() {
+      return this.$route.params && this.$route.params.FCauthentified
+    }
   },
   methods: {
     register: function() {
