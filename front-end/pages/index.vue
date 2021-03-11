@@ -12,34 +12,35 @@
       </b-col>
     </b-row>
 
-    <b-row>
-      <b-col cols="4" style="text-align: right;">
-        <b-button variant="outline-primary" class="button--blue link-alignement" @click="showConnectionForm">Connexion par mail</b-button>
-      </b-col>
-      <b-col cols="4" style="text-align: center;">
+    <b-row class="text-center">
+      <b-col cols="12">
         <b-img class="fcBtn" @click="connexionutilisateur()"  fluid  :src="require('assets/FCboutons-10.png')" border="0" style="size: 100%;" />
-      </b-col>
-      <b-col cols="4" style="text-align: left;">
+        <br>
         <a
           href="https://franceconnect.gouv.fr/"
           target="_blank"
-          class="button--green link-alignement"
           style="text-align:center;" 
           >A propos de FranceConnect</a>
       </b-col>
     </b-row>
 
-    <b-row class="mt-3">
-      <b-col cols="12" class="text-center" >
-        
-        <b-img :src="require('assets/infographie.png')" style="width:75%" />
-      
+    <b-row class="text-center">
+      <b-col cols="12">
+        <span class="otherConnexion">Ou</span>
       </b-col>
     </b-row>
- 
-    <modal name="connexionForm" height="auto" width="900px" :scrollabe="true">
-      <connection-form  @submit="login"/>
-    </modal>
+
+    <b-row>
+      <b-col cols="8" offset-md="2">
+        <connectionForm @submit="login"/>
+      </b-col>
+    </b-row>
+
+    <b-row class="mt-3">
+      <b-col cols="12" class="text-center" >      
+        <b-img :src="require('assets/infographie.png')" style="width:75%" />    
+      </b-col>
+    </b-row>
   </b-container>
 </template>
 
@@ -67,9 +68,6 @@ export default {
       }).catch(err => {
         console.log(err)
       })
-    },
-    showConnectionForm: function() {
-      this.$modal.show('connexionForm')
     },
     login: function(e) {
       return this.$store.dispatch('login', e)
@@ -113,6 +111,7 @@ export default {
 }
 .fcBtn{
   cursor: pointer;
+  margin-bottom: 10px;
 }
 .srav-welcome-title {
   margin-top: 5vw;
@@ -123,6 +122,26 @@ export default {
 .link-alignement {
   min-width: 80%;
   min-height: 56px;
+}
+.otherConnexion {
+  font-size: 30px;
+  color: #e5425a;
+  margin: 20px 0;
+}
+.otherConnexion:before, .otherConnexion:after {
+    display: inline-block;
+    margin: 0 0 8px 0;
+    height: 3px;
+    content: " ";
+    text-shadow: none;
+    background-color: #e5425a;
+    width: 200px;
+}
+.otherConnexion:before {
+  margin-right: 20px;
+}
+.otherConnexion:after {
+  margin-left: 20px;
 }
 @media screen and (min-width: 2000px) {
   .srav-welcome-title {
