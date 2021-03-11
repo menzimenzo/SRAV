@@ -8,7 +8,7 @@
                 Édition des informations
               </h1>
             </div>
-            <user-infos :user="user" :check-legal="false" :submit-txt="'Enregistrer'" @submit="editProfile"/>
+            <mon-compte :user="user" :check-legal="false" :submit-txt="'Enregistrer'" @submit="editProfile"/>
         </b-col>
       </b-row>
     </b-container>
@@ -17,7 +17,7 @@
 
 <script>
 import { mapState } from 'vuex'
-import userInfos from '~/components/moncompte.vue'
+import monCompte from '~/components/moncompte.vue'
 export default {
   computed: {
     ...mapState({
@@ -27,12 +27,10 @@ export default {
   methods: {
     // Validation de l'inscription
     async editProfile(){
-        console.info('url:' + url)
-
-        const url = process.env.API_URL + '/connexion/verify'
-        return this.$axios.$post(url, this.user)
+        const url = process.env.API_URL + `/connexion/edit-mon-compte/${this.user.id }`
+        return this.$axios.$put(url, { profil: this.user })
         .then(async response => {
-            await this.$store.dispatch('set_utilisateur', response.user);
+            await this.$store.dispatch('set_utilisateurCourant', response.user);
             this.$toast.success('Profil enregistré avec succès.')
 
         }).catch(err => {
@@ -41,7 +39,7 @@ export default {
     },
 
   },
-  components: {userInfos}
+  components: {monCompte}
 };
 </script>
 
