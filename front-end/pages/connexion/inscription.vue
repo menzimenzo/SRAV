@@ -12,7 +12,7 @@
         </b-col>
       </b-row>
       <modal name="confirmIdentityModal" height="auto" width="900px" :scrollabe="true">
-        <connection-form  @submit="confirmIdentity" :hasToConfirmMail="true" information="Cet email est déjà utilisé sur Savoir Rouler, veuillez confirmer votre mot de passe." />
+        <connection-form  @submit="confirmUserInfos" :hasToConfirmMail="true" information="Cet email est déjà utilisé sur Savoir Rouler, veuillez confirmer votre mot de passe." />
       </modal>
     </b-container>
   </section>
@@ -21,11 +21,6 @@
 <script>
 import { mapState } from 'vuex'
 export default {
-  data: function() {
-    return {
-      authId: null
-    }
-  },
   components: {
     connectionForm: () => import('~/components/connectionForm.vue'),
     userInfos: () => import('~/components/userInfos.vue')
@@ -59,25 +54,10 @@ export default {
           this.$toast.error(error)
         })
     },
-    confirmIdentity(identity) {
-      const url = process.env.API_AUTH_URL + '/users/identify'
-      const body = identity
-      body['authId'] = this.authId
-      return this.$axios.$post(url, body)
-        .then(async isIdentified => {
-          if(isIdentified) {
-            return this.updateUserInfos()
-          } 
-          return this.$toast.error('Mot de passe incorrecte, veuillez le réinitialiser ou contacter l\'assistance.')
-        }).catch(error => {
-          console.log(error)
-          this.$toast.error(error)
-        })
-    },
-    updateUserInfos() {
-      const url = process.env.API_URL + '/connexion/auth-identified'
+    confirmUserInfos(connexionInfos) {
+      const url = process.env.API_URL + '/connexion/confirm-profil-infos'
       const user = this.user
-      user['authId'] = this.authId
+      user['password'] = connexionInfos.password
       return this.$axios.$put(url, {user})
         .then(async user => {
           await this.$store.dispatch('set_utilisateur', user)
@@ -85,7 +65,7 @@ export default {
           this.$toast.success(`Bienvenue ${user.prenom}`)
           this.$toast.info(`Vous pouvez maintenant vous connecter via France Connect et via mot de passe!`)
         }).catch(error => {
-          console.log(error)
+          const err = error.response.data.message || error.message
           this.$toast.error(err)
         })
       

@@ -1,4 +1,5 @@
 const express = require('express');
+const crypto = require('crypto');
 const router = express.Router();
 
 const logger = require('../utils/logger')
@@ -11,7 +12,7 @@ const {getAuthorizationUrl, getLogoutUrl, formatUtilisateur} = require('../utils
 const bodyParser = require('body-parser');
 var moment = require('moment');
 const { oauthCallback } = require('../controllers/oauthCallback')
-const { loginFromAuthServer } = require('../controllers/loginFromAuthServer')
+const { pwdLogin } = require('../controllers/pwdLogin')
 moment().format();
 
 
@@ -20,7 +21,8 @@ router.get('/login', (req, res) => {
     return res.send({url: getAuthorizationUrl()});
 });
 
-router.get('/login-from-auth/:id', loginFromAuthServer)
+// Gère une connexion via mot de passe.
+router.post('/pwd-login', pwdLogin)
 
 // Gère une connexion validée avec FC
 router.get('/callback', oauthCallback);
@@ -28,11 +30,12 @@ router.get('/callback', oauthCallback);
 // Valide un compte utilisateur avec les infomations complémentaires
 router.post('/verify', async (req,res) => {
     log.i('::verify - In')
-    if(!(req.body.id || req.body._id)){
+    if(!req.body.id){
         log.w('::verify - Aucun ID à ajouter en base.') 
         return res.sendStatus(500)
     }
     var wasValidated = req.body.validated
+    const tokenFc = req.body.tokenFc
     var user = formatUtilisateur(req.body, false)
     
     if (user.str_id == 99999) {
@@ -70,42 +73,25 @@ router.post('/verify', async (req,res) => {
         }
     }
 
-    if(!user.uti_authid && !user.uti_tockenfranceconnect) {
-        log.w('::verify - Le user n\'est inscrit dans aucune base.')   
-        throw new Error("L'utilisateur n'existe ni auprès du serveur d'authentification ni auprès de France Connect")
-    }
-
     // Vérifier si l'email est déjà utilisé en base.
-    const mailExistenceQuery = await pgPool.query(`SELECT uti_mail,uti_authid FROM utilisateur WHERE uti_mail='${user.uti_mail}'`).catch(err => {
+    const mailExistenceQuery = await pgPool.query(`SELECT uti_mail,uti_pwd, uti_tockenfranceconnect FROM utilisateur WHERE uti_mail='${user.uti_mail}'`).catch(err => {
         log.w(err)
         throw err
     })
 
-    if(mailExistenceQuery && mailExistenceQuery.rowCount > 0 && mailExistenceQuery.rows[0].uti_authid) {
+    if(mailExistenceQuery && mailExistenceQuery.rowCount > 0 && mailExistenceQuery.rows[0].uti_pwd && tokenFc) {
         log.w('Vérifications complémentaires nécessaires avant ajout en base. ')
         return res.status(200).json({ existingUser: formatUtilisateur(mailExistenceQuery.rows[0]) })
     } 
 
-    let bddRes
-    if(req.body._id) {
-        log.d('::verify - Nouveau user, authentifié depuis authserver, à ajouter en base')        
-        bddRes = await pgPool.query(
-            'INSERT INTO utilisateur(pro_id, stu_id, str_id, uti_mail, uti_nom, uti_prenom, uti_datenaissance, validated, uti_structurelocale, uti_authid)\
-            VALUES($1, $2, $3, $4, upper($5), $6, $7, $8, $9, $10) RETURNING *'
-            , [3, 1, user.str_id, user.uti_mail, user.uti_nom, user.uti_prenom, user.uti_datenaissance, true, user.uti_structurelocale, user.uti_authid]
-          ).catch(err => {
-            console.log(err)
-            throw err
-          })
-    } else {
-        log.d('::verify - Mise à jour de l\'utilisateur existant')        
-        bddRes = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, validated = true \
-             WHERE uti_id = $4 RETURNING *", 
-             [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_id]).catch(err => {
-                 console.log(err)
-                 throw err
-             })
-    }
+    log.d('::verify - Mise à jour de l\'utilisateur existant')        
+    const bddRes = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, uti_nom = $4, uti_prenom = $5, validated = true \
+    WHERE uti_id = $6 RETURNING *", 
+    [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_nom, user.uti_prenom, user.uti_id]).catch(err => {
+        console.log(err)
+        throw err
+    })
+    
     // Envoie de l'email de confirmation
     if(!wasValidated){
         log.d('::verify - Mail de confirmation envoyé.')
@@ -125,72 +111,98 @@ router.post('/verify', async (req,res) => {
     return res.send({user})
 })
 
-// Nouveau user sur AUTH-SERVER mais qui est a déjà un pass FC.
-// Vérifie l'existence d'un email en base pour adapter les infos concernant le user suivant la méthode de connexion.
-router.post('/france-connect-identified', async (req,res) => {
-    const mail = req.body && req.body.user && req.body.user.mail
-    const authId = req.body && req.body.user && req.body.user._id
-    log.i('::FC-identified - In', { mail, authId })
-
-    if(!mail) {
-        throw new Error("Le paramètre 'mail' manque pour effectuer la vérification.")
-    }
-    const requete = `SELECT * FROM utilisateur WHERE uti_mail='${mail}'`
-    const bddRes = await pgPool.query(requete).catch(err => {
-        log.w('::FC-identified - Erreur pendant la vérification de l\'email', err)
-        throw err
-    })
-    const emailAlreadyExist = bddRes && bddRes.rowCount && bddRes.rowCount > 0
-    const existingUser = bddRes && bddRes.rows && bddRes.rows[0]
-
-    if(emailAlreadyExist && !(existingUser && existingUser.uti_authid)) {
-        log.d('::FC-identified - email existe mais n\'a pas d\'authid')
-        const bddUpdate =  await pgPool.query("UPDATE utilisateur SET uti_authid = $1\
-        WHERE uti_id = $2 RETURNING *", 
-        [authId, existingUser.uti_id]).catch(err => {
-            log.w('::FC-identified - Erreur pendant l\'update des infos du user', err)
-            throw err
-        })
-        
-        const updatedUser = bddUpdate.rows && bddUpdate.rows[0]
-        log.d('::FC-identified - Done, renvois du user mis à jour', updatedUser)
-        req.session.user = updatedUser
-        req.accessToken = updatedUser.uti_tockenfranceconnect;
-        req.session.accessToken = updatedUser.uti_tockenfranceconnect;
-        return res.send(formatUtilisateur(updatedUser))
-    } else {
-        log.d('::FC-identified - Done, nouveau user à ajouter.')
-        return res.send('New Entry')
-    }
-})
-
-// Nouveur user FC mais qui a déjà une connexion AUTH-SERVER
+// Nouveur user FC mais qui a déjà une connexion via mot de passe.
 // Vérification des duplicatas en base sur base de tokenFC et update du user existant
-router.put('/auth-identified', async (req,res) => {
+router.put('/confirm-profil-infos', async (req,res) => {
     const user = req.body && req.body.user
     const mail = user && user.mail
     const tokenFc = user && user.tokenFc
-    const authId = user && user.authId
-    log.i('::auth-identified - In', {mail , authId, tokenFc})
+    const candidate = user && user.password && await crypto.createHash('md5').update(user.password).digest('hex')
+    log.i('::confirm-profil-infos - In', {mail , candidate, tokenFc})
 
-    await pgPool.query(`DELETE FROM utilisateur WHERE uti_tockenfranceconnect='${tokenFc}' RETURNING *`).catch(err => {
-        log.w('::auth-identified - Erreur pendant la suppression des users.', err)
+    const authConfirmationQuery = await pgPool.query(`SELECT * FROM utilisateur WHERE uti_mail='${mail}'`).catch(err => {
+        log.w('::confirm-profil-infos - Erreur pendant la suppression des users.', err)
         throw err
     })
 
-    const bddUpdate =  await pgPool.query("UPDATE utilisateur SET uti_tockenfranceconnect = $1, uti_mail = $2, uti_structurelocale= $3, str_id = $4, uti_prenom = $5, uti_nom = $6, uti_datenaissance = $7 \
-    WHERE uti_authid = $8 RETURNING *", 
-    [tokenFc, mail, user.structureLocale, user.structureId, user.prenom, user.nom, user.dateNaissance, authId]).catch(err => {
-        log.w('::auth-identified - Erreur pendant l\'update des infos du user', err)
+    const existingUser = authConfirmationQuery.rows && authConfirmationQuery.rows[0]
+    const isMatch = existingUser.uti_pwd && existingUser.uti_pwd === candidate
+    if(!isMatch) {
+        log.w('::confirm-profil-infos - Les mots de passes ne matchent pas.')
+        return res.status(400).json({message: 'Le mot de passe fourni est incorrect ou l\'utilisateur n\'en possède pas. Veuillez contacter l\'assistance.'});        
+    }
+
+    await pgPool.query(`DELETE FROM utilisateur WHERE uti_tockenfranceconnect='${tokenFc}' RETURNING *`).catch(err => {
+        log.w('::confirm-profil-infos - Erreur pendant la suppression des users.', err)
+        throw err
+    })
+    
+    const bddUpdate =  await pgPool.query("UPDATE utilisateur SET uti_tockenfranceconnect = $1, uti_mail = $2, uti_prenom = $3, uti_nom = $4 \
+    WHERE uti_id = $5 RETURNING *", 
+    [tokenFc, mail, user.prenom, user.nom, existingUser.uti_id]).catch(err => {
+        log.w('::confirm-profil-infos - Erreur pendant l\'update des infos du user', err)
         throw err
     })
     
     const updatedUser = bddUpdate.rows && bddUpdate.rows[0]
-    log.d('::FC-identified - Done, renvois du user mis à jour', updatedUser)
+    log.d('::confirm-profil-infos - Done, renvois du user mis à jour', updatedUser)
     req.session.user = updatedUser
     req.accessToken = updatedUser.uti_tockenfranceconnect;
     req.session.accessToken = updatedUser.uti_tockenfranceconnect;
     return res.send(formatUtilisateur(updatedUser))
+})
+
+router.post('/create-account-pwd', async (req, res) => {
+    log.i('::create-account-pwd - In')
+    const { password , mail, confirm } = req.body
+    if(!password || !mail || !confirm) {
+        throw new Error("Un paramètre manque pour effectuer l'inscription.")
+    }
+    const formatedMail = mail.toLowerCase()
+    const crypted = await crypto.createHash('md5').update(password).digest('hex')
+    let bddRes
+    let confirmInscription
+    // Vérifier si l'email est déjà utilisé en base.
+    const mailExistenceQuery = await pgPool.query(`SELECT uti_id, uti_mail, uti_tockenfranceconnect FROM utilisateur WHERE uti_mail='${formatedMail}'`).catch(err => {
+        log.w(err)
+        throw err
+    })
+
+    if(mailExistenceQuery && mailExistenceQuery.rowCount > 0) {
+        if(mailExistenceQuery.rows[0].uti_tockenfranceconnect && !mailExistenceQuery.rows[0].pwd) {
+            log.d('::create-account-pwd - Utilisateur déjà connecté via FC.')
+        // ENVOI MAIL ???????
+        //
+        //
+        //
+            confirmInscription = false
+            bddRes = await pgPool.query(`UPDATE utilisateur SET uti_pwd= $1 WHERE uti_id= $2 RETURNING *`, [ crypted, mailExistenceQuery.rows[0].uti_id]
+                ).catch(err => {
+                    console.log(err)
+                    throw err
+                })
+        } else {
+            return res.status(400).json({message: 'Veuillez contacter l\'assistance.'});        
+        }
+    } else {
+        log.d('::create-account-pwd - Nouveau user, authentifié via password, à ajouter en base')
+        confirmInscription = true    
+        bddRes = await pgPool.query(
+            'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, validated, uti_pwd)\
+            VALUES($1, $2, $3, $4, $5) RETURNING *'
+            , [3, 1, formatedMail, false, crypted ]
+          ).catch(err => {
+            console.log(err)
+            throw err
+          })
+    }
+
+    req.session.user = bddRes.rows[0]
+    req.accessToken = bddRes.rows[0].uti_pwd;
+    req.session.accessToken = bddRes.rows[0].uti_pwd;
+    const user = formatUtilisateur(bddRes.rows[0])
+    log.i('::create-account-pwd - Done')
+    return res.send({ user, confirmInscription })
 })
 
 // Envoie l'utilisateur de la session

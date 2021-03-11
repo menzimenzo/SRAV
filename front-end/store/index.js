@@ -340,76 +340,50 @@ export const actions = {
       console.log(err)
     })
   },
-  login({ commit }, { email, password }) {
-    log.i('actions::login - In', email)
-    const url = process.env.API_AUTH_URL + "/login"
-    return this.$axios.$post(url, { email, password })
-        .then(authUser => {
-            log.d('login - authserver response', authUser)
-            if(authUser && !authUser._id) {
+  login({ commit }, { mail, password }) {
+    log.i('actions::login - In', mail)
+    const url = process.env.API_URL + "/connexion/pwd-login"
+    return this.$axios.$post(url, { mail, password })
+        .then(res => {
+            const user = res.user
+            log.d('login - response from server', user)
+            if(!user || !user.id) {
               log.w('login - authserver, user not found')              
               throw new Error('Email ou mot de passe incorrect.')
-            } else if (authUser && authUser.applications && !authUser.applications.includes('SRAV')) {
-              log.w('login - authserver, user cannot access this application.')
-              throw new Error('L\'utilisateur existe mais ne peut accéder à cette application.')
+            } else {
+              log.i('login - Done', { user })
+              commit("set_utilisateurCourant", user)
+              return this.$toast.success(`Bienvenue ${user.prenom}`)
             }
-            const params = {
-              token: authUser.token
-            }
-            return this.$axios.$get(`${process.env.API_URL}/connexion/login-from-auth/${authUser._id}`, {params} )
-              .then(res => {
-                const user = res.user
-                log.i('login - Done', { user })
-                commit("set_utilisateurCourant", user)
-                this.$toast.success(`Bienvenue ${user.prenom}`)
-              })
         })
         .catch(err => {
             log.w('login - error', err)
-            const message = err.message || parseErrorMessage(get(err, 'response.data.message'))
+            const message = parseErrorMessage(get(err, 'response.data.message') || err.message)
             this.$toast.error(message)
             throw new Error(message)
         })
   },
   register({ commit }, params) {
-      params.user.email = params.user && params.user.email && formatEmail(params.user.email)
-      const { email, password, confirm } = params.user
-      const url = params.url
-      log.i('actions::register - In', email, password, confirm )
+      params.user.mail = formatEmail(params.user.mail)
+      const { mail, password, confirm } = params.user
+      log.i('actions::register - In', mail, password, confirm )
       let user = null
       let path = null
 
-      return this.$axios.$get(`${process.env.API_AUTH_URL}/users/${email}/verify`)
-          .then(isEmailTaken => {
-              if (isEmailTaken) {
-                  throw new Error('Un utilisateur utilise déjà cette adresse mail.')
-              }
-              log.d('actions::register to auth' )
-              return this.$axios.$post(`${process.env.API_AUTH_URL}/register`, { applications: ['SRAV'], email, password, confirm, url })
-          })
-          .then(authRes => {
-              user = authRes
-              if (!user || !user._id) {
-                  throw new Error('EMAIL_EXISTS')
-              }
-              log.i('actions::registered - done, with success to auth-server' )
-              user['mail'] = user.email
-              // CHECK IF ACCOUNT EXIST WITH FC
-              return this.$axios.$post(`${process.env.API_URL}/connexion/france-connect-identified`, { user })
-          })
+      return this.$axios.$post(`${process.env.API_URL}/connexion/create-account-pwd`, { password, mail, confirm })
           .then(apiRes => {
-              if(apiRes && apiRes.id) {
-                log.d('actions::register - User already use FC')
-                user = apiRes
-                path = '/interventions'
-                this.$toast.success(`Bienvenue ${user.prenom}`)
-                this.$toast.info(`Vous pouvez maintenant vous connecter via France Connect et via mot de passe!`)
-              } else {
-                path= '/connexion/inscription'
-                log.d('actions::register - User not recorded with FC')
-              }
-              commit("set_utilisateurCourant", user)
-              return Vue.nextTick(this.$router.push(path))
+            user = apiRes.user
+            if(apiRes && apiRes.confirmInscription) {
+              log.d('actions::register - User not recorded with FC')
+              path= '/connexion/inscription'
+            } else {
+              log.d('actions::register - User already use FC')
+              path = '/interventions'
+              this.$toast.success(`Bienvenue ${user.prenom}`)
+              this.$toast.info(`Vous pouvez maintenant vous connecter via France Connect et via mot de passe!`)
+            }
+            commit("set_utilisateurCourant", user)
+            return this.$router.push({ path })
           })
           .catch((err) => {
             log.w('actions::register', err)

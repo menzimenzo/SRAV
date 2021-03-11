@@ -72,7 +72,7 @@ export default {
       this.$modal.show('connexionForm')
     },
     login: function(e) {
-      return this.$store.dispatch('login', { email: e.email, password: e.password })
+      return this.$store.dispatch('login', e)
         .then(() => {
             console.log('login success!')
             this.formErrors = []

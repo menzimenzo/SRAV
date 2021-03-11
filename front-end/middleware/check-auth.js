@@ -16,7 +16,7 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
             return
     }
     
-    if(!store.state.utilisateurCourant || !(store.state.utilisateurCourant.id || store.state.utilisateurCourant._id)){
+    if(!store.state.utilisateurCourant || !store.state.utilisateurCourant.id){
         log.d('No current user.')        
         if(logedOutRoutes.indexOf(route.path) < 0){
             return redirect('/')
@@ -24,7 +24,7 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
     } else {
         // Utilisateur est bloqué
         if(store.state.utilisateurCourant.statutId == 2 && route.path != '/connexion/locked' ){
-            log.d('user is locked.')                    
+            log.d('user is locked.')
             return redirect('/connexion/locked')
         }
         // Utilisateur n'a pas validé son inscription

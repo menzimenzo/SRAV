@@ -1,19 +1,13 @@
 <template>
   <div>
     <b-card class="mb-3">
-      <b-form-group label="Prénom :">
-        <b-form-input type="text" v-model="user.prenom" :disabled="isUserRegisteredInAuth" />
-      </b-form-group>
-      <b-form-group label="Nom :">
-        <b-form-input type="text" v-model="user.nom" :disabled="isUserRegisteredInAuth" />
-      </b-form-group>
-
-      <b-form-group label="Date de naissance :">
-        <b-form-input type="date" v-model="user.dateNaissance" :disabled="isUserRegisteredInAuth" />
-      </b-form-group>
-    </b-card>
-    <b-card class="mb-3">
       <b-form>
+        <b-form-group label="Prénom :">
+          <b-form-input type="text" v-model="user.prenom" :disabled="isUserRegisteredViaPwd" />
+        </b-form-group>
+        <b-form-group label="Nom :">
+          <b-form-input type="text" v-model="user.nom" :disabled="isUserRegisteredViaPwd" />
+        </b-form-group>
         <b-form-group
           id="emailInputGroup"
           label="Courriel :"
@@ -31,7 +25,7 @@
             aria-describedby="emailFeedback"
             placeholder="Courriel"
             :state="validateState('mail')"
-            :disabled="!isUserRegisteredInAuth"
+            :disabled="!isUserRegisteredViaPwd"
           />
 
           <b-form-invalid-feedback id="emailFeedback"
@@ -477,8 +471,8 @@ export default {
         return this.$store.dispatch('set_state_element',{ key:'utilisateurCourant.mail', value })
       }
     },
-    isUserRegisteredInAuth() {
-      return !(this.user && this.user._id)
+    isUserRegisteredViaPwd() {
+      return this.user && this.user.tokenFc
     },
     listeStructures() {
       var liste = this.structures;
