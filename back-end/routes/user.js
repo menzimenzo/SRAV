@@ -23,7 +23,16 @@ const formatUser = user => {
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
         proLibelle:user.pro_libelle,
-        inscription: user.inscription
+        inscription: user.inscription,
+        siteweb: user.siteweb, 
+        adresse: user.adresse,
+        compladresse: user.compladresse,
+        codeinsee: user.codeinsee,
+        codepostal: user.codepostal,
+        commune: user.commune,
+        mailcontact: user.mailcontact,
+        telephone: user.telephone,
+        autorisepublicarte: user.autorisepublicarte
     }
 }
 
@@ -43,7 +52,16 @@ const formatUserCSV = user => {
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
         proLibelle:user.pro_libelle,
-        inscription: user.inscription
+        inscription: user.inscription,
+        siteweb: user.siteweb, 
+        adresse: user.adresse,
+        compladresse: user.compladresse,
+        codeinsee: user.codeinsee,
+        codepostal: user.codepostal,
+        commune: user.commune,
+        mailcontact: user.mailcontact,
+        telephone: user.telephone,
+        autorisepublicarte: user.autorisepublicarte
     }
 }
 
@@ -59,7 +77,15 @@ router.get('/csv', async function (req, res) {
     if ( utilisateurCourant.pro_id == 1 ) {
         requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
         replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
-        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
+        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        uti_com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id 
@@ -70,7 +96,15 @@ router.get('/csv', async function (req, res) {
     else {
         requete =`SELECT uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
         replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
-        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
+        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        uti_com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
@@ -112,7 +146,16 @@ router.get('/:id', async function (req, res) {
     const utilisateurCourant = req.session.user
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb , 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        uti_com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte
+        from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} order by uti_id asc`;
@@ -120,7 +163,16 @@ router.get('/:id', async function (req, res) {
     else 
     {
         // si on est partenaire, on affiche l'utilisateur s'il appartient à ma structure
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        uti_com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte
+        from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} and uti.str_id = ${utilisateurCourant.str_id}
@@ -147,12 +199,22 @@ router.get('/:id', async function (req, res) {
 
 router.get('/', async function (req, res) {
     log.i('::list - In')
+    log.d('::get - id = ', req.session.user );
     const utilisateurCourant = req.session.user
     //const utilisateurId = 1; // TODO à récupérer via GET ?
     
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche tous les utilisateurs
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
+        uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        uti_com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
@@ -162,7 +224,15 @@ router.get('/', async function (req, res) {
     {
         // si on est partenaire, on affiche seulements les utilisateurs de la structure
         // Sauf les Admin créés sur structure
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        uti_com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
@@ -186,7 +256,8 @@ router.put('/:id', async function (req, res) {
     const user = req.body.utilisateurSelectionne
     const id = req.params.id
     log.i('::update - In', { id })
-    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut } = user
+    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut, siteweb, adresse, compladresse, codeinsee, codepostal, commune, mailcontact, telephone, autorisepublicarte } = user
+
 
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
@@ -197,7 +268,16 @@ router.put('/:id', async function (req, res) {
         pro_id = $5,
         str_id = $6,
         uti_structurelocale = $7,
-        stu_id = $8
+        stu_id = $8,
+        uti_siteweb = $9,
+        uti_adresse = $10,
+        uti_complementadresse = $11,
+        uti_com_codeinsee = $12,
+        uti_com_codepostal = $13,
+        uti_com_libelle = $14,
+        uti_mailcontact = $15,
+        uti_telephone = $16,
+        uti_autorisepublicarte = $17
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
@@ -208,7 +288,8 @@ router.put('/:id', async function (req, res) {
         profil,
         structure,
         structureLocale,
-        statut], (err, result) => {
+        statut,
+        siteweb], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de l\'update', {requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');

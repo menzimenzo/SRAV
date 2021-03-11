@@ -39,8 +39,17 @@ module.exports = {
             tokenFc: utilisateur.uti_tockenfranceconnect,
             validated: utilisateur.validated,
             typeCollectivite: utilisateur.str_typecollectivite,
-            libelleCollectivite: utilisateur.str_libelle
-      }
+            libelleCollectivite: utilisateur.str_libelle,
+            siteweb:utilisateur.uti_siteweb,
+            adresse:utilisateur.uti_adresse,
+            compladresse:utilisateur.uti_complementadresse,
+            codeinsee:utilisateur.uti_com_codeinsee,
+            codepostal:utilisateur.uti_com_codepostal,
+            commune:utilisateur.uti_com_libelle,
+            mailcontact:utilisateur.uti_mailcontact,
+            telephone:utilisateur.uti_telephone,
+            autorisepublicarte:utilisateur.uti_autorisepublicarte
+        }
     } else { 
       return {
             uti_id : utilisateur.id ,
@@ -55,7 +64,16 @@ module.exports = {
             uti_tockenfranceconnect : utilisateur.tokenFc ,
             validated: utilisateur.validated,
             typeCollectivite: utilisateur.typeCollectivite,
-            libelleCollectivite: utilisateur.libelleCollectivite
+            libelleCollectivite: utilisateur.libelleCollectivite,
+            uti_siteweb: utilisateur.siteweb,
+            uti_adresse: utilisateur.adresse,
+            uti_complementadresse: utilisateur.compladresse,
+            uti_com_codeinsee: utilisateur.codeinsee,
+            uti_com_codepostal: utilisateur.codepostal,
+            uti_com_libelle: utilisateur.commune,
+            uti_mailcontact: utilisateur.mailcontact  && utilisateur.mailcontact.toLowerCase() ,
+            uti_telephone: utilisateur.telephone,
+            uti_autorisepublicarte: utilisateur.autorisationpublicarte
         }
     }
   }
