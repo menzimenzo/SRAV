@@ -21,7 +21,6 @@ services:
     environment:
       - MAIL_URL=http://mail-server:3000
       - DEBUG=srav-backend:*
-    tty: true
   mail-server:
     build: ./mail-server
     restart: always
