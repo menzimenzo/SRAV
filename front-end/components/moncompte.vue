@@ -1,19 +1,13 @@
 <template>
   <div>
     <b-card class="mb-3">
-      <b-form-group label="Prénom :">
-        <b-form-input type="text" v-model="user.prenom" disabled />
-      </b-form-group>
-      <b-form-group label="Nom :">
-        <b-form-input type="text" v-model="user.nom" disabled />
-      </b-form-group>
-
-      <b-form-group label="Date de naissance :">
-        <b-form-input type="date" v-model="user.dateNaissance" disabled />
-      </b-form-group>
-    </b-card>
-    <b-card class="mb-3">
       <b-form>
+        <b-form-group label="Prénom :">
+          <b-form-input type="text" v-model="user.prenom" disabled />
+        </b-form-group>
+        <b-form-group label="Nom :">
+          <b-form-input type="text" v-model="user.nom" disabled />
+        </b-form-group>
         <b-form-group
           id="emailInputGroup"
           label="Courriel :"
@@ -84,6 +78,16 @@
             </b-form-invalid-feedback>
           </b-form-group>
         </div>
+        <div class="mb-3 text-right">
+          <b-button
+            @click="submit"
+            variant="success"
+            :disabled="
+              errors.any() || (isLegalChecked == 'false' && !user.validated)
+            "
+            >{{ submitTxt }}</b-button
+          >
+        </div>
       </b-form>
     </b-card>
   </div>
@@ -95,7 +99,7 @@ export default {
   data() {
     return {};
   },
-  props: ["user"],
+  props: ["user", "submitTxt"],
   methods: {
     submit: function () {
       this.$validator.validateAll().then((isValid) => {
@@ -120,10 +124,6 @@ export default {
   },
   async mounted() {
     await this.$store.dispatch("get_structures");
-    // Mantis 68055
-    if (!this.$store.state.utilisateurCourant.validated) {
-      this.user.structureId = 0;
-    }
   },
   computed: {
     ...mapState(["structures"]),

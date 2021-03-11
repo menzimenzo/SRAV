@@ -214,6 +214,34 @@ router.get('/user', (req,res) => {
     return res.send(formatUtilisateur(req.session.user))
 })
 
+router.put('/edit-mon-compte/:id', async function (req, res) {
+    const profil = req.body.profil
+    const id = req.params.id
+    log.i('::edit-mon-compte - In', { id })
+    if(!id) {
+        return res.status(400).json('Aucun ID fournit pour  identifier l\'utilisateur.');
+    }
+    //insert dans la table intervention
+    const requete = `UPDATE utilisateur 
+        SET uti_mail = $1,
+        uti_structurelocale = $2
+        WHERE uti_id = ${id}
+        RETURNING *
+        ;`    
+    pgPool.query(requete,[profil.mail, profil.structureLocale], (err, result) => {
+        if (err) {
+            log.w('::edit-mon-compte - erreur lors de l\'update', {requete, erreur: err.stack});
+            return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');
+        }
+        else {
+            log.i('::edit-mon-compte - Done')
+            req.session.user = result.rows[0]
+            return res.status(200).json({ user: formatUtilisateur(result.rows[0])});
+        }
+    })
+})
+
+
 // Envoie l'url FC pour se déconnecter
 router.get('/logout', async(req, res) => {
     log.i('::logout - In')
