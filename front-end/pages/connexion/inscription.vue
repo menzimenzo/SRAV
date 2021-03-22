@@ -44,11 +44,15 @@ export default {
             this.authId = response.existingUser.authId
             this.$modal.show('confirmIdentityModal')
             return 
-          }
-
-          await this.$store.dispatch('set_utilisateur', response.user);
-          this.$router.push('/interventions')
-          this.$toast.success('Inscription validée.')
+           } else if (!response.isPwdConfirmed && !response.user.tokenFc) {
+            this.$toast.info("Un email de confirmation d'inscription vous a été envoyé. Veuillez cliquer sur le lien contenu dans ce mail.")
+            await this.$store.dispatch('set_utilisateur', null);            
+            return this.$router.push('/')
+           } else {
+            await this.$store.dispatch('set_utilisateur', response.user);
+            this.$toast.success('Inscription validée.')
+            return this.$router.push('/interventions')
+           }
         }).catch(error => {
           console.log(error)
           this.$toast.error(error)

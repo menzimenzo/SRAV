@@ -49,13 +49,13 @@
                 Mot de passe oublié
             </nuxt-link>
           </b-col>
-          <b-col cols="4"> 
+          <b-col cols="4" v-if="!hasToConfirmMail"> 
             <nuxt-link to="/register">
                 Créer un compte
             </nuxt-link>
             <br>
           </b-col>
-          <b-col cols="4">           
+          <b-col cols="4" v-if="!hasToConfirmMail">           
             <nuxt-link :to="{
               name:'register',
               params:{ FCauthentified: true }

@@ -7,7 +7,7 @@ const log = logger(module.filename)
 
 const pgPool = require('../pgpool').getPool();
 const config = require('../config');
-const {sendEmail} = require('../utils/mail-service')
+const {sendEmail, sendValidationMail } = require('../utils/mail-service')
 const {getAuthorizationUrl, getLogoutUrl, formatUtilisateur} = require('../utils/utils')
 const bodyParser = require('body-parser');
 var moment = require('moment');
@@ -41,7 +41,7 @@ router.post('/verify', async (req,res) => {
         // La structure spécifiée n'existe peut être pas encore
         const selectRes = await pgPool.query("SELECT str_id from structure where str_typecollectivite is not null and str_libelle = $1",
             [user.libelleCollectivite]).catch(err => {
-                console.log(err)
+                log.w(err)
                 throw err
             })
 
@@ -61,7 +61,7 @@ router.post('/verify', async (req,res) => {
             const insertRes = await pgPool.query("INSERT INTO structure (str_libellecourt,str_libelle,str_actif,str_federation,str_typecollectivite) \
          VALUES ($1,$2,'true','false',$3) RETURNING *",
                 [libelleCourt,user.libelleCollectivite, user.typeCollectivite]).catch(err => {
-                    console.log(err)
+                    log.w(err)
                     throw err
                 })
                 user.str_id = insertRes.rows[0].str_id
@@ -89,7 +89,7 @@ router.post('/verify', async (req,res) => {
     const bddRes = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, uti_nom = $4, uti_prenom = $5, validated = true \
     WHERE uti_id = $6 RETURNING *", 
     [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_nom, user.uti_prenom, user.uti_id]).catch(err => {
-        console.log(err)
+        log.w(err)
         throw err
     })
     
@@ -103,13 +103,34 @@ router.post('/verify', async (req,res) => {
                 <p>Votre compte « Intervenant Savoir Rouler à Vélo » a bien été créé. <br/><br/>
                 Nous vous invitons à y renseigner les informations relatives à la mise en œuvre de chacun des 3 blocs du socle commun du SRAV.<br/>
                 Le site <a href="www.savoirrouleravelo.fr">www.savoirrouleravelo.fr</a> est à votre disposition pour toute information sur le programme Savoir Rouler à Vélo.<br/></p>`
+            })
+        }
+        
+    user = formatUtilisateur(bddRes.rows[0])
+    req.session.user = bddRes.rows[0]
+    
+    const isPwdConfirmed = bddRes.rows[0] && bddRes.rows[0].uti_pwd && bddRes.rows[0].pwd_validated
+    if(!isPwdConfirmed && !user.tokenFc) {
+        log.d('::verify - mot de passe à valider.')
+        await sendValidationMail({
+            email: bddRes.rows[0].uti_mail,
+            pwd: bddRes.rows[0].uti_pwd,
+            id: bddRes.rows[0].uti_id,
+            siteName: 'Savoir Rouler à Vélo',
+            url: `${config.FRONT_DOMAIN}`,
+        })
+        .then(() => {
+            log.d('Mail de confirmation envoyé')
+            req.session.user = null
+        })
+        .catch(err => {
+            log.w(err)
+            throw err
         })
     }
 
-    req.session.user = bddRes.rows[0]
-    user = formatUtilisateur(bddRes.rows[0])
     log.i('::verify - Done')
-    return res.send({user})
+    return res.send({user, isPwdConfirmed })
 })
 
 // Nouveur user FC mais qui a déjà une connexion via mot de passe.
@@ -172,16 +193,24 @@ router.post('/create-account-pwd', async (req, res) => {
     if(mailExistenceQuery && mailExistenceQuery.rowCount > 0) {
         if(mailExistenceQuery.rows[0].uti_tockenfranceconnect && !mailExistenceQuery.rows[0].pwd) {
             log.d('::create-account-pwd - Utilisateur déjà connecté via FC.')
-        // ENVOI MAIL ???????
-        //
-        //
-        //
             confirmInscription = false
             bddRes = await pgPool.query(`UPDATE utilisateur SET uti_pwd= $1 WHERE uti_id= $2 RETURNING *`, [ crypted, mailExistenceQuery.rows[0].uti_id]
                 ).catch(err => {
-                    console.log(err)
+                    log.w(err)
                     throw err
                 })
+            await sendValidationMail({
+                email: mailExistenceQuery.rows[0].uti_mail,
+                pwd: crypted,
+                id: mailExistenceQuery.rows[0].uti_id,
+                siteName: 'Savoir Rouler à Vélo',
+                url: `${config.FRONT_DOMAIN}`,
+            })
+            .then(() => log.d('Mail de confirmation envoyé'))
+            .catch(err => {
+                log.w(err)
+                throw err
+            })
         } else {
             return res.status(400).json({message: 'Veuillez contacter l\'assistance.'});        
         }
@@ -193,7 +222,7 @@ router.post('/create-account-pwd', async (req, res) => {
             VALUES($1, $2, $3, $4, $5) RETURNING *'
             , [3, 1, formatedMail, false, crypted ]
           ).catch(err => {
-            console.log(err)
+            log.w(err)
             throw err
           })
     }
@@ -241,6 +270,51 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
     })
 })
 
+// Validation du mot de passe.
+router.get('/enable-mail/:pwd/user/:id', async function(req, res) {
+    const id = req.params.id
+    const pwd = req.params.pwd
+    
+    log.i('::enable-mail - In', { id })
+    if(!id) {
+        return res.status(400).json('Aucun ID fournit pour  identifier l\'utilisateur.');
+    }
+
+    const userQuery = await pgPool.query(`SELECT * FROM utilisateur WHERE uti_id='${id}'`).catch(err => {
+        log.w(err)
+        throw err
+    })
+    const user= userQuery.rowCount === 1 && userQuery.rows[0]
+
+    if(!user) {
+        return res.status(404).json({message: "L'utilisateur n'existe pas."});        
+    }
+
+    log.d('::enable-mail - user found', { user })
+    if(user.uti_pwd === pwd && !user.pwd_validated) {
+        const requete = `UPDATE utilisateur 
+            SET pwd_validated = $1
+            WHERE uti_id = $2
+            RETURNING *
+            ;`    
+        pgPool.query(requete,[true, id], (err, result) => {
+            if (err) {
+                log.w('::enable-mail - erreur lors de l\'update', {requete, erreur: err.stack});
+                return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');
+            }
+            else {
+                log.i('::enable-mail - Done, pwd has been validated.')
+                req.session.user = result.rows[0]
+                req.accessToken = result.rows[0].uti_pwd;
+                req.session.accessToken = result.rows[0].uti_pwd;
+                return res.status(200).json({ user: formatUtilisateur(result.rows[0])});
+            }
+        })
+    } else {
+        log.w('::enable-mail - erreur concernant le user à valider.')
+        return res.status(400).json('L\'utilisateur a déjà validé son mot de passe ou le mot de passe fournit est incorrecte.');
+    }    
+})
 
 // Envoie l'url FC pour se déconnecter
 router.get('/logout', async(req, res) => {
