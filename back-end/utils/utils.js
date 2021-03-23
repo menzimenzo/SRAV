@@ -58,5 +58,6 @@ module.exports = {
             libelleCollectivite: utilisateur.libelleCollectivite
         }
     }
-}
+  }
+  , formatEmail: mail => mail && mail.trim().toLowerCase()
 }

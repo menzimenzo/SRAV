@@ -391,6 +391,30 @@ export const actions = {
             throw new Error(message)
           })
   },
+  forgot_password({ state }, { mail }) {
+      log.i('actions::forgot_password - Init', { mail })
+      return this.$axios.$post(`${process.env.API_URL}/connexion/forgot-password/${formatEmail(mail)}`)
+        .then(res => {
+          log.i('actions::forgot_password - Done', res)
+        })
+        .catch(err => {
+          log.w('actions::forgot_password', err)
+          const message = parseErrorMessage(get(err, 'response.data.message'))
+          throw new Error(message)
+        })
+  },
+  reset_password({ state }, { id, old, password, confirm }) {
+    log.i('actions::reset_password - in ', { id, old, password, confirm })
+    return this.$axios.$post(`${process.env.API_URL}/connexion/reset-password/`,{ id, old, password, confirm })
+      .then(res => {
+        log.i('actions::forgot_password - Done', res)
+      })
+      .catch(err => {
+        log.w('actions::forgot_password', err)
+        const message = parseErrorMessage(get(err, 'response.data.message'))
+        throw new Error(message)
+      })
+  },
   set_state_element({ commit }, {key,value }) {
     log.i('actions::set_state_element - In',{key , value} )
     return commit('SET', { key, value })

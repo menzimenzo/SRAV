@@ -7,14 +7,12 @@ const log = logger(module.filename)
 
 const pgPool = require('../pgpool').getPool();
 const config = require('../config');
-const {sendEmail, sendValidationMail } = require('../utils/mail-service')
+const {sendEmail, sendValidationMail, sendResetPasswordMail } = require('../utils/mail-service')
 const {getAuthorizationUrl, getLogoutUrl, formatUtilisateur} = require('../utils/utils')
 const bodyParser = require('body-parser');
 var moment = require('moment');
-const { oauthCallback } = require('../controllers/oauthCallback')
-const { pwdLogin } = require('../controllers/pwdLogin')
+const { oauthCallback, pwdLogin, generateForgotPasswordEncryption } = require('../controllers/index')
 moment().format();
-
 
 router.get('/login', (req, res) => {
     log.i('::login via France Connect')
@@ -314,6 +312,65 @@ router.get('/enable-mail/:pwd/user/:id', async function(req, res) {
         log.w('::enable-mail - erreur concernant le user à valider.')
         return res.status(400).json('L\'utilisateur a déjà validé son mot de passe ou le mot de passe fournit est incorrecte.');
     }    
+})
+
+// Reset du mot de passe oublié.
+router.post('/forgot-password/:mail', async function(req, res) {
+    const { mail } = req.params
+    log.i('::forgot-password - In', { mail })
+
+    if (!mail) {
+        log.w('::forgot-password - mail absent de la requête.')
+        return res.status(400).json({ message: 'Une adresse mail valide est nécessaire pour renouveler votre mot de passe.' })
+    }
+    await generateForgotPasswordEncryption({ mail })
+        .then(encryption => {
+            log.i('::forgot-password - Done', encryption)
+            return sendResetPasswordMail(encryption)
+                .then(() => {
+                    return res.status(200).json('ok')
+                })
+        }).catch(error => {
+            log.w('::forgot-password - erreur', error)
+            return res.status(400).json({message: error.message});        
+        })
+})
+
+router.post('/reset-password', async function(req, res) {
+    const { id, old, password } = req.body
+    log.i('::reset-password - In', { id, old, password })
+
+    if(!id || !old || !password) {
+        log.w('::reset-password - paramètre manquant.')
+        return res.status(400).json({ message: 'Un paramètre manque à la requête.' })
+    }
+
+    const userQuery = await pgPool.query(`SELECT uti_id, uti_pwd FROM utilisateur WHERE uti_pwd='${old}'`).catch(err => {
+        log.w(err)
+        throw err
+    })
+    const user = userQuery.rows && userQuery.rows.find( user => {
+        const candidate = user.uti_id && crypto.createHash('md5').update(user.uti_id.toString()).digest('hex')
+        return candidate === id
+    })
+    if(!user) {
+        log.w('::reset-password - Utilisateur inexistant.')
+        return res.status(404).json({ message: 'Aucun utilisateur trouvé.' })
+    }
+
+    log.d('::reset-password - Mise à jour du user.')
+    const newPwd= await crypto.createHash('md5').update(password).digest('hex')
+    const updateRequete = `UPDATE utilisateur SET uti_pwd=$1 WHERE uti_id=$2;`    
+    return pgPool.query(updateRequete,[ newPwd, user.uti_id],(err) => {
+        if (err) {
+            log.w('::reset-password - erreur lors de l\'update', {erreur: err.stack});
+            return res.status(400).json('erreur lors de la sauvegarde du nouveau mot de passe.');
+        }
+        else {
+            log.i('::reset-password - Done, nouveau mot de passe enregistré.')
+            return res.status(200).json('ok');
+        }
+    })
 })
 
 // Envoie l'url FC pour se déconnecter

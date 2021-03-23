@@ -45,7 +45,7 @@
       </b-form>
       <b-row align-h="center" class="text-center">
           <b-col cols="4"> 
-            <nuxt-link to="/">
+            <nuxt-link to="/mot-de-passe-oublie">
                 Mot de passe oublié
             </nuxt-link>
           </b-col>
