@@ -376,13 +376,12 @@ export const actions = {
             if(apiRes && apiRes.confirmInscription) {
               log.d('actions::register - User not recorded with FC')
               path= '/connexion/inscription'
+              commit("set_utilisateurCourant", user)
             } else {
               log.d('actions::register - User already use FC')
-              path = '/interventions'
-              this.$toast.success(`Bienvenue ${user.prenom}`)
-              this.$toast.info(`Vous pouvez maintenant vous connecter via France Connect et via mot de passe!`)
+              path = '/login'
+              this.$toast.info(`Un email de confirmation d'inscription vous a été envoyé. Veuillez cliquer sur le lien contenu dans ce mail.`)
             }
-            commit("set_utilisateurCourant", user)
             return this.$router.push({ path })
           })
           .catch((err) => {
