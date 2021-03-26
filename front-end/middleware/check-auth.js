@@ -12,7 +12,8 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
         route.path.indexOf('/connexion/login') === 0 ||
         route.path.indexOf('/connexion/logout') === 0 || 
         route.path.indexOf('/register') === 0 || 
-        route.path.indexOf('/validate') === 0) {
+        route.path.indexOf('/validate') === 0 || 
+        route.path.indexOf('/mot-de-passe-oublie') === 0) {
             log.d('Road does not need to be checked')
             return
     }

@@ -21,9 +21,9 @@ module.exports = {
     sendValidationMail: ({ url, email, siteName, pwd, id }) => {
         log.i('sendValidationMail - In', { mail_url: sendNotificationUrl, email, url, siteName, pwd, id })
         if (!email || !url) {
-            const message = messages.MISSING_PARAM(!email ? 'email' : 'url')
+            const message = `Le paramètre ${email ? 'email' : 'url'} manque à la requête`
             log.w(`sendValidationMail - ${message}`)
-            return res.status(statusCode).json({ message })
+            throw new Error(message)
         }
 
         // Add / at the end if not present
@@ -55,4 +55,41 @@ module.exports = {
             })
             .catch(error => log.w('sendValidationMail - error on sending mail',{ error, method: 'sendValidationMail' }))
     },
+    sendResetPasswordMail:({ mail, cryptedi, cryptedp }) => {
+        log.i('sendResetPasswordMail - In', { mail, cryptedi, cryptedp })
+        if (!mail) {
+            const message = "L'email manque à la requête."
+            log.w(`sendResetPasswordMail - ${message}`)
+            throw new Error(message)
+        }
+
+        // Add / at the end if not present
+        if (config.FRONT_DOMAIN && config.FRONT_DOMAIN.substr(-1) !== '/') {
+            config.FRONT_DOMAIN = config.FRONT_DOMAIN + '/'
+        }
+
+        log.d('sendResetPasswordMail - sending reinitialisation mail')
+        const params = {
+            from: SENDER_EMAIL,
+            replyTo: SENDER_EMAIL,
+            to: mail,
+            subject: `Réinitialiser votre mot de passe pour le site Savoir Rouler à vélo"`,
+            body: `
+            <p>Bonjour,</p>
+
+            <p>Vous recevez ce mail car vous avez effecuté une demande de réinitialisation de mot de passe sur le site Savoir Rouler à vélo</p>
+
+            <p>Veuillez entamer la procédure en cliquant sur le lien suivant:</p>
+
+            <p><a href="${config.FRONT_DOMAIN}mot-de-passe-oublie/reset?old=${cryptedp}&key=${cryptedi}">Je réinitialise mon mot de passe.</a></p>
+            `
+        }
+        log.d('sendResetPasswordMail post email', { sendNotificationUrl, params })
+
+        return axios.post(sendNotificationUrl, params)
+            .then(() => {
+                log.i('sendResetPasswordMail - Done')
+            })
+            .catch(error => log.w('sendResetPasswordMail - error on sending mail',{ error, method: 'sendValidationMail' }))
+    }
 }

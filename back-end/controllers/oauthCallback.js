@@ -12,7 +12,7 @@ const {formatUtilisateur} = require('../utils/utils')
  * Init FranceConnect authentication login process.
  * Make every http call to the different API endpoints.
  */
-const oauthCallback = async (req, res, next) => {
+module.exports = async (req, res, next) => {
   // check if the mandatory Authorization code is there.
   if (!req.query.code) {
     return res.sendStatus(400);
@@ -131,5 +131,3 @@ const oauthCallback = async (req, res, next) => {
     return next(error);
   }
 };
-
-module.exports =  {oauthCallback};
