@@ -3,7 +3,6 @@
     <b-row>
       <b-col cols="12">
         <!--  ACCORDEON -- JE SAISIS UNE INTERVENTION -->
-
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>

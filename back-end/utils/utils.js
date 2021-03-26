@@ -60,4 +60,80 @@ module.exports = {
     }
   }
   , formatEmail: mail => mail && mail.trim().toLowerCase()
+  , formatIntervention : (intervention) => {
+
+    const result = {
+        id: intervention.int_id,
+        cai: intervention.cai_id,
+        blocId: intervention.blo_id,
+        sinId: intervention.sin_id,
+        utiId: intervention.uti_id,
+        cp: intervention.int_com_codepostal,
+        commune: {
+            com_libellemaj: intervention.int_com_libelle,
+            cpi_codeinsee: intervention.int_com_codeinsee,
+            dep_num: intervention.int_dep_num,
+            reg_num: intervention.int_reg_num
+        },
+        nbEnfants: intervention.int_nombreenfant,
+        nbFilles: intervention.int_nombrefille,
+        nbGarcons: intervention.int_nombregarcon,
+        nbmoinssix:intervention.int_nombremoinssix,
+        nbsixhuit:intervention.int_nombresixhuit,
+        nbneufdix:intervention.int_nombreneufdix,
+        nbplusdix:intervention.int_nombreplusdix,
+        dateIntervention: intervention.dateintervention,
+        dateCreation: new Date(intervention.int_datecreation),
+        dateMaj: intervention.int_datemaj,
+        commentaire: intervention.int_commentaire,
+        siteintervention: intervention.int_siteintervention,
+        mailrelance: intervention.int_relancemail,
+        interventionACompleter: false,
+        interventionAVerifier: false,
+        corpsMail: null,
+        uti_mail: intervention.uti_mail
+    }
+
+    if(intervention.uti_nom){
+        result.nom = intervention.uti_prenom + ' ' + intervention.uti_nom
+    }
+
+    if(intervention.blo_libelle){
+        result.blocLib = intervention.blo_libelle
+    }
+
+    if(intervention.cai_libelle){
+        result.caiLib = intervention.cai_libelle
+    }
+
+    return result
+  },
+  logTrace : (batch,codeerreur,startTime) => {
+    var execTime = new Date() - startTime;
+    var fichierSupervision = config.PATH_SUPERVISION_BATCH;
+    var checkLog;
+    if (codeerreur == 0) {
+        checkLog = '';
+    }
+    else
+    {
+        checkLog = 'Check log Backend SRAV';
+    }    
+    var contenu = formatDate() + '|' + codeerreur + '|' + checkLog + '|ExecTime=' + execTime;
+
+    fs.writeFile(fichierSupervision + '/batch.' + batch + '.txt', contenu, function (err) {
+        if (err) throw err;
+      });    
+  },
+  formatDate : () => { // Renvoi la date et heure actuelle formatée AAAAMMJJHHMM
+    const now = new Date();
+    var jour = now.getDate().toString().padStart(2, "0");
+    var mois = now.getMonth().toString().padStart(2, "0");
+    var annee = now.getFullYear();
+    var heure = now.getHours().toString().padStart(2, "0");
+    var minute = now.getMinutes().toString().padStart(2, "0");
+    var dateTimeFormate = annee + mois + jour + heure + minute;
+    return dateTimeFormate;
+  }
+
 }
