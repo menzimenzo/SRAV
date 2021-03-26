@@ -2,8 +2,7 @@
   <b-container class="interventions">
     <b-row>
       <b-col cols="12">
-        <!--  ACCORDEON --  -->
-
+        <!--  ACCORDEON -- GESTION USER  -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
@@ -32,7 +31,7 @@
           </b-card-header>
           <b-collapse id="accordion1" accordion="my-accordion" role="tabpanel">
             <b-card-body>
-              <b-btn @click="exportCsv()" class="mb-2" variant="primary">
+              <b-btn @click="exportUsersCsv()" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
               </b-btn>
               <div class="mb-3">
@@ -53,12 +52,6 @@
                     :options="listeValidInscrip"
                   />
                 </b-form>
-                <!--
-                <b-form inline>
-                  <label class="ml-3"  for="profilFilter"> Profil :</label><b-form-select class="ml-3"  v-model="profilFilter" :options="listeprofil"/>
-                  <label class="ml-3"  for="inscriptionFilter"> Validité Inscription :</label><b-form-select class="ml-3"  v-model="inscriptionFilter" :options="listeValidInscrip"/>
-                </b-form>
-                -->
               </div>
               <editable
                 :columns="headers"
@@ -81,6 +74,7 @@
             </b-card-body>
           </b-collapse>
         </b-card>
+        <!--  ACCORDEON -- GESTION STRUCTURES  -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
@@ -335,6 +329,7 @@
             <b-row>&nbsp;</b-row>
           </b-collapse>
         </b-card>
+        <!-- ACCORDEON -- DOCUMENTS PUBLIES -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
@@ -363,7 +358,6 @@
             </b-card-body>
           </b-collapse>
         </b-card>
-
         <!--  ACCORDEON -- COMMENTAIRES -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
@@ -403,7 +397,8 @@
                 </b-form>
               </div>
               <editable
-                :columns="headersCom"
+                v-if="filteredInterventions.length > 0"
+                :columns="headersCommentaires"
                 :data="filteredInterventions"
                 :removable="false"
                 :creable="false"
@@ -411,12 +406,11 @@
                 :noDataLabel="''"
                 tableMaxHeight="none"
                 :loading="loading"
-                v-if="filteredInterventions.length > 0"
                 :defaultSortField="{ key: 'id', order: 'asc' }"
               >
                 <template slot-scope="props" slot="actions">{{props.data.id}}</template>
               </editable>
-              <h5 class="text-center" v-if="filteredInterventions.length == 0">Aucune intervention</h5>
+              <h5 v-else class="text-center">Aucune intervention</h5>
             </b-card-body>
           </b-collapse>
         </b-card>
@@ -457,7 +451,6 @@ export default {
     return {
       hover: false,
       remplissage: null,
-      statStructure: null,
       structure1: "nationale",
       structure2: "nationale",
       structure3: "",
@@ -492,7 +485,7 @@ export default {
           sortable: false
         }
       ],
-      headersCom: [
+      headersCommentaires: [
         { path: "nom", title: "Intervenant", type: "text", sortable: true },
         {
           path: "commune.com_libellemaj",
@@ -570,8 +563,7 @@ export default {
 
   methods: {
     editUser: function(id) {
-      return this.$store
-        .dispatch("get_user", id)
+      return this.$store.dispatch("get_user", id)
         .then(() => {
           this.$modal.show("editUser");
         })
@@ -582,15 +574,56 @@ export default {
           );
         });
     },
+    editStruct: function(id) {
+      if (id === null) {
+        this.$store.commit("clean_structureSelectionnee");
+        this.$modal.show("editStruct");
+      } else {
+        return this.$store.dispatch("get_structure", id)
+          .then(() => {
+            this.$modal.show("editStruct");
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération du détail de la structure",
+              error
+            );
+          });
+      }
+    },
+    exportUsersCsv() {
+      this.$axios({
+        url: process.env.API_URL + "/user/csv", // + this.utilisateurCourant.id,
+        // url: apiUrl + '/droits/' + 17,
+        method: "GET",
+        responseType: "blob"
+      })
+        .then(response => {
+          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
+          // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          // Crée un lien caché pour télécharger le fichier
+          const link = document.createElement("a");
+          link.href = url;
+          const fileName = "Savoir Rouler - Utilisateurs.csv";
+          link.setAttribute("download", fileName);
+          // Télécharge le fichier
+          link.click();
+          link.remove();
+          console.log("Done - Download", { fileName });
+        })
+        .catch(err => {
+          console.log(JSON.stringify(err));
+          this.$toasted.error("Erreur lors du téléchargement: " + err.message);
+        });
+    },
     viewCarte(str) {
-      this.remplissage = this.$store.state.statStructure[
-        str
-      ].CouleurParDepartementAdmin;
+      this.remplissage = this.statStructure[str].CouleurParDepartementAdmin;
     },
     viewHisto(str1, str2) {
       if (str2 != "") {
         this.data1 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -599,7 +632,7 @@ export default {
               borderColor: "#07509e",
               backgroundColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAtt
+              data: this.statStructure[str1].nbAtt
             },
             {
               type: "line",
@@ -608,55 +641,55 @@ export default {
               borderColor: "#000000",
               backgroundColor: "#000000",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str2].nbAtt
+              data: this.statStructure[str2].nbAtt
             },
             {
               label: "sco-" + str1,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntSco
+              data: this.statStructure[str1].nbIntSco
             },
             {
               label: "péri-sco-" + str1,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntPer
+              data: this.statStructure[str1].nbIntPer
             },
             {
               label: "ext sco-" + str1,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntExt
+              data: this.statStructure[str1].nbIntExt
             },
             {
               label: "sco-" + str2,
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntSco
+              data: this.statStructure[str2].nbIntSco
             },
             {
               label: "péri-sco-" + str2,
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntPer
+              data: this.statStructure[str2].nbIntPer
             },
             {
               label: "ext sco-" + str2,
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntExt
+              data: this.statStructure[str2].nbIntExt
             }
           ]
         };
         // Définition de l'objet Data envoyé au 3eme graphique
         this.data3 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -665,7 +698,7 @@ export default {
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAttCumule
+              data: this.statStructure[str1].nbAttCumule
             },
             {
               type: "line",
@@ -674,49 +707,49 @@ export default {
               backgroundColor: "#000000",
               borderColor: "#000000",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str2].nbAttCumule
+              data: this.statStructure[str2].nbAttCumule
             },
             {
               label: "bl. 1-" + str1,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc1
+              data: this.statStructure[str1].nbIntBloc1
             },
             {
               label: "bl. 2-" + str1,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc2
+              data: this.statStructure[str1].nbIntBloc2
             },
             {
               label: "bl. 3-" + str1,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc3
+              data: this.statStructure[str1].nbIntBloc3
             },
             {
               label: "bl. 1-" + str2,
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntBloc1
+              data: this.statStructure[str2].nbIntBloc1
             },
             {
               label: "bl. 2" + str2,
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntBloc2
+              data: this.statStructure[str2].nbIntBloc2
             },
             {
               label: "bl. 3" + str2,
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure[str2].nbIntBloc3
+              data: this.statStructure[str2].nbIntBloc3
             }
           ]
         };
@@ -763,7 +796,7 @@ export default {
         };
       } else {
         this.data1 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -772,34 +805,34 @@ export default {
               borderColor: "#07509e",
               backgroundColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAtt
+              data: this.statStructure[str1].nbAtt
             },
             {
               label: "sco-" + str1,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntSco
+              data: this.statStructure[str1].nbIntSco
             },
             {
               label: "péri-sco-" + str1,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntPer
+              data: this.statStructure[str1].nbIntPer
             },
             {
               label: "ext sco-" + str1,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntExt
+              data: this.statStructure[str1].nbIntExt
             }
           ]
         };
         // Définition de l'objet Data envoyé au 3eme graphique
         this.data3 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -808,28 +841,28 @@ export default {
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAttCumule
+              data: this.statStructure[str1].nbAttCumule
             },
             {
               label: "bl. 1-" + str1,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc1
+              data: this.statStructure[str1].nbIntBloc1
             },
             {
               label: "bl. 2-" + str1,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc2
+              data: this.statStructure[str1].nbIntBloc2
             },
             {
               label: "bl. 3-" + str1,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc3
+              data: this.statStructure[str1].nbIntBloc3
             }
           ]
         };
@@ -876,9 +909,9 @@ export default {
           {
             backgroundColor: ["#FF9914", "#F21B3F", "#08BDBD"],
             data: [
-              this.$store.state.statStructure[str1].nbBloc1Rel,
-              this.$store.state.statStructure[str1].nbBloc2Rel,
-              this.$store.state.statStructure[str1].nbBloc3Rel
+              this.statStructure[str1].nbBloc1Rel,
+              this.statStructure[str1].nbBloc2Rel,
+              this.statStructure[str1].nbBloc3Rel
             ],
             labels: ["Bl. 1-" + str1, "Bl. 2-" + str1, "Bl. 3-" + str1]
           },
@@ -906,15 +939,15 @@ export default {
               "Bloc 3 / scolaire"
             ],
             data: [
-              this.$store.state.statStructure[str1].IntParBlocParCadre[0],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[1],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[2],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[3],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[4],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[5],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[6],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[7],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[8]
+              this.statStructure[str1].IntParBlocParCadre[0],
+              this.statStructure[str1].IntParBlocParCadre[1],
+              this.statStructure[str1].IntParBlocParCadre[2],
+              this.statStructure[str1].IntParBlocParCadre[3],
+              this.statStructure[str1].IntParBlocParCadre[4],
+              this.statStructure[str1].IntParBlocParCadre[5],
+              this.statStructure[str1].IntParBlocParCadre[6],
+              this.statStructure[str1].IntParBlocParCadre[7],
+              this.statStructure[str1].IntParBlocParCadre[8]
             ]
           }
         ],
@@ -959,87 +992,22 @@ export default {
           }
         }
       };
-    },
-    editStruct: function(id) {
-      if (id === null) {
-        this.$store.commit("clean_structureSelectionnee");
-        this.$modal.show("editStruct");
-      } else {
-        return this.$store
-          .dispatch("get_structure", id)
-          .then(() => {
-            this.$modal.show("editStruct");
-          })
-          .catch(error => {
-            console.error(
-              "Une erreur est survenue lors de la récupération du détail de la structure",
-              error
-            );
-          });
-      }
-    },
-    //
-    // Export CSV des utilisateurs
-    //
-    exportCsv() {
-      this.$axios({
-        url: process.env.API_URL + "/user/csv", // + this.utilisateurCourant.id,
-        // url: apiUrl + '/droits/' + 17,
-        method: "GET",
-        responseType: "blob"
-      })
-        .then(response => {
-          // https://gist.github.com/javilobo8/097c30a233786be52070986d8cdb1743
-          // Crée un objet blob avec le contenue du CSV et un lien associé
-          const url = window.URL.createObjectURL(new Blob([response.data]));
-          // Crée un lien caché pour télécharger le fichier
-          const link = document.createElement("a");
-          link.href = url;
-          const fileName = "Savoir Rouler - Utilisateurs.csv";
-          link.setAttribute("download", fileName);
-          // Télécharge le fichier
-          link.click();
-          link.remove();
-          console.log("Done - Download", { fileName });
-        })
-        .catch(err => {
-          console.log(JSON.stringify(err));
-          this.$toasted.error("Erreur lors du téléchargement: " + err.message);
-        });
     }
   },
   //
   //  CHARGEMENT ASYNCHRONE DES USERS, STRUCTURES ET INTERVENTIONS
   //
   computed: {
-    ...mapState(["interventions", "users", "structures"]),
+    ...mapState(["interventions", "users", "structures", "statStructure"]),
     filteredInterventions: function() {
       return this.interventions.filter(intervention => {
-        var isMatch = true;
-        if (this.nameFilter != "") {
-          isMatch =
-            isMatch &&
-            (String(intervention.commentaire) != "null" &&
-              String(intervention.commentaire) != "") &&
-            intervention.nom
-              .toLowerCase()
-              .indexOf(this.nameFilter.toLowerCase()) > -1;
-        }
-        if (this.placeFilter != "") {
-          isMatch =
-            isMatch &&
-            (String(intervention.commentaire) != "null" &&
-              String(intervention.commentaire) != "") &&
-            intervention.commune.com_libellemaj
-              .toLowerCase()
-              .indexOf(this.placeFilter.toLowerCase()) > -1;
-        }
         // Suppression des interventions sans commentaire
-        if (this.placeFilter == "" && this.nameFilter == "") {
-          isMatch =
-            isMatch &&
-            (String(intervention.commentaire) != "null" &&
-              String(intervention.commentaire) != "");
+        let isMatch = intervention.commentaire && intervention.commentaire.length > 0
+        if (this.nameFilter) {
+          isMatch =  isMatch && intervention.nom.toLowerCase().indexOf(this.nameFilter.toLowerCase()) > -1
+        }
+        if (this.placeFilter) {
+          isMatch = isMatch && intervention.commune.com_libellemaj.toLowerCase().indexOf(this.placeFilter.toLowerCase()) > -1;
         }
         return isMatch;
       });
@@ -1099,24 +1067,19 @@ export default {
           error
         );
       }),
-      this.$store.dispatch("get_interventions")
+      this.$store.dispatch("get_interventions"),
     ]);
+
     // Calcul des stats définies dans le mixins stat.js
-    this.statCal(this.interventions, this.structures);
-    (this.remplissage = this.$store.state.statStructure[
-      this.structure1
-    ].CouleurParDepartementAdmin),
-      (this.statStructure = this.$store.state.statStructure);
-
+    this.statCal(this.interventions, this.structures)
+    // Initaliasiation des couleurs et des structures.
+    this.remplissage= this.statStructure[this.structure1].CouleurParDepartementAdmin
     // on positionne structure1 sur la structure de l'utilisateur
-    this.structure1 = "nationale";
     this.structure2 = this.structure1;
-
     // Affichage des graphiques
     this.viewHisto(this.structure2, this.structure3);
     this.viewDoughnut(this.structure2);
-    this.data4 = this.$store.state.statStructure["nationale"].data4;
-
+    this.data4 = this.statStructure["nationale"].data4;
     this.loading = false;
   }
 };

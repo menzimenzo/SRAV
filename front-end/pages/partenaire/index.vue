@@ -2,8 +2,7 @@
   <b-container>
     <b-row>
       <b-col cols="12">
-        <!--  ACCORDEON --  -->
-
+        <!--  ACCORDEON -- GESTION DES USERS -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
@@ -92,6 +91,7 @@
             </b-card-body>
           </b-collapse>
         </b-card>
+        <!--  ACCORDEON -- ACCES AUX INDICATEURS -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
@@ -335,6 +335,7 @@
             <b-row>&nbsp;</b-row>
           </b-collapse>
         </b-card>
+        <!--  ACCORDEON -- INTERVENTIONS -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
@@ -434,7 +435,6 @@ export default {
     return {
       hover: false,
       remplissage: null,
-      statStructure: null,
       structure1: "nationale",
       structure2: "MaStructure",
       structure3: false,
@@ -505,9 +505,7 @@ export default {
 
   methods: {
     viewCarte(str) {
-      this.remplissage = this.$store.state.statStructure[
-        str
-      ].CouleurParDepartement;
+      this.remplissage = this.statStructure[str].CouleurParDepartement;
     },
     viewHisto(str1, str2) {
       let str1Nom;
@@ -518,7 +516,7 @@ export default {
       }
       if (str2 === true) {
         this.data1 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -527,7 +525,7 @@ export default {
               borderColor: "#07509e",
               backgroundColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAtt,
+              data: this.statStructure[str1].nbAtt
             },
             {
               type: "line",
@@ -536,55 +534,55 @@ export default {
               borderColor: "#000000",
               backgroundColor: "#000000",
               yAxisID: "B",
-              data: this.$store.state.statStructure["nationale"].nbAtt,
+              data: this.statStructure["nationale"].nbAtt
             },
             {
               label: "sco-" + str1Nom,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntSco,
+              data: this.statStructure[str1].nbIntSco
             },
             {
               label: "péri-sco-" + str1Nom,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntPer,
+              data: this.statStructure[str1].nbIntPer
             },
             {
               label: "ext sco-" + str1Nom,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntExt,
+              data: this.statStructure[str1].nbIntExt
             },
             {
               label: "sco-nationale",
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure["nationale"].nbIntSco,
+              data: this.statStructure["nationale"].nbIntSco
             },
             {
               label: "péri-sco-nationale",
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure["nationale"].nbIntPer,
+              data: this.statStructure["nationale"].nbIntPer
             },
             {
               label: "ext sco-nationale",
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure["nationale"].nbIntExt,
-            },
-          ],
+              data: this.statStructure["nationale"].nbIntExt
+            }
+          ]
         };
         // Définition de l'objet Data envoyé au 3eme graphique
         this.data3 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -593,7 +591,7 @@ export default {
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAttCumule,
+              data: this.statStructure[str1].nbAttCumule
             },
             {
               type: "line",
@@ -602,51 +600,51 @@ export default {
               backgroundColor: "#000000",
               borderColor: "#000000",
               yAxisID: "B",
-              data: this.$store.state.statStructure["nationale"].nbAttCumule,
+              data: this.statStructure["nationale"].nbAttCumule
             },
             {
               label: "bl. 1-" + str1Nom,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc1,
+              data: this.statStructure[str1].nbIntBloc1
             },
             {
               label: "bl. 2-" + str1Nom,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc2,
+              data: this.statStructure[str1].nbIntBloc2
             },
             {
               label: "bl. 3-" + str1Nom,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc3,
+              data: this.statStructure[str1].nbIntBloc3
             },
             {
               label: "bl. 1-nationale",
               backgroundColor: "#9AB9A7",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure["nationale"].nbIntBloc1,
+              data: this.statStructure["nationale"].nbIntBloc1
             },
             {
               label: "bl. 2-nationale",
               backgroundColor: "#4A5759",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure["nationale"].nbIntBloc2,
+              data: this.statStructure["nationale"].nbIntBloc2
             },
             {
               label: "bl. 3-nationale",
               backgroundColor: "#B6B4AC",
               yAxisID: "A",
               stack: "st2",
-              data: this.$store.state.statStructure["nationale"].nbIntBloc3,
-            },
-          ],
+              data: this.statStructure["nationale"].nbIntBloc3
+            }
+          ]
         };
         // Définition des options du 1er et 3eme grahiques
         this.optionsHisto = {
@@ -691,7 +689,7 @@ export default {
         };
       } else {
         this.data1 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -700,34 +698,34 @@ export default {
               borderColor: "#07509e",
               backgroundColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAtt,
+              data: this.statStructure[str1].nbAtt
             },
             {
               label: "sco-" + str1Nom,
               backgroundColor: "#29BF12",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntSco,
+              data: this.statStructure[str1].nbIntSco
             },
             {
               label: "péri-sco-" + str1Nom,
               backgroundColor: "#9543D8",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntPer,
+              data: this.statStructure[str1].nbIntPer
             },
             {
               label: "ext sco-" + str1Nom,
               backgroundColor: "#E4FC2E",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntExt,
-            },
-          ],
+              data: this.statStructure[str1].nbIntExt
+            }
+          ]
         };
         // Définition de l'objet Data envoyé au 3eme graphique
         this.data3 = {
-          labels: this.$store.state.statStructure["nationale"].labelsHisto,
+          labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
             {
               type: "line",
@@ -736,30 +734,30 @@ export default {
               backgroundColor: "#07509e",
               borderColor: "#07509e",
               yAxisID: "B",
-              data: this.$store.state.statStructure[str1].nbAttCumule,
+              data: this.statStructure[str1].nbAttCumule
             },
             {
               label: "bl. 1-" + str1Nom,
               backgroundColor: "#FF9914",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc1,
+              data: this.statStructure[str1].nbIntBloc1
             },
             {
               label: "bl. 2-" + str1Nom,
               backgroundColor: "#F21B3F",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc2,
+              data: this.statStructure[str1].nbIntBloc2
             },
             {
               label: "bl. 3-" + str1Nom,
               backgroundColor: "#08BDBD",
               yAxisID: "A",
               stack: "st1",
-              data: this.$store.state.statStructure[str1].nbIntBloc3,
-            },
-          ],
+              data: this.statStructure[str1].nbIntBloc3
+            }
+          ]
         };
         // Définition des options du 1er et 3eme grahiques
         this.optionsHisto = {
@@ -810,15 +808,15 @@ export default {
           {
             backgroundColor: ["#FF9914", "#F21B3F", "#08BDBD"],
             data: [
-              this.$store.state.statStructure[str1].nbBloc1Rel,
-              this.$store.state.statStructure[str1].nbBloc2Rel,
-              this.$store.state.statStructure[str1].nbBloc3Rel,
+              this.statStructure[str1].nbBloc1Rel,
+              this.statStructure[str1].nbBloc2Rel,
+              this.statStructure[str1].nbBloc3Rel
             ],
-            labels: [
+             labels: [
               "Bl. 1-" + str1Nom,
               "Bl. 2-" + str1Nom,
               "Bl. 3-" + str1Nom,
-            ],
+            ]
           },
           {
             backgroundColor: [
@@ -844,17 +842,17 @@ export default {
               "Bloc 3 / scolaire",
             ],
             data: [
-              this.$store.state.statStructure[str1].IntParBlocParCadre[0],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[1],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[2],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[3],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[4],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[5],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[6],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[7],
-              this.$store.state.statStructure[str1].IntParBlocParCadre[8],
-            ],
-          },
+              this.statStructure[str1].IntParBlocParCadre[0],
+              this.statStructure[str1].IntParBlocParCadre[1],
+              this.statStructure[str1].IntParBlocParCadre[2],
+              this.statStructure[str1].IntParBlocParCadre[3],
+              this.statStructure[str1].IntParBlocParCadre[4],
+              this.statStructure[str1].IntParBlocParCadre[5],
+              this.statStructure[str1].IntParBlocParCadre[6],
+              this.statStructure[str1].IntParBlocParCadre[7],
+              this.statStructure[str1].IntParBlocParCadre[8]
+            ]
+          }
         ],
         labels: ["Bloc 1", "Bloc 2", "Bloc 3"],
       };
@@ -964,9 +962,9 @@ export default {
     },
   },
   computed: {
-    ...mapState(["interventions", "users", "documents", "structures"]),
-    filteredUtilisateurs: function () {
-      return this.users.filter((user) => {
+    ...mapState(["interventions", "users", "documents", "structures", "statStructure"]),
+    filteredUtilisateurs: function() {
+      return this.users.filter(user => {
         var isMatch = true;
         console.log(this.nomFilter);
         if (this.nomFilter != "") {
@@ -1061,13 +1059,20 @@ export default {
         }),
       this.$store.dispatch("get_interventions"),
       this.$store.dispatch("get_structures"),
+      // Calcul des stats définies dans le mixins stat.js
+      this.statCal(this.interventions, this.structures)
     ]);
-    // Calcul des stats définies dans le mixins stat.js
-    this.statCal(this.interventions, this.structures);
-    this.remplissage = this.$store.state.statStructure[
-      "MaStructure"
-    ].CouleurParDepartement;
-    this.statStructure = this.$store.state.statStructure;
+    // on positionne structure1 sur la structure de l'utilisateur
+    this.structures.forEach(x => {
+      if (
+        String(x.str_id) ===
+        String(this.$store.state.utilisateurCourant.structureId)
+      ) {
+        this.structure1 = String(x.str_libellecourt);
+        this.structure2 = this.structure1;
+      }
+    });
+    this.remplissage = this.statStructure[this.structure1].CouleurParDepartement,
 
     // Affichage des graphiques
     this.viewHisto(this.structure2, this.structure3);

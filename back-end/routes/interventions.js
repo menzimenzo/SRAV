@@ -88,10 +88,6 @@ router.get('/delete/:id', async function (req, res) {
 
 router.get('/csv/:utilisateurId', async function (req, res) {
 
-    //const utilisateurId = req.params.utilisateurId; // TODO à récupérer via POST ?
-    // Where condition is here for security reasons.
-
-   /* MANTIS 68203 Erreur lors de l'export par un Admin */
    // Modification de la récupération de l'utilisateur courant 
     if(!req.session.user){
         return res.sendStatus(403)
