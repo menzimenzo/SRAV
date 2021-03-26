@@ -1,12 +1,12 @@
 <template>
-    <tr class="body-row" @click="rowClicked" data-test-row="editable">
+    <tr :class="[isDisabled ? 'row-disabled' : 'body-row']" @click="rowClicked" data-test-row="editable">
         <td v-for="column in columns"
             :key="'body-col-' + column.title"
             class="text-center"
             :data-title="column.title">
             <template v-if="isSpecialField(column.path)">
                 <template v-if="fieldType(column.path) === '__slot' && can(column)">
-                    <slot :name="fieldPath(column.path)"></slot>
+                    <slot :name="fieldPath(column.path)" />
                 </template>
             </template>
             <template v-else>
@@ -67,7 +67,7 @@
                     data-test-link="editable-edit"
                     @click="edit"
                     title="Modifier">
-                    <btnEditer color="#fff"></btnEditer>
+                    <btnEditer color="#fff" />
                 </a>
                 <a class="btn-remove btn-rounded btn-shadow no-margin-left"
                     v-if="removable"
@@ -76,7 +76,7 @@
                     @click="remove"
                     title="Supprimer"
                     data-test-link="editable-delete">
-                    <btnSupprimer></btnSupprimer>
+                    <btnSupprimer />
                 </a>
             </div>
         </td>
@@ -84,22 +84,21 @@
 </template>
 
 <script>
-
-
 import _ from 'lodash'
-import Vue from 'vue'
 import table from '~/lib/mixins/table'
-
-import inputValidationErrors from './input-validation-errors'
-import btnSupprimer from './svg-supprimer'
-import btnEditer from './svg-editer'
 
 export default {
     inject: ['$validator'],
+    components: {
+        inputValidationErrors: () => import('./input-validation-errors'),
+        btnSupprimer: () => import('./svg-supprimer'),
+        btnEditer: () => import('./svg-editer')
+    },
     mixins: [table],
     props: {
         scope: {
-            type: String
+            type: String,
+            default: ''
         },
         columns: {
             type: Array,
@@ -134,11 +133,6 @@ export default {
             required: true
         }
     },
-    components: {
-        inputValidationErrors,
-        btnSupprimer,
-        btnEditer
-    },
     computed: {
         editingScope() {
             return this.scope + '-' + this.index
@@ -148,6 +142,9 @@ export default {
                 return true
             }
             return _.includes(_.uniq(_.map(this.columns, 'editable')), true)
+        },
+        isDisabled() {
+            return this.item && this.item.options && this.item.options.disabled
         }
     },
     methods: {
@@ -181,6 +178,9 @@ export default {
 <style lang="scss" scoped>
     tr.body-row {
         background-color:#FFF;
+    }
+    tr.row-disabled, tr.row-disabled:hover {
+      background-color: #cfcfcf;
     }
     .btn-group .btn + .btn {
         margin-left: 0 !important;

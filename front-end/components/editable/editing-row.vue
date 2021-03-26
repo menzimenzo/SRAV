@@ -7,44 +7,46 @@
             <div v-if="canEditColumn(column)">
                 <div v-if="column.type === 'text'">
                     <input type="text"
-                        v-model.trim="clonedItem[getPath(column.path)]"
+                        :value="getObjectValue(clonedItem, getPath(column.path))"
                         v-validate="column.validation ? column.validation : ''"
-                        :data-vv-name="getPath(column.path)"
+                        :data-vv-name="column.path"
                         :data-vv-as="column.title"
                         role="textbox"
                         class="form-control"
+                        @input="setObjectValue(clonedItem, getPath(column.path), $event.target.value)"
                         @change="has(column, 'inputCallback') ? column.inputCallback(clonedItem) : ''" />
                 </div>
                 <div v-else-if="column.type === 'number'">
                     <input type="number"
+                        :value="getObjectValue(clonedItem, getPath(column.path)) != undefined ? +getObjectValue(clonedItem, getPath(column.path)) : null"
                         role="textbox"
                         class="form-control"
-                        v-model.number="clonedItem[getPath(column.path)]"
                         v-validate="column.validation ? column.validation : ''"
-                        :data-vv-name="getPath(column.path)"
+                        :data-vv-name="column.path"
                         :data-vv-as="column.title"
+                        @input="setObjectValue(clonedItem, getPath(column.path), +$event.target.value)"
                         @change="has(column, 'inputCallback') ? column.inputCallback(clonedItem) : ''" />
                 </div>
                 <div v-else-if="column.type === 'checkbox'" class="checkbox">
                     <label>
                         <input type="checkbox"
                             role="checkbox"
-                            v-model="clonedItem[getPath(column.path)]"
+                            :checked="getObjectValue(clonedItem, getPath(column.path))"
                             v-validate="column.validation ? column.validation : ''"
                             :data-vv-name="getPath(column.path)"
                             :data-vv-as="column.title"
-                            @change="has(column, 'inputCallback') ? column.inputCallback(clonedItem) : ''" />
+                            @change="setObjectValue(clonedItem, getPath(column.path), $event.target.checked) && has(column, 'inputCallback') ? column.inputCallback(clonedItem) : ''">
                     </label>
                 </div>
                 <div v-else-if="column.type === 'select'">
                     <select class="form-control"
-                        v-model="clonedItem[getPath(column.path)]"
-                        v-bind:key="column.id"
+                        :value="getObjectValue(clonedItem, getPath(column.path))"
+                        :key="column.id"
                         v-validate="column.validation ? column.validation : ''"
-                        :data-vv-name="getPath(column.path)"
+                        :data-vv-name="column.path"
                         :data-vv-as="column.title"
                         role="listbox"
-                        @change="setMe(column)" >
+                        @change="setObjectValue(clonedItem, getPath(column.path), $event.target.value) && has(column, 'inputCallback') ? column.inputCallback(clonedItem) : ''">
                         <option role="option"
                             v-for="option in optionsValues(column)"
                             :key="'option-' + has(option, 'value') ? option.value : option"
@@ -71,7 +73,7 @@
                 </div>
                 <template v-else-if="isSpecialField(column.type)">
                     <template v-if="fieldType(column.type) === '__slot' && can(column)">
-                        <slot :name="fieldPath(column.type)"></slot>
+                        <slot :name="fieldPath(column.type)" />
                     </template>
                 </template>
                 <input-validation-errors
@@ -102,7 +104,7 @@
                     <template v-if="column.type === 'checkbox'">
                         <span :data-test-checked="column.callback(item)"
                             :class="['glyphicon', column.callback(item) ? 'glyphicon-ok' : 'glyphicon-remove']"
-                            aria-hidden="true"></span>
+                            aria-hidden="true" />
                     </template>
                     <template v-else>
                         <template v-if="column.callback(item) && column.filter">
@@ -124,7 +126,7 @@
                     data-test-link="editable-save"
                     @click="validate"
                     title="Enregistrer">
-                    <btnEnregistrer color="#fff"></btnEnregistrer>
+                    <btnEnregistrer color="#fff" />
                 </a>
                 <a class="btn-remove btn-rounded btn-shadow no-margin-left"
                     role="button"
@@ -132,7 +134,7 @@
                     data-test-link="editable-cancel"
                     @click="$emit('clean')"
                     title="Annuler">
-                    <btnAnnuler></btnAnnuler>
+                    <btnAnnuler />
                 </a>
             </div>
         </td>
@@ -141,20 +143,18 @@
 
 <script>
 import { fr } from 'vuejs-datepicker/dist/locale'
-
-
 import _ from 'lodash'
 import Vue from 'vue'
 import table from '~/lib/mixins/table'
 
-//import Datepicker from 'vuejs-datepicker'
-import inputValidationErrors from './input-validation-errors'
-import btnEnregistrer from './svg-enregistrer'
-import btnAnnuler from './svg-annuler'
-
 export default {
     $_veeValidate: {
         validator: 'new'
+    },
+    components: {
+        inputValidationErrors:  () => import('./input-validation-errors'),
+        btnEnregistrer:  () => import('./svg-enregistrer'),
+        btnAnnuler: () => import('./svg-annuler')
     },
     mixins: [table],
     props: {
@@ -181,12 +181,6 @@ export default {
             clonedItem: _.cloneDeep(this.item)
         }
     },
-    components: {
-        inputValidationErrors,
-        btnEnregistrer,
-        btnAnnuler
-        //Datepicker
-    },
     watch: {
         item(item) {
             this.clonedItem = _.cloneDeep(item)
@@ -211,7 +205,8 @@ export default {
         },
         canEditColumn(column) {
             const editable = this.item.options && this.item.options.editable || {}
-            return this.newItem || this.has(column, 'type') && (editable && editable[column.path] || (editable[column.path] === undefined && column.editable))
+            const creable = (this.item.options && this.item.options.creable) || (column && typeof column.creable === 'boolean') ? column.creable : {}
+            return (this.newItem && creable) || this.has(column, 'type') && (editable && editable[column.path] || (editable[column.path] === undefined && column.editable))
         },
         can(column) {
             const action = column.path.split(':')[1]
