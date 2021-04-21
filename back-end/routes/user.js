@@ -19,10 +19,9 @@ const formatUser = user => {
         mail: user.uti_mail,
         nom: user.uti_nom,
         prenom: user.uti_prenom,
-        naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
-        typeCollectivite: user.typeCollectivite,
+        typeCollectivite: user.str_typeCollectivite,
         proLibelle:user.pro_libelle,
         inscription: user.inscription,
         siteweb: user.uti_siteweb, 
@@ -48,10 +47,9 @@ const formatUserCSV = user => {
         mail: user.uti_mail,
         nom: user.uti_nom,
         prenom: user.uti_prenom,
-        naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
-        typeCollectivite: user.typeCollectivite,
+        typeCollectivite: user.str_typeCollectivite,
         proLibelle:user.pro_libelle,
         inscription: user.inscription,
         siteweb: user.uti_siteweb, 
@@ -75,39 +73,43 @@ router.get('/csv', async function (req, res) {
     log.d('::csv - Profil de l\'utilisateur : ' + req.session.user.pro_id);
     // Je suis utilisateur "Administrateur" ==> Export de la liste des tous les utilisateurs
     if ( utilisateurCourant.pro_id == 1 ) {
-        requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
+        requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel,  
         replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
         str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale, uti.uti_siteweb as siteweb, 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
         uti_com_codepostal as codepostal,
-        uti_com_libelle as commune,
+        com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
-        uti_autorisepublicarte as autorisepublicarte
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id 
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
         order by 3,4 asc`;
     } 
     // Je suis utilisateur "Partenaire" ==> Export de la liste des interventants
     else {
-        requete =`SELECT uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
+        requete =`SELECT uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel,  
         replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
         str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale, uti.uti_siteweb as siteweb, 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
         uti_com_codepostal as codepostal,
-        uti_com_libelle as commune,
+        com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
-        uti_autorisepublicarte as autorisepublicarte
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
         where uti.str_id=${utilisateurCourant.str_id} order by 3,4 asc`;
     }
@@ -154,13 +156,14 @@ router.get('/:id', async function (req, res) {
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
         uti_com_codepostal as codepostal,
-        uti_com_libelle as commune,
+        com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} order by uti_id asc`;
     }
@@ -172,13 +175,14 @@ router.get('/:id', async function (req, res) {
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
         uti_com_codepostal as codepostal,
-        uti_com_libelle as commune,
+        com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} and uti.str_id = ${utilisateurCourant.str_id}
         order by uti_id asc `;
@@ -216,13 +220,14 @@ router.get('/', async function (req, res) {
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
         uti_com_codepostal as codepostal,
-        uti_com_libelle as commune,
+        com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
         order by uti_id asc`;
     }
@@ -235,13 +240,14 @@ router.get('/', async function (req, res) {
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
         uti_com_codepostal as codepostal,
-        uti_com_libelle as commune,
+        com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
         where uti.str_id=${utilisateurCourant.str_id} order by uti_id asc  `;
     }
