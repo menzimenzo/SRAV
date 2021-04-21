@@ -16,8 +16,11 @@ module.exports = async function(req, res) {
         log.w('password is missing.')
         return res.status(400).json({ message: 'Aucun mot de passe fournit pour identification.'});
     }
+    log.i("pwdlogin.js::19 ######################")
 
-    const requete = `SELECT * FROM utilisateur WHERE uti_mail='${mail}'`;
+    const requete = `SELECT * FROM utilisateur \
+                            left join structure str on str.str_id = uti.str_id \
+                            WHERE uti_mail='${mail}'`;
     const crypted = await crypto.createHash('md5').update(password).digest('hex');
 
     pgPool.query(requete, (err, result) => {

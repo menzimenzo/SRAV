@@ -39,7 +39,7 @@
           <!--Mantis 68055 : min_value: 1-->
           <b-form-select
             id="structNatSelect"
-            v-model="structureId"
+            v-model="userStructureId"
             v-validate="{ required: true, min_value: 1 }"
             name="struct"
             :state="validateState('struct')"
@@ -66,7 +66,7 @@
         <!-- Cas d'une structure non collectivite territoriale
             le champ structureLocale ne doit apparaitre que si la structure n'est pas une collectivité
              quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999-> -->
-        <div v-if="user.structureId != 99999">
+        <div v-if="userStructureId != 99999">
           <b-form-group
             id="structLocaleGroup"
             label="Structure locale :"
@@ -254,7 +254,7 @@
         </div>
         <!-- FIN Cas d'une collectivite territoriale-->
 
-        
+
 
       </b-form>
     </b-card>
@@ -402,7 +402,7 @@ export default {
         listepci: null,
         cpEpci: null,
         boolEpci: false,
-        structureId: null,
+        userStructureId: null,
         listecommune: [
         {
           text: "Veuillez saisir un code postal",
@@ -641,9 +641,24 @@ export default {
     //}
     
     this.getDepartements().then((res) => {});
-
+/*
     console.log("Structure : " + (this.user.structureId))
-    console.log("TypeCollectivite : " + this.user.typeCollectivite)
+    console.log("structureLibelleCourt : " + this.user.structureLibelleCourt)
+    console.log("libelleCollectivite : " + this.user.libelleCollectivite)
+    console.log("StructureLocale : " + this.user.structureLocale)
+    console.log("str_libellecourt : " + this.user.str_libellecourt)
+    console.log("typeCollectivite : " + this.user.typeCollectivite)
+    */
+    if (this.user.typeCollectivite) {
+      this.userStructureId = 99999;
+    }
+        else
+    {
+      this.userStructureId = this.user.structureId;
+
+    }
+
+
     // Chargement du CP et liste commune + sélection
     if(this.user.codepostal)
     {
@@ -673,15 +688,10 @@ export default {
               (String(str.str_libellecourt) != "DEP") &
               (String(str.str_libellecourt) != "EPCI") &
               (String(str.str_libellecourt) != "COM");
-            if (this.user.structureId == str.structureId) {
-              console.log("C'est une collectivité")
-              //this.structureId = "9999";
-              }
 
             return isMatch;
           });
         } 
-        console.log("TypeCollectivite : " + this.user.typeCollectivite)
         return liste;
       }
     },    

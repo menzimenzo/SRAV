@@ -425,6 +425,7 @@ export default {
       listepci: null,
       cpEpci: null,
       boolEpci: false,
+      userStructureId: 0,
       listecommune: [
         {
           text: "Veuillez saisir un code postal",
@@ -594,7 +595,6 @@ export default {
       // On recherche la liste des communes lors de la modification du Code postal
       this.recherchecommune2();
     },
-
     "emailidentique"()  {
       console.log("Check mailidentiques : " + this.emailidentique)
       // Renseignement automatique de la valeur de mailcontact avec l'adresse mail de l'utilisateur si on coche
@@ -605,17 +605,46 @@ export default {
       }
       
     },
+    "userStructureId"() {
+      this.user.structureId = this.userStructureId
+    }
   },
   async mounted() {
     // Mantis 68055
     //if (!this.user.validated) {
+/*
+    console.log("Structure : " + (this.user.structureId))
+    console.log("structureLibelleCourt : " + this.user.structureLibelleCourt)
+    console.log("libelleCollectivite : " + this.user.libelleCollectivite)
+    console.log("StructureLocale : " + this.user.structureLocale)
+    console.log("str_libellecourt : " + this.user.str_libellecourt)
+    console.log("typeCollectivite : " + this.user.typeCollectivite)
+*/
     if (!this.user.structureId) {
       // remise à 0 de la structu
-      console.log("Remise à 0 de la structure : " + this.user.structureId )
+      //console.log("Remise à 0 de la structure : " + this.user.structureId )
       this.user.structureId = 0;
+      //console.log("première connexion structure à 0 : ")
+    }
+    else
+    {
+      if (this.user.typeCollectivite) {
+        this.userStructureId = 99999;
+        //console.log("On a une collectivite  : userStructureId = 99999")
+      }
+      else
+      {
+        this.userStructureId = this.user.structureId;
+        //console.log("Structure standard  : userStructureId : " + this.userStructureId)
+      }
+
     }
     await this.$store.dispatch("get_structures");
     this.getDepartements().then((res) => {});
+
+
+
+
 
     // Chargement du CP et liste commune + sélection
     if(this.user.codepostal)

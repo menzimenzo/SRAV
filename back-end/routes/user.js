@@ -22,6 +22,7 @@ const formatUser = user => {
         naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
+        typeCollectivite: user.typeCollectivite,
         proLibelle:user.pro_libelle,
         inscription: user.inscription,
         siteweb: user.uti_siteweb, 
@@ -50,6 +51,7 @@ const formatUserCSV = user => {
         naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
+        typeCollectivite: user.typeCollectivite,
         proLibelle:user.pro_libelle,
         inscription: user.inscription,
         siteweb: user.uti_siteweb, 
@@ -142,6 +144,9 @@ router.get('/:id', async function (req, res) {
     const id = req.params.id;
     log.i('::get - In', { id })
     const utilisateurCourant = req.session.user
+
+    log.i("user.js::148 ######################")
+
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
         requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb , 
@@ -152,7 +157,8 @@ router.get('/:id', async function (req, res) {
         uti_com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
-        uti_autorisepublicarte as autorisepublicarte
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
@@ -169,7 +175,8 @@ router.get('/:id', async function (req, res) {
         uti_com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
-        uti_autorisepublicarte as autorisepublicarte
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
@@ -200,7 +207,7 @@ router.get('/', async function (req, res) {
     log.d('::get - id = ', req.session.user );
     const utilisateurCourant = req.session.user
     //const utilisateurId = 1; // TODO à récupérer via GET ?
-    
+
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche tous les utilisateurs
         requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
@@ -212,7 +219,8 @@ router.get('/', async function (req, res) {
         uti_com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
-        uti_autorisepublicarte as autorisepublicarte
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id
@@ -230,7 +238,8 @@ router.get('/', async function (req, res) {
         uti_com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
-        uti_autorisepublicarte as autorisepublicarte
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
