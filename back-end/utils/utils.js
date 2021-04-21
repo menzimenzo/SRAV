@@ -45,7 +45,6 @@ module.exports = {
             compladresse:utilisateur.uti_complementadresse,
             codeinsee:utilisateur.uti_com_codeinsee,
             codepostal:utilisateur.uti_com_codepostal,
-            commune:utilisateur.uti_com_libelle,
             mailcontact:utilisateur.uti_mailcontact,
             telephone:utilisateur.uti_telephone,
             autorisepublicarte:utilisateur.uti_autorisepublicarte
@@ -70,10 +69,9 @@ module.exports = {
             uti_complementadresse: utilisateur.compladresse,
             uti_com_codeinsee: utilisateur.codeinsee,
             uti_com_codepostal: utilisateur.codepostal,
-            uti_com_libelle: utilisateur.commune,
             uti_mailcontact: utilisateur.mailcontact  && utilisateur.mailcontact.toLowerCase() ,
             uti_telephone: utilisateur.telephone,
-            uti_autorisepublicarte: utilisateur.autorisationpublicarte
+            uti_autorisepublicarte: utilisateur.autorisepublicarte
         }
     }
   }

@@ -4,7 +4,6 @@ add column UTI_ADRESSE          VARCHAR(50)     null,
 add column UTI_COMPLEMENTADRESSE VARCHAR(50)     null,
 add column UTI_COM_CODEINSEE    VARCHAR(5)      null,
 add column UTI_COM_CODEPOSTAL   VARCHAR(5)      null,
-add column UTI_COM_LIBELLE     VARCHAR(50)      null,
 add column UTI_MAILCONTACT    VARCHAR(50)      null,
 add column UTI_TELEPHONE       VARCHAR(10)      null,
 add column UTI_AUTORISEPUBLICARTE   BOOLEAN default false;

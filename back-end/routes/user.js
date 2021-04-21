@@ -24,15 +24,14 @@ const formatUser = user => {
         structureLibelleCourt: user.str_libellecourt,
         proLibelle:user.pro_libelle,
         inscription: user.inscription,
-        siteweb: user.siteweb, 
-        adresse: user.adresse,
-        compladresse: user.compladresse,
-        codeinsee: user.codeinsee,
-        codepostal: user.codepostal,
-        commune: user.commune,
-        mailcontact: user.mailcontact,
-        telephone: user.telephone,
-        autorisepublicarte: user.autorisepublicarte
+        siteweb: user.uti_siteweb, 
+        adresse: user.uti_adresse,
+        compladresse: user.uti_complementadresse,
+        codeinsee: user.uti_com_codeinsee,
+        codepostal: user.uti_com_codepostal,
+        mailcontact: user.uti_mailcontact,
+        telephone: user.uti_telephone,
+        autorisepublicarte: user.uti_autorisepublicarte
     }
 }
 
@@ -53,15 +52,14 @@ const formatUserCSV = user => {
         structureLibelleCourt: user.str_libellecourt,
         proLibelle:user.pro_libelle,
         inscription: user.inscription,
-        siteweb: user.siteweb, 
-        adresse: user.adresse,
-        compladresse: user.compladresse,
-        codeinsee: user.codeinsee,
-        codepostal: user.codepostal,
-        commune: user.commune,
-        mailcontact: user.mailcontact,
-        telephone: user.telephone,
-        autorisepublicarte: user.autorisepublicarte
+        siteweb: user.uti_siteweb, 
+        adresse: user.uti_adresse,
+        compladresse: user.uti_complementadresse,
+        codeinsee: user.uti_com_codeinsee,
+        codepostal: user.uti_com_codepostal,
+        mailcontact: user.uti_mailcontact,
+        telephone: user.uti_telephone,
+        autorisepublicarte: user.uti_autorisepublicarte
     }
 }
 
@@ -256,14 +254,15 @@ router.put('/:id', async function (req, res) {
     const user = req.body.utilisateurSelectionne
     const id = req.params.id
     log.i('::update - In', { id })
-    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut, siteweb, adresse, compladresse, codeinsee, codepostal, commune, mailcontact, telephone, autorisepublicarte } = user
+    log.d('::update - ', { user })
+    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut, siteweb, adresse, compladresse, codeinsee, codepostal, mailcontact, telephone, autorisepublicarte } = user
 
 
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
         SET uti_nom = $1,
         uti_prenom = $2,
-        uti_mail = $3,
+        uti_mail = lower($3),
         validated = $4,
         pro_id = $5,
         str_id = $6,
@@ -274,10 +273,9 @@ router.put('/:id', async function (req, res) {
         uti_complementadresse = $11,
         uti_com_codeinsee = $12,
         uti_com_codepostal = $13,
-        uti_com_libelle = $14,
-        uti_mailcontact = $15,
-        uti_telephone = $16,
-        uti_autorisepublicarte = $17
+        uti_mailcontact = $14,
+        uti_telephone = $15,
+        uti_autorisepublicarte = $16
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
@@ -289,7 +287,14 @@ router.put('/:id', async function (req, res) {
         structure,
         structureLocale,
         statut,
-        siteweb], (err, result) => {
+        siteweb,
+        adresse,
+        compladresse,
+        codeinsee,
+        codepostal,
+        mailcontact,
+        telephone,
+        Boolean(autorisepublicarte)], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de l\'update', {requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');
