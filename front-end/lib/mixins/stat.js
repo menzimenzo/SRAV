@@ -199,6 +199,7 @@ export default {
                     }
                 }
             })
+            
             /* =====  FIN DE LA BOUCLE SUR LERS INTERVENTIONS ===== */
 
             /* ==== PARCOURS DES OBJETS CREES ET COMPLETION DES CHIFFRES MANQUANTS ==== */
@@ -278,6 +279,7 @@ export default {
                     }
                 }
             });
+            
             /* ===== FIN DES TRANSFORMATIONS ===== */
 
             /* ===== 4eme GRAPHIQUE, VISIBLE SEULEMENT POUR LES ADMIN ===== */
@@ -331,26 +333,27 @@ export default {
                 LabelsToDisplay.push("Autre");
                 SubLabelsToDisplay.push("Autre / bloc 1", "Autre / bloc 2", "Autre / bloc 3");
             } else {
+                console.log('pas assez de structure')
                 keys.forEach(function (k) {
                     if (k != 'MaStructure') {
                         DataToDisplay.push(
                             Math.round(
-                                (Number(statStructure[structure].nbInt) / statStructure['nationale'].nbInt) * 10000
+                                (Number(statStructure[k].nbInt) / statStructure['nationale'].nbInt) * 10000
                             ) / 100
                         );
                         SubDataToDisplay.push(
                             Math.round(
-                                (Number(statStructure[structure].nbBloc1) / statStructure['nationale'].nbInt) * 10000
+                                (Number(statStructure[k].nbBloc1) / statStructure['nationale'].nbInt) * 10000
                             ) / 100,
                             Math.round(
-                                (Number(statStructure[structure].nbBloc2) / statStructure['nationale'].nbInt) * 10000
+                                (Number(statStructure[k].nbBloc2) / statStructure['nationale'].nbInt) * 10000
                             ) / 100,
                             Math.round(
-                                (Number(statStructure[structure].nbBloc3) / statStructure['nationale'].nbInt) * 10000
+                                (Number(statStructure[k].nbBloc3) / statStructure['nationale'].nbInt) * 10000
                             ) / 100
                         );
-                        LabelsToDisplay.push(structure);
-                        SubLabelsToDisplay.push(structure + " / bloc 1", structure + " / bloc 2", structure + " / bloc 3");
+                        LabelsToDisplay.push(k);
+                        SubLabelsToDisplay.push(k + " / bloc 1", k + " / bloc 2", k + " / bloc 3");
                     }
                 });
             }
