@@ -41,8 +41,6 @@ const formatIntervention = intervention => {
 
     if(intervention.uti_nom){
         result.nom = intervention.uti_prenom + ' ' + intervention.uti_nom
-        result.structure = intervention.str_libellecourt
-        result.structureId = intervention.str_id
     }
 
     if(intervention.blo_libelle){
@@ -52,9 +50,10 @@ const formatIntervention = intervention => {
     if(intervention.cai_libelle){
         result.caiLib = intervention.cai_libelle
     }
-
+    result.structure = intervention.str_libellecourt
     result.structureCode = intervention.str_libellecourt;
     result.structureLibelle = intervention.str_libelle;
+    result.structureId = intervention.str_id
     result.StructureLocaleUtilisateur = intervention.uti_structurelocale;
 
     return result
