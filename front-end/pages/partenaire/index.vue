@@ -306,7 +306,7 @@
                 <h6 v-else>{{ structure2 }}</h6>
               </b-col>
               <b-col>
-                <h5>Répartition des interventions par structure et par bloc</h5>
+                
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
@@ -322,14 +322,14 @@
                 <b-img fluid v-else :src="require('assets/giphy.gif')" />
               </b-col>
               <b-col align-self="center">
-                <doughnut-chart
+                <!--<doughnut-chart
                   v-if="loading === false"
                   :chartdata="data4"
                   :options="optionsDoughnut"
                   :width="400"
                   :height="400"
                 />
-                <b-img fluid v-else :src="require('assets/giphy.gif')" />
+                <b-img fluid v-else :src="require('assets/giphy.gif')" />-->
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
@@ -1070,6 +1070,7 @@ export default {
       ) {
         this.structure1 = String(x.str_libellecourt);
         this.structure2 = this.structure1;
+
       }
     });
     this.remplissage = this.statStructure[this.structure1].CouleurParDepartement,
