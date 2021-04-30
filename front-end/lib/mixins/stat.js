@@ -72,7 +72,8 @@ export default {
                 let indice = 0;
                 let indiceMensuel = -1
                 let indDepartement = 0
-
+                console.log(maStructureId)
+                console.log(intervention)
                 /* ===  PREPARATION DES INDICES === */
                 // tous les tableaux sont indicés sur indiceMensuel qui est a 12 pour le mois courant et 0 pour le même mois l'année dernière
                 // sur l'année d'avant on ne prend que les mois à venir
@@ -121,6 +122,7 @@ export default {
                     statStructure['nationale'].IntParDepartement[indDepartement]++;
                     if (structureId == maStructureId) {
                         statStructure['MaStructure'].IntParDepartement[indDepartement]++;
+                        statStructure['MaStructure'].nbInt++
                     }
 
                     // MAJ du tableau des attestations
@@ -133,6 +135,7 @@ export default {
                         statStructure['nationale'].nbAttestations =statStructure['nationale'].nbAttestations + nbEnfants;
                         if (structureId == maStructureId) {
                             statStructure['MaStructure'].nbAtt[indiceMensuel] += nbEnfants;
+                            statStructure['MaStructure'].nbAttestations =statStructure['MaStructure'].nbAttestations + nbEnfants;
                         }
                     }
                     // Mise a jour du tableau pour 1er cercle concentrique qui contient 3*3 élements 

@@ -139,7 +139,7 @@
               <b-row></b-row>&nbsp;
               <b-row>
                 <b-col style="text-align: center">
-                  <b-form-select
+                  <!--<b-form-select
                     v-model="structure2"
                     v-on:change="
                       viewCarte(structure2);
@@ -161,7 +161,7 @@
                     >
                       {{ structure.str_libellecourt }}
                     </option>
-                  </b-form-select>
+                  </b-form-select>-->
                 </b-col>
                 <b-col style="text-align: center">
                   <b-form-checkbox
@@ -1059,17 +1059,20 @@ export default {
         }),
       this.$store.dispatch("get_interventions"),
       this.$store.dispatch("get_structures"),
+      
+    ]).then( () => {
       // Calcul des stats définies dans le mixins stat.js
       this.statCal(this.interventions, this.structures)
-    ]);
-    // on positionne structure1 sur la structure de l'utilisateur
+      // on positionne structure1 sur la structure de l'utilisateur
     this.structures.forEach(x => {
       if (
         String(x.str_id) ===
         String(this.$store.state.utilisateurCourant.structureId)
       ) {
         this.structure1 = String(x.str_libellecourt);
-        this.structure2 = this.structure1;
+        this.structure2 = 'MaStructure';
+        console.log('this.structure1' +this.structure1)
+        console.log('this.structure2' +this.structure2)
 
       }
     });
@@ -1079,6 +1082,11 @@ export default {
     this.viewHisto(this.structure2, this.structure3);
     this.viewDoughnut(this.structure2);
     this.loading = false;
+    })
+    .catch(() => {
+      console.log('erreur sur la récupération des interventions et structures')
+    })
+   
   },
 };
 </script>
