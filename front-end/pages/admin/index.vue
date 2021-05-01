@@ -1015,7 +1015,6 @@ export default {
     filteredUtilisateurs: function() {
       return this.users.filter(user => {
         var isMatch = true;
-        console.log(this.nomFilter);
         if (this.nomFilter != "") {
           isMatch =
             isMatch &&

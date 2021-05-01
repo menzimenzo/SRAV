@@ -311,31 +311,109 @@
             <b-form-select v-model="formUser.typecol" :options="listtypecol" />
           </div>
           <div v-if="formUser.typecol == 1" class="mb-3 mt-3">
-            <b-form-input
-            id="CollectiviteTerritoraileInput"
-            type="text"
-            v-model="formUser.collectiviteTerritoriale"
-            required
-            placeholder="Nom de la commune"
-          />
+            <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
+              <b-form-input
+                v-model="cp"
+                name="cp"
+                key="cp"
+                id="cp"
+                type="number"
+                placeholder="CP de la commune"
+              />
+            </b-form-group>
+           <b-form-group
+              id="Commune"
+              label="Commune :"
+              required
+              label-for="communeInput"
+            >
+              <b-form-select
+                required
+                name="communeInput"
+                type="text"
+                v-model="formUser.libelleCollectivite"
+                id="communeSelect"
+              >
+                <option :value="null">-- Choix de la commune --</option>
+                <option
+                  v-for="commune in listecommune"
+                  :key="commune.cpi_codeinsee"
+                  :value="commune.com_libellemaj"
+                >
+                  {{ commune.com_libellemaj }}
+                </option>
+              </b-form-select>
+              <b-form-invalid-feedback id="communeFeedback"
+                >La commune est obligatoire.</b-form-invalid-feedback
+              >
+            </b-form-group>
           </div>
           <div v-if="formUser.typecol == 2" class="mb-3 mt-3">
-            <b-form-input
-            id="CollectiviteTerritoraileInput"
-            type="text"
-            v-model="formUser.collectiviteTerritoriale"
-            required
-            placeholder="Nom du département"
-          />
+              <b-form-group
+              id="Departement"
+              label="Département :"
+              required
+              label-for="departementSelect"
+            >
+              <b-form-select
+                id="departementSelect"
+                v-model="formUser.libelleCollectivite"
+                required
+                name="departement"
+              >
+                <option
+                  v-for="departement in listdepartement"
+                  :key="departement.dep_num"
+                  :value="departement.dep_libelle"
+                >
+                  {{ departement.dep_libelle }}
+                </option>
+              </b-form-select>     
+            </b-form-group>
           </div>
           <div v-if="formUser.typecol == 3" class="mb-3 mt-3">
-            <b-form-input
-            id="CollectiviteTerritoraileInput"
-            type="text"
-            v-model="formUser.collectiviteTerritoriale"
-            required
-            placeholder="Nom de la comcom"
-          />
+            <b-form-group
+              id="CodePostalEpci"
+              label="Code Postal EPCI:"
+              label-for="cpEpci"
+              required
+            >
+              <b-form-input
+                v-model="cpEpci"
+                name="cpEpci"
+                key="cpEpci"
+                id="cpEpci"
+                type="number"
+                placeholder="CP d'une des communes de l'EPCI"
+              />
+            </b-form-group>
+            <div v-if="cpEpci">
+              <b-form-group
+                v-if="boolEpci"
+                id="ECPI"
+                label="EPCI :"
+                required
+                label-for="epciInput"
+              >
+                <b-form-select
+                  id="epciSelect"
+                  v-model="formUser.libelleCollectivite"
+                  required
+                  name="epcis"
+                >
+                  <option
+                    v-for="epci in listepci"
+                    :key="epci.epci_libelle"
+                    :value="epci.epci_libelle"
+                  >
+                    {{ epci.epci_libelle }}
+                  </option>
+                </b-form-select>
+              </b-form-group>
+              <b-form-group v-if="boolEpci == false">
+                Aucun EPCI correspondant</b-form-group
+              >
+              </div>
           </div>
         </div>
         -->
@@ -389,6 +467,10 @@ export default {
   data() {
     return {
       formUser: loadFormUser(this.$store.state.utilisateurSelectionne),
+      listdepartement: null,
+      cp: null,
+      cpEpci: null,
+      boolEpci: false,
       listeprofil: [
         { text: "Administrateur", value: "1" },
         { text: "Partenaire", value: "2" },
@@ -427,7 +509,16 @@ export default {
         codedep: null,
       },
       ],
-    };
+      listecommune: [
+        {
+          text: "Veuillez saisir un code postal",
+          value: null,
+          insee: null,
+          cp: null,
+          codedep: null,
+        }
+      ]
+    }
   },
   methods: {
     checkform: function () {
@@ -451,6 +542,22 @@ export default {
       if (!formOK) {
         console.info("Formulaire invalide", this.erreurformulaire);
         return;
+      }
+
+      // To DO :
+      // 1. Verifier si la commune est de type collectivte
+      //    Alors
+      //       si la structure existe deja 
+      //          Alors => mettre à jour le user avec le structureId correspondant
+      //          Sinon => créer la structure et recuperer le structureId
+      //    Si non
+      //       mettre à jour le user
+      console.log(this.formUser)
+      console.log(this.structures)
+      if (this.formUser.typecol && this.formUser.typecol > 0)
+      {
+        // on verifie si la structure existe déjà ou non
+       
       }
 
       return this.$store
@@ -605,7 +712,7 @@ export default {
   
   },
   async mounted() {
-    await this.$store.dispatch("get_structures");
+    //await this.$store.dispatch("get_structures");
     await this.$store.dispatch("get_users");
 
     
@@ -620,6 +727,22 @@ export default {
 
     }
     this.loading = false;
+  },
+  watch: {
+    cp() {
+      this.recherchecommune();
+    },
+    cpEpci() {
+      this.rechercheepci();
+    },
+    "formUser.structure"(stru) {
+      // si la structure n'est pas de type collectivite, on efface les données liées à 
+      // la collectivite afin de savoir
+      if (stru != 0) {
+        this.formUser.typecol = null
+        this.formUser.libelleCollectivite = null
+      }
+    }
   },
 };
 </script>
