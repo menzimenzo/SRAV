@@ -76,19 +76,21 @@ router.put('/:id', async function (req, res) {
 router.post('/', function (req, res) {
     log.i('::post - In')
     const structure = req.body.structure
-    //console.log(structure)
-    let { str_libelle,  str_libellecourt, str_actif, str_federation } = structure
+    console.log(structure)
+    
+    let { str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite } = structure
+
 
     if (str_actif == '') { str_actif = false } else { str_actif = true}
     if (str_federation == '') { str_federation = false } else { str_federation = true}
-
+    if ( ! str_typecollectivite ) { str_typecollectivite = null } 
     //insert dans la table structure
     const requete = `insert into structure 
-                    (str_libelle,  str_libellecourt, str_actif, str_federation) 
-                    values($1,$2,$3,$4 ) RETURNING *`;
+                    (str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite)
+                    values($1,$2,$3,$4,$5 ) RETURNING *`;
     
     //console.log({ requete });
-    pgPool.query(requete, [str_libelle,  str_libellecourt, str_actif, str_federation],(err, result) => {
+    pgPool.query(requete, [str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite],(err, result) => {
         if (err) {
             log.w('::update - Erreur lors de la création.', { requete , erreur: err.stack})                
             return res.status(400).json('erreur lors de la création de la structure');

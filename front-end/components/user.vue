@@ -1,4 +1,4 @@
-<template>
+*<template>
   <b-container class="interventionModal">
     <b-row>
       <b-col cols="12" class="text-center">
@@ -303,6 +303,7 @@
             v-model="formUser.structureLocale"
             required
             placeholder="Nom de la structure"
+            :disabled="!isAdmin()"
           />
         </div>
         <div v-else class="mb-3 mt-3">
@@ -321,7 +322,7 @@
                 placeholder="CP de la commune"
               />
             </b-form-group>
-           <b-form-group
+            <b-form-group
               id="Commune"
               label="Commune :"
               required
@@ -349,7 +350,7 @@
             </b-form-group>
           </div>
           <div v-if="formUser.typecol == 2" class="mb-3 mt-3">
-              <b-form-group
+            <b-form-group
               id="Departement"
               label="Département :"
               required
@@ -368,7 +369,7 @@
                 >
                   {{ departement.dep_libelle }}
                 </option>
-              </b-form-select>     
+              </b-form-select>
             </b-form-group>
           </div>
           <div v-if="formUser.typecol == 3" class="mb-3 mt-3">
@@ -413,7 +414,7 @@
               <b-form-group v-if="boolEpci == false">
                 Aucun EPCI correspondant</b-form-group
               >
-              </div>
+            </div>
           </div>
         </div>
         -->
@@ -516,9 +517,9 @@ export default {
           insee: null,
           cp: null,
           codedep: null,
-        }
-      ]
-    }
+        },
+      ],
+    };
   },
   methods: {
     checkform: function () {
@@ -547,19 +548,73 @@ export default {
       // To DO :
       // 1. Verifier si la commune est de type collectivte
       //    Alors
-      //       si la structure existe deja 
+      //       si la structure existe deja
       //          Alors => mettre à jour le user avec le structureId correspondant
       //          Sinon => créer la structure et recuperer le structureId
       //    Si non
       //       mettre à jour le user
-      console.log(this.formUser)
-      console.log(this.structures)
-      if (this.formUser.typecol && this.formUser.typecol > 0)
-      {
+      console.log("Avant");
+      console.log(this.formUser);
+      if (this.formUser.typecol && this.formUser.typecol > 0) {
+        console.log("structure de type collectivite");
         // on verifie si la structure existe déjà ou non
-       
+        let structureExistante = [];
+        structureExistante = this.structures.filter((stru) => {
+          var isMatch = true;
+          isMatch =
+            isMatch &&
+            this.formUser.libelleCollectivite
+              .toLowerCase()
+              .indexOf(stru.str_libelle.toLowerCase()) > -1;
+          return isMatch;
+        });
+
+        if (! structureExistante[0]) {
+          console.log("structure a créer");
+          // création de la structure
+          let newStruct = {
+            str_libelle: this.formUser.libelleCollectivite,
+            str_actif: "true",
+            str_federation: "",
+            str_typecollectivite: this.formUser.typecol,
+          };
+          switch (this.formUser.typecol) {
+            case "1":
+              newStruct.str_libellecourt = "COM";
+              break;
+            case "2":
+              newStruct.str_libellecourt = "DEP";
+              break;
+            case "3":
+              newStruct.str_libellecourt = "EPCI";
+              break;
+          }
+
+          // forcer l'attente de la réponse !!!
+          this.$store
+            .dispatch("post_structure", newStruct)
+            .then((structure) => {
+              console.log('structure créée')
+              console.log(structure)
+              this.formUser.structure = structure.id;
+              this.formUser.structureLocale = this.formUser.libelleCollectivite;
+            })
+            .catch((error) => {
+              console.error(
+                "Une erreur est survenue lors de la création de la structure",
+                error
+              );
+            });
+        } else {
+          // structure collectivite déjà décalrée en base
+          console.log('structure déjà existante')
+          this.formUser.structure = structureExistante[0].str_id;
+          this.formUser.structureLocale = structureExistante[0].str_libelle;
+        }
       }
 
+      console.log("Apres");
+      console.log(this.formUser);
       return this.$store
         .dispatch("put_user", this.formUser)
         .then((message) => {
@@ -735,14 +790,14 @@ export default {
     cpEpci() {
       this.rechercheepci();
     },
-    "formUser.structure"(stru) {
-      // si la structure n'est pas de type collectivite, on efface les données liées à 
+    "formUser.structure"(stru) {
+      // si la structure n'est pas de type collectivite, on efface les données liées à
       // la collectivite afin de savoir
       if (stru != 0) {
-        this.formUser.typecol = null
-        this.formUser.libelleCollectivite = null
+        this.formUser.typecol = null;
+        this.formUser.libelleCollectivite = null;
       }
-    }
+    },
   },
 };
 </script>
