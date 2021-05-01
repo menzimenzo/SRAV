@@ -72,8 +72,6 @@ export default {
                 let indice = 0;
                 let indiceMensuel = -1
                 let indDepartement = 0
-                console.log(maStructureId)
-                console.log(intervention)
                 /* ===  PREPARATION DES INDICES === */
                 // tous les tableaux sont indicés sur indiceMensuel qui est a 12 pour le mois courant et 0 pour le même mois l'année dernière
                 // sur l'année d'avant on ne prend que les mois à venir
@@ -336,7 +334,6 @@ export default {
                 LabelsToDisplay.push("Autre");
                 SubLabelsToDisplay.push("Autre / bloc 1", "Autre / bloc 2", "Autre / bloc 3");
             } else {
-                console.log('pas assez de structure')
                 keys.forEach(function (k) {
                     if (k != 'MaStructure') {
                         DataToDisplay.push(
