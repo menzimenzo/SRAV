@@ -186,6 +186,7 @@ router.put('/:id', async function (req, res) {
     const user = req.body.utilisateurSelectionne
     const id = req.params.id
     log.i('::update - In', { id })
+    console.log(user)
     let { nom, prenom, mail, profil, validated,structure, structureLocale, statut } = user
 
     //insert dans la table intervention
