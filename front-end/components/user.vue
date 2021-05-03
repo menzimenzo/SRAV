@@ -287,7 +287,7 @@
           <b-form-select v-model="formUser.structure" :disabled="!isAdmin()">
             <option :value="'0'">Collectivités territoriales</option>
             <option
-              v-for="structure in structures"
+              v-for="structure in filteredStructures"
               :key="structure.str_id"
               :value="structure.str_id"
             >
@@ -545,16 +545,6 @@ export default {
         return;
       }
 
-      // To DO :
-      // 1. Verifier si la commune est de type collectivte
-      //    Alors
-      //       si la structure existe deja
-      //          Alors => mettre à jour le user avec le structureId correspondant
-      //          Sinon => créer la structure et recuperer le structureId
-      //    Si non
-      //       mettre à jour le user
-      console.log("Avant");
-      console.log(this.formUser);
       if (this.formUser.typecol && this.formUser.typecol > 0) {
         console.log("structure de type collectivite");
         // on verifie si la structure existe déjà ou non
@@ -569,7 +559,7 @@ export default {
           return isMatch;
         });
 
-        if (! structureExistante[0]) {
+        if (!structureExistante[0]) {
           console.log("structure a créer");
           // création de la structure
           let newStruct = {
@@ -590,14 +580,30 @@ export default {
               break;
           }
 
-          // forcer l'attente de la réponse !!!
           this.$store
             .dispatch("post_structure", newStruct)
             .then((structure) => {
-              console.log('structure créée')
-              console.log(structure)
-              this.formUser.structure = structure.id;
+              console.log("structure créée");
+              this.formUser.structure = structure.str_id;
               this.formUser.structureLocale = this.formUser.libelleCollectivite;
+
+              return this.$store
+                .dispatch("put_user", this.formUser)
+                .then((message) => {
+                  console.info(message);
+                  this.$toast.success(
+                    `Utilisateur ${this.formUser.prenom} ${this.formUser.nom} mis à jour`,
+                    []
+                  );
+                  this.$store.dispatch("get_users");
+                  this.$modal.hide("editUser");
+                })
+                .catch((error) => {
+                  console.error(
+                    "Une erreur est survenue lors de la mise à jour de l'utilisateur",
+                    error
+                  );
+                });
             })
             .catch((error) => {
               console.error(
@@ -607,31 +613,28 @@ export default {
             });
         } else {
           // structure collectivite déjà décalrée en base
-          console.log('structure déjà existante')
+          console.log("structure déjà existante");
           this.formUser.structure = structureExistante[0].str_id;
           this.formUser.structureLocale = structureExistante[0].str_libelle;
+
+          return this.$store
+            .dispatch("put_user", this.formUser)
+            .then(() => {
+              this.$toast.success(
+                `Utilisateur ${this.formUser.prenom} ${this.formUser.nom} mis à jour`,
+                []
+              );
+              this.$store.dispatch("get_users");
+              this.$modal.hide("editUser");
+            })
+            .catch((error) => {
+              console.error(
+                "Une erreur est survenue lors de la mise à jour de l'utilisateur",
+                error
+              );
+            });
         }
       }
-
-      console.log("Apres");
-      console.log(this.formUser);
-      return this.$store
-        .dispatch("put_user", this.formUser)
-        .then((message) => {
-          console.info(message);
-          this.$toast.success(
-            `Utilisateur ${this.formUser.prenom} ${this.formUser.nom} mis à jour`,
-            []
-          );
-          this.$store.dispatch("get_users");
-          this.$modal.hide("editUser");
-        })
-        .catch((error) => {
-          console.error(
-            "Une erreur est survenue lors de la mise à jour de l'utilisateur",
-            error
-          );
-        });
     },
 
     getDepartements: function () {
@@ -766,6 +769,24 @@ export default {
     },    
   
   },
+<<<<<<< HEAD
+||||||| parent of 75af46a... correction OK
+  computed: { ...mapState(["structures", "utilisateurCourant"]) },
+=======
+  computed: { ...mapState(["structures", "utilisateurCourant"]),
+  filteredStructures: function() {
+      return this.structures.filter(x => {
+        var isMatch = true;
+          isMatch =
+            isMatch &&
+            (String(x.str_libellecourt) != 'COM' && String(x.str_libellecourt) != 'DEP' && String(x.str_libellecourt) != 'EPCI')
+          return isMatch;
+      });
+    },
+  
+  },
+
+>>>>>>> 75af46a... correction OK
   async mounted() {
     //await this.$store.dispatch("get_structures");
     await this.$store.dispatch("get_users");
