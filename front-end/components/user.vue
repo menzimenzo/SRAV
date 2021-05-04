@@ -769,24 +769,6 @@ export default {
     },    
   
   },
-<<<<<<< HEAD
-||||||| parent of 75af46a... correction OK
-  computed: { ...mapState(["structures", "utilisateurCourant"]) },
-=======
-  computed: { ...mapState(["structures", "utilisateurCourant"]),
-  filteredStructures: function() {
-      return this.structures.filter(x => {
-        var isMatch = true;
-          isMatch =
-            isMatch &&
-            (String(x.str_libellecourt) != 'COM' && String(x.str_libellecourt) != 'DEP' && String(x.str_libellecourt) != 'EPCI')
-          return isMatch;
-      });
-    },
-  
-  },
-
->>>>>>> 75af46a... correction OK
   async mounted() {
     //await this.$store.dispatch("get_structures");
     await this.$store.dispatch("get_users");

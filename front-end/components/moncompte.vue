@@ -380,6 +380,123 @@
           </b-form-group>
         </b-form>
     </b-card>
+    <b-card class="mb-3" header="Vos coordonnées :">
+        <div>
+          <b-form-group id="siteweb" label="Site Web :" label-for="siteweb">
+              <b-form-input
+                v-model="user.siteweb"
+                name="siteweb"
+                key="siteweb"
+                :state="validateState('siteweb')"
+                aria-describedby="sitewebFeedback"
+                id="siteweb"
+                type="text"
+                placeholder="http:// ou https://"
+              />
+          </b-form-group>
+        <b-form-group>
+        </b-form-group>        
+        <b-form-group
+          id="emailInputGroup"
+          label="Courriel contact :"
+          label-for="emailInput"
+        >
+          <b-form-checkbox-group
+            v-model="emailidentique"
+            id="emailidendique"
+          >
+          <b-form-checkbox value="true">Courriel identique</b-form-checkbox>
+          </b-form-checkbox-group>
+
+          <b-form-input
+            id="emailInput"
+            type="email"
+            v-model="user.mailcontact"
+            name="mail"
+            key="email-input"
+            v-validate="{ required: true, email: true }"
+            aria-describedby="emailFeedback"
+            placeholder="Courriel de contact"
+          />
+        </b-form-group>
+          <b-form-group label="Adresse :">
+            <b-form-input type="text" v-model="user.adresse" />
+          </b-form-group>          
+          <b-form-group label="Complément d'adresse :">
+            <b-form-input type="text" v-model="user.compladresse" />
+          </b-form-group>     
+          <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
+              <b-form-input
+                v-model="user.codepostal"
+                name="codepostal"
+                key="codepostal"
+                :state="validateState('codepostal')"
+                aria-describedby="cpFeedback"
+                id="codepostal"
+                type="number"
+                placeholder="CP de la commune"
+              />
+            </b-form-group>
+            <b-form-group
+              id="Commune"
+              label="Commune :"
+              label-for="communeInput"
+            >
+              <b-form-select
+                v-validate="{ required: true }"
+                name="commune"
+                key="commune"
+                :state="validateState('commune')"
+                aria-describedby="communeFeedback"
+                type="text"
+                v-model="user.commune"
+                id="communeSelect"
+              >
+                <option :value="null">-- Choix de la commune --</option>
+                <option
+                  v-for="commune in listecommune"
+                  :key="commune.cpi_codeinsee"
+                  :value="commune.com_libellemaj"
+                >
+                  {{ commune.com_libellemaj }}
+                </option>
+              </b-form-select>
+              <b-form-invalid-feedback id="communeFeedback"
+                >La commune est obligatoire.</b-form-invalid-feedback
+              >
+            </b-form-group>
+              <b-form-group label="Téléphone :">
+            <b-form-input type="number" v-model="user.telephone" />
+          </b-form-group>  
+        </div>      
+      <b-form>
+        <b-form-group id="legalCheckGroup">
+          <b-form-checkbox-group
+            v-model="user.autorisepublicarte"
+            id="legalCheck"
+            :state="validateState('legalCheck')"
+            aria-describedby="legalFeedback"
+            name="legalCheck"
+          >
+          <b-form-checkbox value="true">
+            « En cochant cette case, vous acceptez la publication de vos coordonnées sur une carte mise à disposition du public.
+          </b-form-checkbox>
+          </b-form-checkbox-group>
+          <b-form-invalid-feedback id="legalFeedback"
+            >Il est obligatoire de valider les conditions
+            légales.</b-form-invalid-feedback
+          >
+        </b-form-group>
+        </b-form>
+    </b-card>
+    <b-card>
+      <b-form>
+        <b-form-group id="legalCheckGroup">
+          <b-button v-on:click="$modal.hide('editUser')">Annuler</b-button>
+          <b-button variant="success" v-on:click="checkform">Enregistrer</b-button>
+          </b-form-group>
+        </b-form>
+    </b-card>
   </div>
 </template>
 
