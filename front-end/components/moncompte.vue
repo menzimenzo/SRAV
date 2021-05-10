@@ -258,7 +258,7 @@
 
       </b-form>
     </b-card>
-    <b-card class="mb-3" header="Vos coordonnées :">
+    <b-card class="mb-3" header="Vos coordonnées :" v-if="user.structureId!=9">
         <div>
           <b-form-group id="siteweb" label="Site Web :" label-for="siteweb">
               <b-form-input
