@@ -468,10 +468,6 @@ export default {
   data() {
     return {
       formUser: loadFormUser(this.$store.state.utilisateurSelectionne),
-      listdepartement: null,
-      cp: null,
-      cpEpci: null,
-      boolEpci: false,
       listeprofil: [
         { text: "Administrateur", value: "1" },
         { text: "Partenaire", value: "2" },
@@ -509,15 +505,6 @@ export default {
         cp: null,
         codedep: null,
       },
-      ],
-      listecommune: [
-        {
-          text: "Veuillez saisir un code postal",
-          value: null,
-          insee: null,
-          cp: null,
-          codedep: null,
-        },
       ],
     };
   },
