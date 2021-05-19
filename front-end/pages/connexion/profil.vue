@@ -8,8 +8,7 @@
                 Édition des informations
               </h1>
             </div>
-            <mon-compte :user="user" :check-legal="false" :submit-txt="'Enregistrer'" @submit="editProfile"/>
-        </b-col>
+            <mon-compte :user="user" :check-legal="false" :cancel-txt="'Annuler'" :submit-txt="'Enregistrer'" @submit="editProfile" @cancel="cancelEdit"/>        </b-col>
       </b-row>
     </b-container>
   </section>
@@ -32,12 +31,17 @@ export default {
         .then(async response => {
             await this.$store.dispatch('set_utilisateurCourant', response.user);
             this.$toast.success('Profil enregistré avec succès.')
+            // On ferme la fenêtre car on a terminé
+            this.$router.push('/')            
 
         }).catch(err => {
             console.log(err)
         })
     },
-
+    async cancelEdit(){
+      // Annulation des modifications.
+      this.$router.push('/')
+    },
   },
   components: {monCompte}
 };

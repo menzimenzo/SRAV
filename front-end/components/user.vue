@@ -64,6 +64,224 @@
             :disabled="!isAdmin()"
           />
         </div>
+<b-form-group
+          required
+          id="structNationaleGroup"
+          label="Structure nationale :"
+          label-for="structNatSelect"
+        >
+          <!--Mantis 68055 : min_value: 1-->
+          <b-form-select
+            id="structNatSelect"
+            v-model="userStructureId"
+            v-validate="{ required: true, min_value: 1 }"
+            name="struct"
+            :state="validateState('struct')"
+            aria-describedby="structFeedback"
+          >
+            <!--Mantis 68055 value = 0 -->
+            <option :value="0">Veuillez choisir votre structure...</option>
+            <option :value="99999">Collectivités territoriales</option>
+            <option
+              v-for="structure in listeStructures"
+              :key="structure.str_id"
+              :value="structure.str_id"
+            >
+              {{ structure.str_libelle }}
+            </option>
+          </b-form-select>
+          <b-form-invalid-feedback id="structFeedback"
+            >Il est nécessaire de choisir une
+            structure.</b-form-invalid-feedback
+          >
+        </b-form-group>
+        <!-- Cas d'une structure non collectivite territoriale
+            le champ structureLocale ne doit apparaitre que si la structure n'est pas une collectivité
+             quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999-> -->
+        <div v-if="userStructureId != 99999">
+          <b-form-group
+            id="structLocaleGroup"
+            label="Structure locale :"
+            required
+            label-for="structLocaleInput"
+            key="structurelocale"
+          >
+            <b-form-input
+              v-validate="{ required: true }"
+              name="structLoc"
+              :state="validateState('structLoc')"
+              aria-describedby="structLocFeedback"
+              id="structLocaleInput"
+              type="text"
+              v-model="formUser.structureLocale"
+              placeholder="Nom de la structure locale"
+            />
+            <b-form-invalid-feedback id="structLocFeedback"
+              >La structure locale est obligatoire.</b-form-invalid-feedback
+            >
+          </b-form-group>
+        </div>
+        <!-- FIN Cas d'une structure non collectivite territoriale-->
+        <!-- Cas d'une collectivite territoriale-->
+        <div v-else>
+          <b-form-group
+            required
+            id="typeCollectivite"
+            label="Type de collectivité territoriale :"
+            label-for="typeCollectiviteSelect"
+          >
+            <b-form-select
+              id="typeCollectiviteSelect"
+              v-model="formUser.typecollectivite"
+              v-validate="{ required: true }"
+              name="typeCol"
+              :state="validateState('typeCol')"
+              aria-describedby="typeColFeedback"
+            >
+              <option
+                v-for="type in listtypecol"
+                :key="type.value"
+                :value="type.value"
+              >
+                {{ type.text }}
+              </option>
+            </b-form-select>
+            <b-form-invalid-feedback id="typeColFeedback"
+              >Il est nécessaire de choisir un type de
+              collectivité.</b-form-invalid-feedback
+            >
+          </b-form-group>
+          <!-- DEPARTEMENT -->
+          <div v-if="formUser.typecollectivite == 2">
+            <b-form-group
+              id="Departement"
+              label="Département :"
+              required
+              label-for="departementSelect"
+            >
+              <b-form-select
+                id="departementSelect"
+                v-model="formUser.libelleCollectivite"
+                v-validate="{ required: true }"
+                name="departement"
+                  :state="validateState('departement')"
+                aria-describedby="departementFeedback"
+              >
+                <option
+                  v-for="departement in listdepartement"
+                  :key="departement.dep_num"
+                  :value="departement.dep_libelle"
+                >
+                  {{ departement.dep_libelle }}
+                </option>
+              </b-form-select>
+              <b-form-invalid-feedback id="communeFeedback"
+                >Le département est obligatoire.</b-form-invalid-feedback
+              >
+            </b-form-group>
+          </div>
+          <!-- FIN DEPARTEMENT -->
+          <!-- COMMUNE -->
+          <div v-if="formUser.typecollectivite == 1">
+            <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
+              <b-form-input
+                v-model="cp"
+                name="cp"
+                key="cp"
+                :state="validateState('cp')"
+                aria-describedby="cpFeedback"
+                id="cp"
+                type="number"
+                placeholder="CP de la commune"
+              />
+            </b-form-group>
+            <b-form-group
+              id="Commune"
+              label="Commune :"
+              required
+              label-for="communeInput"
+            >
+              <b-form-select
+                v-validate="{ required: true }"
+                name="commune"
+                key="commune"
+                :state="validateState('commune')"
+                aria-describedby="communeFeedback"
+                type="text"
+                v-model="formUser.libelleCollectivite"
+                id="communeSelect"
+              >
+                <option :value="null">-- Choix de la commune --</option>
+                <option
+                  v-for="commune in listecommune"
+                  :key="commune.cpi_codeinsee"
+                  :value="commune.com_libellemaj"
+                >
+                  {{ commune.com_libellemaj }}
+                </option>
+              </b-form-select>
+              <b-form-invalid-feedback id="communeFeedback"
+                >La commune est obligatoire.</b-form-invalid-feedback
+              >
+            </b-form-group>
+          </div>
+          <!-- FIN COMMUNE -->
+          <!-- EPCI -->
+          <div v-if="formUser.typecollectivite == 3">
+            <b-form-group
+              id="CodePostalEpci"
+              label="Code Postal EPCI:"
+              label-for="cpEpci"
+            >
+              <b-form-input
+                v-model="cpEpci"
+                name="cpEpci"
+                key="cpEpci"
+                :state="validateState('cpEpci')"
+                aria-describedby="cpEpciFeedback"
+                id="cpEpci"
+                type="number"
+                placeholder="CP d'une des communes de l'EPCI"
+              />
+            </b-form-group>
+            <div v-if="cpEpci">
+              <b-form-group
+                v-if="boolEpci"
+                id="ECPI"
+                label="EPCI :"
+                required
+                label-for="epciInput"
+              >
+                <b-form-select
+                  id="epciSelect"
+                  v-model="formUser.libelleCollectivite"
+                  v-validate="{ required: true }"
+                  name="epcis"
+                  :state="validateState('toto')"
+                  aria-describedby="epciFeedback"
+                >
+                  <option
+                    v-for="epci in listepci"
+                    :key="epci.epci_libelle"
+                    :value="epci.epci_libelle"
+                  >
+                    {{ epci.epci_libelle }}
+                  </option>
+                </b-form-select>
+                <b-form-invalid-feedback id="epciFeedback"
+                  >L'EPCI est obligatoire.</b-form-invalid-feedback
+                ></b-form-group
+              >
+              <b-form-group v-if="boolEpci == false">
+                Aucun EPCI correspondant</b-form-group
+              >
+            </div>
+          </div>
+          <!-- FIN EPCI-->
+        </div>
+        <!-- FIN Cas d'une collectivite territoriale-->
+
+        <!--
         <div class="mb-3 mt-3">
           Structure :
           <b-form-select v-model="formUser.structure" :disabled="!isAdmin()">
@@ -199,6 +417,7 @@
             </div>
           </div>
         </div>
+        -->
       </b-col>
     </b-row>
 
@@ -227,6 +446,8 @@ var loadFormUser = function (utilisateur) {
           structureLocale: "",
           statut: "",
           validated: "",
+          typecollectivite: "",
+          str_typecollectivite: ""
         },
         utilisateur
       )
@@ -247,10 +468,6 @@ export default {
   data() {
     return {
       formUser: loadFormUser(this.$store.state.utilisateurSelectionne),
-      listdepartement: null,
-      cp: null,
-      cpEpci: null,
-      boolEpci: false,
       listeprofil: [
         { text: "Administrateur", value: "1" },
         { text: "Partenaire", value: "2" },
@@ -260,19 +477,34 @@ export default {
         { text: "Actif", value: "1" },
         { text: "Bloqué", value: "2" },
       ],
+      /*
       listtypecol: [
         { text: "Commune", value: "1" },
         { text: "Département", value: "2" },
         { text: "Communauté de communes", value: "3" },
+      ],*/
+      // Ajout collectivité
+      cp: null,
+      commune: null,
+      emailidentique: "false",
+      listtypecol: [
+        { text: "Commune", value: 1 },
+        { text: "Conseil Général", value: 2 },
+        { text: "EPCI", value: 3 },
       ],
+      listdepartement: null,
+      listepci: null,
+      cpEpci: null,
+      boolEpci: false,
+      userStructureId: null,
       listecommune: [
-        {
-          text: "Veuillez saisir un code postal",
-          value: null,
-          insee: null,
-          cp: null,
-          codedep: null,
-        },
+      {
+        text: "Veuillez saisir un code postal",
+        value: null,
+        insee: null,
+        cp: null,
+        codedep: null,
+      },
       ],
     };
   },
@@ -391,13 +623,7 @@ export default {
         }
       }
     },
-    isAdmin: function () {
-      if (this.$store.state.utilisateurCourant.profilId == "1") {
-        return true;
-      } else {
-        return false;
-      }
-    },
+
     getDepartements: function () {
       console.info("recupération de la liste des départements");
       const url = process.env.API_URL + "/listedepartement";
@@ -415,13 +641,15 @@ export default {
         });
     },
 
+
     // Get liste des communes correspondant au code postal
     recherchecommune: function () {
       if (this.cp.length === 5) {
         // Le code postal fait bien 5 caractères
         console.info("Recherche de la commune");
-        //this.user.cp = this.cp
-        const url = process.env.API_URL + "/listecommune?codepostal=" + this.cp;
+        this.formUser.cp = this.cp
+        const url =
+          process.env.API_URL + "/listecommune?codepostal=" + this.cp;
         console.info(url);
         return this.$axios
           .$get(url)
@@ -440,7 +668,7 @@ export default {
         return Promise.resolve(null);
       }
     },
-    rechercheepci: function () {
+        rechercheepci: function () {
       if (this.cpEpci.length === 5) {
         // Le code postal fait bien 5 caractères
         console.info("Recherche de l'EPCI'");
@@ -468,24 +696,81 @@ export default {
         return Promise.resolve(null);
       }
     },
+    isAdmin: function(){
+      if(this.$store.state.utilisateurCourant.profilId=="1") {
+        return true;
+      } else {
+        return false;
+      }
+   },
+   
+    validateState(ref) {
+      if (!this.veeFields) {
+        return null;
+      }
+      if (
+        this.veeFields[ref] &&
+        (this.veeFields[ref].dirty || this.veeFields[ref].validated)
+      ) {
+        return !this.errors.has(ref);
+      }
+
+      return null;
+    }
   },
-  computed: { ...mapState(["structures", "utilisateurCourant"]),
-  filteredStructures: function() {
-      return this.structures.filter(x => {
-        var isMatch = true;
-          isMatch =
-            isMatch &&
-            (String(x.str_libellecourt) != 'COM' && String(x.str_libellecourt) != 'DEP' && String(x.str_libellecourt) != 'EPCI')
-          return isMatch;
-      });
+  watch: {
+
+    cpEpci() {
+      this.rechercheepci();
     },
+    cp() {
+      this.recherchecommune();
+    },
+    "userStructureId"() {
+      this.formUser.structure = this.userStructureId
+      this.formUser.structureId = this.userStructureId
+    }
+  },
+  computed: { ...mapState(["structures", "utilisateurCourant"]) ,
+  
+    listeStructures() {
+      var liste = this.structures;
+      if (this.mail && this.mail.indexOf(".gouv.fr") != -1) {
+        return liste;
+      } else {
+        if (!this.formUser.typecollectivite) {
+          liste = this.structures.filter((str) => {
+            var isMatch = true;
+            isMatch =
+              isMatch &
+              (String(str.str_libellecourt) != "DS") &
+              (String(str.str_libellecourt) != "DEP") &
+              (String(str.str_libellecourt) != "EPCI") &
+              (String(str.str_libellecourt) != "COM");
+
+            return isMatch;
+          });
+        } 
+        return liste;
+      }
+    },    
   
   },
-
   async mounted() {
     //await this.$store.dispatch("get_structures");
     await this.$store.dispatch("get_users");
+
+    
     this.getDepartements().then((res) => {});
+
+    if (this.formUser.typecollectivite) {
+      this.userStructureId = 99999;
+    }
+        else
+    {
+      this.userStructureId = this.formUser.structure;
+
+    }
     this.loading = false;
   },
   watch: {
