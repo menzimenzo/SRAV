@@ -309,6 +309,7 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
     const user = req.body.profil
     const id = req.params.id
     log.i('::edit-mon-compte - In', { id })
+    log.d("Structure locale : " + user.structureLocale)
     if(!id) {
         return res.status(400).json('Aucun ID fournit pour  identifier l\'utilisateur.');
     }

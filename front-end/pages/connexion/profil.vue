@@ -26,10 +26,12 @@ export default {
   methods: {
     // Validation de l'inscription
     async editProfile(){
+        console.log("XXXXX user:", this.user)
         const url = process.env.API_URL + `/connexion/edit-mon-compte/${this.user.id }`
         return this.$axios.$put(url, { profil: this.user })
         .then(async response => {
-            await this.$store.dispatch('set_utilisateurCourant', response.user);
+            //await this.$store.dispatch('set_utilisateurCourant', response.user);
+            await this.$store.dispatch('set_utilisateur', response.user);
             this.$toast.success('Profil enregistré avec succès.')
             // On ferme la fenêtre car on a terminé
             this.$router.push('/')            

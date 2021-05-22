@@ -63,10 +63,56 @@
             structure.</b-form-invalid-feedback
           >
         </b-form-group>
+
+
+        <!-- ETABLISSEMENT POUR STRUCTURE EDUCATION NATIONALE -->
+        <div v-if="user.structureId == 9">
+          <b-form-group id="CodePostalEtab" label="Code Postal Etablissement :" label-for="cpetab">
+            <b-form-input
+              v-model="cpetab"
+              name="cpetab"
+              key="cpetab"
+              :state="validateState('cpetab')"
+              aria-describedby="cpetabFeedback"
+              id="cpetab"
+              type="number"
+              placeholder="CP de la commune de l'établissement"
+            />
+          </b-form-group>
+          <b-form-group
+            id="etablissement"
+            label="Etablissement :"
+            required
+            label-for="etabInput"
+          >
+            <b-form-select
+              v-validate="{ required: true }"
+              name="etab"
+              key="etab"
+              :state="validateState('etab')"
+              aria-describedby="etabFeedback"
+              type="text"
+              v-model="user.structureLocale"
+              id="etabSelect"
+            >
+              <option :value="null">-- Choix de l'établissement --</option>
+              <option
+                v-for="etablissement in listeetablissement"
+                :key="etablissement.eta_uai"
+                :value="etablissement.eta_uai"
+              >
+                {{ etablissement.eta_affichage }}
+              </option>
+            </b-form-select>
+            <b-form-invalid-feedback id="etabFeedback"
+              >L'établissement est obligatoire.</b-form-invalid-feedback
+            >
+          </b-form-group>
+        </div>             
         <!-- Cas d'une structure non collectivite territoriale
             le champ structureLocale ne doit apparaitre que si la structure n'est pas une collectivité
              quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999-> -->
-        <div v-if="userStructureId != 99999">
+        <div v-if="userStructureId != 99999  && user.structureId != 9">
           <b-form-group
             id="structLocaleGroup"
             label="Structure locale :"
@@ -91,7 +137,7 @@
         </div>
         <!-- FIN Cas d'une structure non collectivite territoriale-->
         <!-- Cas d'une collectivite territoriale-->
-        <div v-else>
+        <div v-if="user.structureId == 99999">
           <b-form-group
             required
             id="typeCollectivite"
@@ -412,6 +458,17 @@ export default {
           codedep: null,
         },
       ],
+            listeetablissement: [
+        {
+          text: "Veuillez saisir un code postal",
+          value: null,
+          eta_commune: null,
+          eta_nom: null, 
+          eta_adresse1: null,
+          eta_codepostal: null,
+        },
+      ],
+      cpetab: null,
     };
   },
   props: ["user", "submitTxt", "cancelTxt","checkLegal"],
@@ -522,6 +579,66 @@ export default {
         return Promise.resolve(null);
       }
     },
+    rechercheetablissementcp: function() {
+      // Recopie du CP dans le CP User
+      if (this.cpetab.length === 5) {
+        // Le code postal fait bien 5 caractères
+        const url =
+          process.env.API_URL +
+          "/listeetablissement?codepostal=" +
+          this.cpetab;
+        // Retourne la liste des communes associées au Code postal
+        return this.$axios
+          .$get(url)
+          .then(response => {
+            this.listeetablissement = response.etablissement;
+            //console.info("rechercheetablissementcp : this.listeetablissement " + this.listeetablissement );
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération établissements",
+              error
+            );
+          });
+      } else {
+        // On vide la liste car le code postal a changé
+        this.listeetablissement = ["Veuillez saisir un code postal"];
+        return Promise.resolve(null);
+      }
+    },    
+    rechercheetablissementuai: function() {
+      // Recopie du CP dans le CP User
+      console.log ("this.user.structureLocale.length : " + this.user.structureLocale.length)
+      console.log ("this.user.structureLocale : " + this.user.structureLocale)
+      if (this.user.structureLocale.length === 8) {
+        //console.log ("this.user.structureLocale.length" + this.user.structureLocale.length)
+        // Le code postal fait bien 5 caractères
+        const url =
+          process.env.API_URL +
+          "/listeetablissement?codeuai=" + this.user.structureLocale
+
+          //console.log (url)
+        // Retourne la liste des communes associées au Code postal
+        return this.$axios
+          .$get(url)
+          .then(response => {
+            this.listeetablissement = response.etablissement;
+            //cpetab = response.etablissement.codepostal;
+            this.cpetab = this.listeetablissement[0].eta_codepostal
+            //console.info("rechercheetablissementuai : this.listeetablissement XXX", this.listeetablissement[0].eta_codepostal );
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération établissements par code uai",
+              error
+            );
+          });
+      } else {
+        // On vide la liste car le code postal a changé
+        this.listeetablissement = ["Veuillez saisir un code postal"];
+        return Promise.resolve(null);
+      }
+    },   
     emitUser: function() {
       return this.$store.dispatch('set_state_element',{ key:'utilisateurCourant', value: this.user }) 
     },
@@ -632,6 +749,11 @@ export default {
     "user.typeCollectivite"() {
       console.log("changement collectivité : ")
     }*/
+    "cpetab"() {
+      //console.log("Structure locale avant changement CP : "  + this.user.structurelocale)
+      // On recherche la liste des communes lors de la modification du Code postal
+      this.rechercheetablissementcp();
+    },
   },
   async mounted() {
     await this.$store.dispatch("get_structures");
@@ -668,6 +790,13 @@ export default {
       this.recherchecommune2()
       // Sélection de la commune correspondant à celle de l'utilisateur dans la liste
       //this.selectedCommune = this.user.cpi_codeinsee;
+    }
+
+    console.log("WXXXX")
+    console.log("WXXXX" + this.user.structureId )
+        // Recherchegement de l'établissement si il a été 
+    if (this.user.structureId == 9) {
+      this.rechercheetablissementuai()
     }
 
   },
