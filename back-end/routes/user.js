@@ -22,8 +22,17 @@ const formatUser = user => {
         naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
+        typeCollectivite: user.str_typeCollectivite,
         proLibelle:user.pro_libelle,
-        inscription: user.inscription
+        inscription: user.inscription,
+        siteweb: user.uti_siteweb, 
+        adresse: user.uti_adresse,
+        compladresse: user.uti_complementadresse,
+        codeinsee: user.uti_com_codeinsee,
+        codepostal: user.uti_com_codepostal,
+        mailcontact: user.uti_mailcontact,
+        telephone: user.uti_telephone,
+        autorisepublicarte: user.uti_autorisepublicarte
     }
 }
 
@@ -42,8 +51,17 @@ const formatUserCSV = user => {
         naissance: user.uti_datenaissance,
         structureLocale: user.uti_structurelocale,
         structureLibelleCourt: user.str_libellecourt,
+        typeCollectivite: user.str_typeCollectivite,
         proLibelle:user.pro_libelle,
-        inscription: user.inscription
+        inscription: user.inscription,
+        siteweb: user.uti_siteweb, 
+        adresse: user.uti_adresse,
+        compladresse: user.uti_complementadresse,
+        codeinsee: user.uti_com_codeinsee,
+        codepostal: user.uti_com_codepostal,
+        mailcontact: user.uti_mailcontact,
+        telephone: user.uti_telephone,
+        autorisepublicarte: user.uti_autorisepublicarte
     }
 }
 
@@ -57,23 +75,43 @@ router.get('/csv', async function (req, res) {
     log.d('::csv - Profil de l\'utilisateur : ' + req.session.user.pro_id);
     // Je suis utilisateur "Administrateur" ==> Export de la liste des tous les utilisateurs
     if ( utilisateurCourant.pro_id == 1 ) {
-        requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
+        requete =`SELECT  uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel,  
         replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
-        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
+        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id 
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
         order by 3,4 asc`;
     } 
     // Je suis utilisateur "Partenaire" ==> Export de la liste des interventants
     else {
-        requete =`SELECT uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel, to_char(uti_datenaissance,'DD/MM/YYYY') Date_De_Naissance, 
+        requete =`SELECT uti.uti_id As Identifiant , uti.uti_prenom as Prénom, uti_nom As Nom,  pro_libelle as Profil, uti_mail as Courriel,  
         replace(replace(validated::text,'true','Validée'),'false','Non validée') as inscription , stu.stu_libelle Statut_Utilisateur,
-        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale
+        str.str_libellecourt As Structure, uti.uti_structurelocale As Struture_Locale, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur  uti
         join structure str on str.str_id= uti.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
         where uti.str_id=${utilisateurCourant.str_id} order by 3,4 asc`;
     }
@@ -112,16 +150,38 @@ router.get('/:id', async function (req, res) {
     const utilisateurCourant = req.session.user
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb , 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
+        from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} order by uti_id asc`;
     }
     else 
     {
         // si on est partenaire, on affiche l'utilisateur s'il appartient à ma structure
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle from utilisateur uti 
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
+        from utilisateur uti 
         join structure str on str.str_id= uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
         where uti_id=${id} and uti.str_id = ${utilisateurCourant.str_id}
         order by uti_id asc `;
@@ -152,9 +212,20 @@ router.get('/', async function (req, res) {
     
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche tous les utilisateurs
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
+        uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
         order by uti_id asc`;
     }
@@ -162,9 +233,19 @@ router.get('/', async function (req, res) {
     {
         // si on est partenaire, on affiche seulements les utilisateurs de la structure
         // Sauf les Admin créés sur structure
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle
+        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
+        uti.uti_adresse as adresse,
+        uti_complementadresse as compladresse,
+        uti_com_codeinsee as codeinsee,
+        uti_com_codepostal as codepostal,
+        com_libelle as commune,
+        uti_mailcontact as mailcontact,
+        uti_telephone as telephone,
+        uti_autorisepublicarte as autorisepublicarte,
+        str.str_typecollectivite typeCollectivite
         from utilisateur uti 
         join structure str on str.str_id = uti.str_id 
+        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
         where uti.str_id=${utilisateurCourant.str_id} order by uti_id asc  `;
     }
@@ -187,29 +268,46 @@ router.put('/:id', async function (req, res) {
     const id = req.params.id
     log.i('::update - In', { id })
     console.log(user)
-    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut } = user
+    log.d('::update - ', { user })
+    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut, siteweb, adresse, compladresse, codeinsee, codepostal, mailcontact, telephone, autorisepublicarte } = user
 
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
         SET uti_nom = $1,
         uti_prenom = $2,
-        uti_mail = $3,
+        uti_mail = lower($3),
         validated = $4,
         pro_id = $5,
         str_id = $6,
         uti_structurelocale = $7,
-        stu_id = $8
+        stu_id = $8,
+        uti_siteweb = $9,
+        uti_adresse = $10,
+        uti_complementadresse = $11,
+        uti_com_codeinsee = $12,
+        uti_com_codepostal = $13,
+        uti_mailcontact = $14,
+        uti_telephone = $15,
+        uti_autorisepublicarte = $16
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
-    pgPool.query(requete,[nom,
-        prenom,
-        mail,
-        validated,
-        profil,
-        structure,
-        structureLocale,
-        statut], (err, result) => {
+        pgPool.query(requete,[nom,
+            prenom,
+            mail,
+            validated,        
+            profil,
+            structure,
+            structureLocale,
+            statut,
+            siteweb,
+            adresse,
+            compladresse,
+            codeinsee,
+            codepostal,
+            mailcontact,
+            telephone,
+            Boolean(autorisepublicarte)], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de l\'update', {requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');

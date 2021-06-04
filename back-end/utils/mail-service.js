@@ -44,7 +44,7 @@ module.exports = {
 
             <p>Afin de bénéficier de toutes les fonctionnalités, veuillez valider votre email en cliquant sur le lien suivant:</p>
 
-            <p><a href="${url}validate/${pwd}?id=${id}">J'active mon compte.</a></p>
+            <p><a href="${config.franceConnect.FS_URL}/validate/${pwd}?id=${id}">J'active mon compte.</a></p>
             `
         }
         log.d('sendValidationMail post email', { sendNotificationUrl, params })
@@ -81,7 +81,7 @@ module.exports = {
 
             <p>Veuillez entamer la procédure en cliquant sur le lien suivant:</p>
 
-            <p><a href="${config.FRONT_DOMAIN}mot-de-passe-oublie/reset?old=${cryptedp}&key=${cryptedi}">Je réinitialise mon mot de passe.</a></p>
+            <p><a href="${config.franceConnect.FS_URL}/mot-de-passe-oublie/reset?old=${cryptedp}&key=${cryptedi}">Je réinitialise mon mot de passe.</a></p>
             `
         }
         log.d('sendResetPasswordMail post email', { sendNotificationUrl, params })

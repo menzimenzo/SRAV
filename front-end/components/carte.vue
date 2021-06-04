@@ -911,7 +911,7 @@
           <b-col>{{nb['COM'].IntParDepartement[id]}}</b-col>
         </b-row>
                <b-row class="liste" v-if="hover">
-          <b-col cols="9" class="nom">Conseil général</b-col>
+          <b-col cols="9" class="nom">Conseil Départemental</b-col>
           <b-col>{{nb['DEP'].IntParDepartement[id]}}</b-col>
         </b-row>
                        <b-row class="liste" v-if="hover">

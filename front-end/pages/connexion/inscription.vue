@@ -35,6 +35,9 @@ export default {
     confirmRegistration(){
       const url = process.env.API_URL + '/connexion/verify'
       const body = JSON.parse(JSON.stringify(this.user))
+      console.log("User avant enregistrement structurelocale: " + this.user.structureLocale)
+      console.log("User avant enregistrement email: " + this.user.email)
+      console.log("User avant enregistrement nom: " + this.user.nom)
       if (this.user.email) {
         body['mail'] = this.user.email
       }

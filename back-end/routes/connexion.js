@@ -83,13 +83,77 @@ router.post('/verify', async (req,res) => {
         return res.status(200).json({ existingUser: formatUtilisateur(mailExistenceQuery.rows[0]) })
     } 
 
-    log.d('::verify - Mise à jour de l\'utilisateur existant')        
-    const bddRes = await pgPool.query("UPDATE utilisateur SET str_id = $1, uti_mail = $2, uti_structurelocale = $3, uti_nom = $4, uti_prenom = $5, validated = true \
+    log.d('::verify - Mise à jour de l\'utilisateur existant')    
+
+    const bddRes = await pgPool.query
+    ("UPDATE utilisateur \
+        SET str_id = $1, \
+        uti_mail = lower($2), \
+        uti_structurelocale = $3, \
+        uti_nom = $4, \
+        uti_prenom = $5, \
+        validated = true, \
+        uti_siteweb = $7, \
+        uti_adresse = $8, \
+        uti_complementadresse = $9, \
+        uti_com_codeinsee = $10, \
+        uti_com_codepostal = $11, \
+        uti_mailcontact = $12, \
+        uti_telephone = $13, \
+        uti_autorisepublicarte = $14 \
     WHERE uti_id = $6 RETURNING *", 
-    [user.str_id, user.uti_mail, user.uti_structurelocale, user.uti_nom, user.uti_prenom, user.uti_id]).catch(err => {
+        [user.str_id, 
+        user.uti_mail, 
+        user.uti_structurelocale, 
+        user.uti_nom, 
+        user.uti_prenom, 
+        user.uti_id,
+        user.uti_siteweb,
+        user.uti_adresse,
+        user.uti_complementadresse,
+        user.uti_com_codeinsee,
+        user.uti_com_codepostal,
+        user.uti_mailcontact,
+        user.uti_telephone,
+        Boolean(user.uti_autorisepublicarte)]
+    ).catch(err => {
         log.w(err)
         throw err
-    })
+        })
+
+
+    /*
+     const requete = `UPDATE utilisateur 
+        SET uti_mail = lower($1),
+        uti_nom = $2, 
+        uti_prenom = $3, 
+        uti_structurelocale = $4,
+        uti_siteweb = $5,
+        uti_adresse = $6,
+        uti_complementadresse = $7,
+        uti_com_codeinsee = $8,
+        uti_com_codepostal = $9,
+        uti_mailcontact = $10,
+        uti_telephone = $11,
+        uti_autorisepublicarte = $12
+        WHERE uti_id = ${id}
+        RETURNING *
+        ;`    
+    pgPool.query(requete,
+        [user.mail,
+        user.nom,  
+        user.prenom, 
+        user.structureLocale,
+        user.siteweb,
+        user.adresse,
+        user.compladresse,
+        user.codeinsee,
+        user.codepostal,
+        user.mailcontact,
+        user.telephone,
+        Boolean(user.autorisepublicarte)
+        ],
+    */
     
     // Envoie de l'email de confirmation
     if(!wasValidated){
@@ -242,20 +306,44 @@ router.get('/user', (req,res) => {
 })
 
 router.put('/edit-mon-compte/:id', async function (req, res) {
-    const profil = req.body.profil
+    const user = req.body.profil
     const id = req.params.id
     log.i('::edit-mon-compte - In', { id })
+    log.d("Structure locale : " + user.structureLocale)
     if(!id) {
         return res.status(400).json('Aucun ID fournit pour  identifier l\'utilisateur.');
     }
     //insert dans la table intervention
     const requete = `UPDATE utilisateur 
-        SET uti_mail = $1,
-        uti_structurelocale = $2
+        SET uti_mail = lower($1),
+        uti_nom = $2, 
+        uti_prenom = $3, 
+        uti_structurelocale = $4,
+        uti_siteweb = $5,
+        uti_adresse = $6,
+        uti_complementadresse = $7,
+        uti_com_codeinsee = $8,
+        uti_com_codepostal = $9,
+        uti_mailcontact = $10,
+        uti_telephone = $11,
+        uti_autorisepublicarte = $12
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
-    pgPool.query(requete,[profil.mail, profil.structureLocale], (err, result) => {
+    pgPool.query(requete,
+        [user.mail,
+        user.nom,  
+        user.prenom, 
+        user.structureLocale,
+        user.siteweb,
+        user.adresse,
+        user.compladresse,
+        user.codeinsee,
+        user.codepostal,
+        user.mailcontact,
+        user.telephone,
+        Boolean(user.autorisepublicarte)
+        ], (err, result) => {
         if (err) {
             log.w('::edit-mon-compte - erreur lors de l\'update', {requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');

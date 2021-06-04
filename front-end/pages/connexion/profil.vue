@@ -8,8 +8,7 @@
                 Édition des informations
               </h1>
             </div>
-            <mon-compte :user="user" :check-legal="false" :submit-txt="'Enregistrer'" @submit="editProfile"/>
-        </b-col>
+            <mon-compte :user="user" :check-legal="false" :cancel-txt="'Annuler'" :submit-txt="'Enregistrer'" @submit="editProfile" @cancel="cancelEdit"/>        </b-col>
       </b-row>
     </b-container>
   </section>
@@ -27,17 +26,24 @@ export default {
   methods: {
     // Validation de l'inscription
     async editProfile(){
+        console.log("XXXXX user:", this.user)
         const url = process.env.API_URL + `/connexion/edit-mon-compte/${this.user.id }`
         return this.$axios.$put(url, { profil: this.user })
         .then(async response => {
-            await this.$store.dispatch('set_utilisateurCourant', response.user);
+            //await this.$store.dispatch('set_utilisateurCourant', response.user);
+            await this.$store.dispatch('set_utilisateur', response.user);
             this.$toast.success('Profil enregistré avec succès.')
+            // On ferme la fenêtre car on a terminé
+            this.$router.push('/')            
 
         }).catch(err => {
             console.log(err)
         })
     },
-
+    async cancelEdit(){
+      // Annulation des modifications.
+      this.$router.push('/')
+    },
   },
   components: {monCompte}
 };

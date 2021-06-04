@@ -325,11 +325,18 @@ export const actions = {
     const url = process.env.API_URL + "/connexion/pwd-login"
     return this.$axios.$post(url, { mail, password })
         .then(res => {
-            const user = res.user
+            // Correction concernant la finalisation de la création du compte (Report de GC AAQ)
+            //const user = res.user
+            const { user, redirect, message } = res
             log.d('login - response from server', user)
             if(!user || !user.id) {
               log.w('login - authserver, user not found')              
               throw new Error('Email ou mot de passe incorrect.')
+            } else if (redirect) {
+              log.i('login - Done but redirect', { user, redirect })
+              this.$toast.info(message)
+              commit("set_utilisateurCourant", user)
+              return this.$router.push(redirect)
             } else {
               log.i('login - Done', { user })
               commit("set_utilisateurCourant", user)
