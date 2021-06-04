@@ -167,7 +167,7 @@
                     <b-form-select v-model="structure1" v-on:change="viewCarte(structure1)">
                       <option :value="'nationale'">Toutes</option>
                       <option :value="'COM'">Commune</option>
-                      <option :value="'DEP'">Conseil général</option>
+                      <option :value="'DEP'">Conseil Départemental</option>
                       <option :value="'EPCI'">EPCI</option>
                       <option
                         v-for="structure in filteredStructures"
@@ -226,7 +226,7 @@
                     >
                       <option :value="'nationale'">Toutes</option>
                       <option :value="'COM'">Commune</option>
-                      <option :value="'DEP'">Conseil général</option>
+                      <option :value="'DEP'">Conseil Départemental</option>
                       <option :value="'EPCI'">EPCI</option>
                       <option
                         v-for="structure in filteredStructures"
@@ -244,7 +244,7 @@
                       <option :value="''"></option>
                       <option :value="'nationale'">Toutes</option>
                       <option :value="'COM'">Commune</option>
-                      <option :value="'DEP'">Conseil général</option>
+                      <option :value="'DEP'">Conseil Départemental</option>
                       <option :value="'EPCI'">EPCI</option>
                       <option
                         v-for="structure in filteredStructures"

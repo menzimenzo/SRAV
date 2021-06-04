@@ -535,7 +535,7 @@ export default {
       emailidentique: "false",
       listtypecol: [
         { text: "Commune", value: 1 },
-        { text: "Conseil Général", value: 2 },
+        { text: "Conseil Départemental", value: 2 },
         { text: "EPCI", value: 3 },
       ],
       listdepartement: null,

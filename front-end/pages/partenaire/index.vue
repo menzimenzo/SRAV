@@ -152,7 +152,7 @@
                     </option>
                     <option :value="'nationale'">Toutes</option>
                     <option :value="'COM'">Commune</option>
-                    <option :value="'DEP'">Conseil général</option>
+                    <option :value="'DEP'">Conseil Départemental</option>
                     <option :value="'EPCI'">EPCI</option>
                     <option
                       v-for="structure in filteredStructures"
