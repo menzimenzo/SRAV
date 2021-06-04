@@ -401,7 +401,7 @@
             id="publiCheck"
           >
             <b-form-checkbox >
-              Je souhaite que ces données soient publiées sur le site "prévention des noyades" et qu'elles apparaissent sur la cartographie             
+              Je souhaite que ces données soient publiées sur le site "Savoir rouler à vélo" et qu'elles apparaissent sur la cartographie             
 
             </b-form-checkbox> 
           </b-form-checkbox-group>
