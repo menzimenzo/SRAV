@@ -24,3 +24,7 @@ psql -d srv_dev -f /docker-entrypoint-initdb.d/scripts/07-SQL_enableCrypto.sql
 # Version 1.1.2
 echo '08-SQL_V1.1.2.sql :'
 psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/08-SQL_V1.1.2.sql
+
+# Hors Version : Intégration de données aléatoires pour avoir un peu de matière
+psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/99-CreationListeNomPrenom.sql
+psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/99-PeuplementInterventions.sql
