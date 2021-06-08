@@ -143,7 +143,9 @@
                   <h4 v-if="loading === false">
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">poll</i>
-                    Accès aux indicateurs : {{statStructure['nationale'].nbAttestations}} attestations enregistrées depuis Avril 2019
+                    <!-- Correction anomalie : Le compteur ne donnait que la dernière année-->
+                    <!--Accès aux indicateurs : {{statStructure['nationale'].nbAttestations}} {{nbAttestations}} attestations enregistrées depuis Avril 2019-->
+                    Accès aux indicateurs : {{nbAttestations}} attestations enregistrées depuis Avril 2019
                   </h4>
                   <h4 v-else>
                     <i class="material-icons accordion-chevron">chevron_right</i>
@@ -557,7 +559,8 @@ export default {
         { text: "Actif", value: "Actif" },
         { text: "Bloqué", value: "Actif" },
         { text: "Tous", value: "Tous" }
-      ]
+      ],
+      nbAttestations: 0
     };
   },
 
@@ -1068,6 +1071,20 @@ export default {
       }),
       this.$store.dispatch("get_interventions"),
     ]);
+    // Calcul du nombre d'interventions
+    const url = process.env.API_URL + "/interventions/nbattestations?str_id=0";
+    console.info(url);
+    this.$axios.$get(url)
+    .then(response => {
+      if (response) 
+      {
+        console.log("nbAttestations",response.nbattestations )
+        this.nbAttestations= response.nbattestations;
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+
 
     // Calcul des stats définies dans le mixins stat.js
     this.statCal(this.interventions, this.structures)

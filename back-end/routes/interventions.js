@@ -166,6 +166,60 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     })
 });
 
+
+
+// ################# Nombre d'attestation par structure #################
+// Pour str_id = 0 on remonte toutes les données 
+//
+router.get('/nbattestations', async function (req, res) {
+    log.i('::nbattestations - In')
+    if(!req.query.str_id){ 
+        log.w('::nbattestations - Paramètres str_id manquant.')
+        return res.sendStatus(403) 
+    }
+    const structureId = req.query.str_id
+
+    // Get subset of interventions depending on user profile
+    var whereClause = ""
+
+    if(structureId != 0){
+        whereClause += ` and str.str_id = ${structureId} `
+    }
+    const requete = `SELECT COALESCE(sum(int_nombreenfant),0) as nbattestations 
+                from intervention int 
+                inner join utilisateur uti on uti.uti_id = int.uti_id
+                inner join structure str on str.str_id = uti.str_id
+                ${whereClause}
+                where int.blo_id = 3`;
+
+    log.d('::nbattestations - récuperation via la requête.',{ requete })
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            log.w('::nbattestations - Erreur lors de la requête.', { requete, erreur: err.stack});
+            //logTrace('aaq-csvods',1,startTime);
+            return res.status(400).json('erreur lors de la récupération du parametre ' + structureId);
+        }
+        else {
+            const resultat = result.rows;
+            log.d(resultat)
+            if (!resultat || !resultat.length) {
+                log.w('::nbattestations - Résultat vide.')
+                //logTrace('aaq-csvods',2,startTime);
+                return res.send(resultat[0].nbAttestations);
+            }
+            else
+            {
+                log.i('::nbattestations - Done1')
+                return res.send(resultat[0]);
+            }
+        }
+    })
+
+    log.i('::nbattestations - Done')
+});
+
+
 /* Séparation de la partie de recherche commentaire qui interfère avec l'écran "Mes interventions" initialement pas prévu */
 /* On ajoute donc cette partie pour répondre à l'affichage des commentaires en Admin et Partenaire sans effet de bord sur l'écran d'intervention  */
 /* Correction MANTIS 68438  */
@@ -282,6 +336,8 @@ router.get('/', async function (req, res) {
         }
     })
 });
+
+
 
 router.put('/:id', async function (req, res) {
     const intervention = req.body.intervention
