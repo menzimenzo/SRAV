@@ -114,7 +114,10 @@
                     >
                     <i class="material-icons ml-2 mr-2">poll</i>
                     Accès aux indicateurs :
+                    <!--
                     {{ statStructure[structure2].nbAttestations }} attestations
+                    -->
+                    {{nbAttestations}} attestations
                     enregistrées depuis Avril 2019
                   </h4>
                   <h4 v-else>
@@ -500,6 +503,7 @@ export default {
           sortable: true,
         },
       ],
+      nbAttestations: 0,
     };
   },
 
@@ -1076,6 +1080,21 @@ export default {
 
       }
     });
+
+    // Calcul du nombre d'interventions
+    const url = process.env.API_URL + "/interventions/nbattestations?str_id=" + String(this.$store.state.utilisateurCourant.structureId);
+    console.info(url);
+    this.$axios.$get(url)
+    .then(response => {
+      if (response) 
+      {
+        console.log("nbAttestations",response.nbattestations )
+        this.nbAttestations= response.nbattestations;
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+
     this.remplissage = this.statStructure[this.structure1].CouleurParDepartement,
 
     // Affichage des graphiques
