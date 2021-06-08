@@ -1,0 +1,1 @@
+--INSERT INTO parametres (par_id, par_code, par_description, par_valeur) values (1,'PROTO_APPLI','Protocole utilisé par l''application ( vide , http:// , https:// )','');
