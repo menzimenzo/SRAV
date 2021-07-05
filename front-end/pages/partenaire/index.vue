@@ -141,31 +141,7 @@
             <b-card-header header-tag="header" style="background: #d0eef2">
               <b-row></b-row>&nbsp;
               <b-row>
-                <b-col style="text-align: center">
-                  <!--<b-form-select
-                    v-model="structure2"
-                    v-on:change="
-                      viewCarte(structure2);
-                      viewHisto(structure2, structure3);
-                      viewDoughnut(structure2);
-                    "
-                  >
-                    <option :value="'MaStructure'">
-                      {{ this.$store.state.utilisateurCourant.structureLocale }}
-                    </option>
-                    <option :value="'nationale'">Toutes</option>
-                    <option :value="'COM'">Commune</option>
-                    <option :value="'DEP'">Conseil Départemental</option>
-                    <option :value="'EPCI'">EPCI</option>
-                    <option
-                      v-for="structure in filteredStructures"
-                      :key="structure.str_libellecourt"
-                      :value="structure.str_libellecourt"
-                    >
-                      {{ structure.str_libellecourt }}
-                    </option>
-                  </b-form-select>-->
-                </b-col>
+               
                 <b-col style="text-align: center">
                   <b-form-checkbox
                     switch
@@ -518,7 +494,7 @@ export default {
       } else {
         str1Nom = str1;
       }
-      if (str2 === true) {
+      if (str2) {
         this.data1 = {
           labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
