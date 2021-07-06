@@ -141,31 +141,7 @@
             <b-card-header header-tag="header" style="background: #d0eef2">
               <b-row></b-row>&nbsp;
               <b-row>
-                <b-col style="text-align: center">
-                  <!--<b-form-select
-                    v-model="structure2"
-                    v-on:change="
-                      viewCarte(structure2);
-                      viewHisto(structure2, structure3);
-                      viewDoughnut(structure2);
-                    "
-                  >
-                    <option :value="'MaStructure'">
-                      {{ this.$store.state.utilisateurCourant.structureLocale }}
-                    </option>
-                    <option :value="'nationale'">Toutes</option>
-                    <option :value="'COM'">Commune</option>
-                    <option :value="'DEP'">Conseil Départemental</option>
-                    <option :value="'EPCI'">EPCI</option>
-                    <option
-                      v-for="structure in filteredStructures"
-                      :key="structure.str_libellecourt"
-                      :value="structure.str_libellecourt"
-                    >
-                      {{ structure.str_libellecourt }}
-                    </option>
-                  </b-form-select>-->
-                </b-col>
+               
                 <b-col style="text-align: center">
                   <b-form-checkbox
                     switch
@@ -186,7 +162,7 @@
                   Répartition des interventions par département pour la
                   structure :
                   <b v-if="structure2 === 'MaStructure'">{{
-                    this.$store.state.utilisateurCourant.structureLocale
+                    this.$store.state.utilisateurCourant.libelleCollectivite
                   }}</b>
                   <b v-else>{{ structure2 }}</b>
                 </h5>
@@ -245,13 +221,13 @@
               <b-col>
                 <h5>Nb Interventions par bloc / Nb Attestations cumulé</h5>
                 <h6 v-if="structure3 === false && structure2 == 'MaStructure'">
-                  {{ this.$store.state.utilisateurCourant.structureLocale }}
+                  {{ this.$store.state.utilisateurCourant.libelleCollectivite }}
                 </h6>
                 <h6 v-if="structure3 === false && structure2 != 'MaStructure'">
                   {{ structure2 }}
                 </h6>
                 <h6 v-if="structure3 === true && structure2 == 'MaStructure'">
-                  {{ this.$store.state.utilisateurCourant.structureLocale }} vs
+                  {{ this.$store.state.utilisateurCourant.libelleCollectivite }} vs
                   "total national"
                 </h6>
                 <h6 v-if="structure3 === true && structure2 != 'MaStructure'">
@@ -261,13 +237,13 @@
               <b-col>
                 <h5>Nb Interventions par Cadre / Nb attestations délivrées</h5>
                 <h6 v-if="structure3 === false && structure2 == 'MaStructure'">
-                  {{ this.$store.state.utilisateurCourant.structureLocale }}
+                  {{ this.$store.state.utilisateurCourant.libelleCollectivite }}
                 </h6>
                 <h6 v-if="structure3 === false && structure2 != 'MaStructure'">
                   {{ structure2 }}
                 </h6>
                 <h6 v-if="structure3 === true && structure2 == 'MaStructure'">
-                  {{ this.$store.state.utilisateurCourant.structureLocale }} vs
+                  {{ this.$store.state.utilisateurCourant.libelleCollectivite }} vs
                   "total national"
                 </h6>
                 <h6 v-if="structure3 === true && structure2 != 'MaStructure'">
@@ -304,7 +280,7 @@
               <b-col>
                 <h5>Interventions par Bloc et par Cadre</h5>
                 <h6 v-if="structure2 === 'MaStructure'">
-                  {{ this.$store.state.utilisateurCourant.structureLocale }}
+                  {{ this.$store.state.utilisateurCourant.libelleCollectivite }}
                 </h6>
                 <h6 v-else>{{ structure2 }}</h6>
               </b-col>
@@ -514,11 +490,11 @@ export default {
     viewHisto(str1, str2) {
       let str1Nom;
       if (str1 == "MaStructure") {
-        str1Nom = this.$store.state.utilisateurCourant.structureLocale;
+        str1Nom = this.$store.state.utilisateurCourant.libelleCollectivite;
       } else {
         str1Nom = str1;
       }
-      if (str2 === true) {
+      if (str2) {
         this.data1 = {
           labels: this.statStructure["nationale"].labelsHisto,
           datasets: [
@@ -1075,9 +1051,6 @@ export default {
       ) {
         this.structure1 = String(x.str_libellecourt);
         this.structure2 = 'MaStructure';
-        console.log('this.structure1' +this.structure1)
-        console.log('this.structure2' +this.structure2)
-
       }
     });
 
