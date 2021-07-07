@@ -12,7 +12,7 @@
       <b-col cols="6" style="border-right: 1px solid #252195;">
         <div class="bv-example-row">
           <p class="text-danger">
-            Renseigner les informations relatives à la mise en oeuvre de chacun des 3 blocs du socle commun.<br>
+            Déclarer uniquement le bloc 3 lorsque l’ensemble du programme est réalisé avec un même groupe d’enfants, sinon, déclarer chacun des blocs réalisés et le nombre d’enfants correspondant.<br>
             Seule la réalisation du bloc 3 permet l'impression de l'attestation.
           </p>
         </div>
