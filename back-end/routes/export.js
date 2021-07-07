@@ -164,7 +164,7 @@ router.get('/intervention/', async function (req, res) {
     INNER JOIN bloc blo ON blo.blo_id = int.blo_id and blo.blo_id = 3
     INNER JOIN cadreintervention cai ON cai.cai_id = int.cai_id 
     INNER JOIN utilisateur uti ON int.uti_id = uti.uti_id 
-    INNER JOIN structure str ON str.str_id = uti.str_id  and str.str_id <> 9
+    INNER JOIN structure str ON str.str_id = uti.str_id
     order by int.int_id asc`;
 
     pgPool.query(requete, (err, result) => {
