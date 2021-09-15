@@ -124,22 +124,31 @@ router.get('/csv/:utilisateurId', async function (req, res) {
             return res.status(400).json('erreur lors de la récupération de l\'intervention');
         }
         else {
+            /*
+            0087034
+            Suppression des colonnes 
+            cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
+            */
             var interventions = result.rows;
             interventions = interventions.map(intervention => {
                 var newIntervention = formatIntervention(intervention)
                 delete newIntervention.commune
+                delete newIntervention.cai;
+                delete newIntervention.sinId;
+                delete newIntervention.structureId;
                 newIntervention.commune = intervention.int_com_libelle
                 newIntervention.codeinsee = intervention.int_com_codeinsee
-                newIntervention.dep_num = intervention.int_dep_num
-                newIntervention.reg_num = intervention.int_reg_num
+                //newIntervention.dep_num = intervention.int_dep_num
+                //newIntervention.reg_num = intervention.int_reg_num
                 newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
                 newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
                 newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                delete newIntervention.dateMaj;
                 delete newIntervention.structureCode;
                 delete newIntervention.structureLibelle;
                 delete newIntervention.StructureLocaleUtilisateur;
-                newIntervention.structureCode = intervention.str_libellecourt;
-                newIntervention.structureLibelle = intervention.str_libelle;
+                //newIntervention.structureCode = intervention.str_libellecourt;
+                //newIntervention.structureLibelle = intervention.str_libelle;
                 newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
                 // Suppression du commentaire dans l'export CSV
                 delete newIntervention.commentaire                
