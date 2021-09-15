@@ -3,7 +3,7 @@
     <b-row>
       <b-col cols="12">
         <!--  ACCORDEON -- GESTION USER  -->
-        <b-card no-body class="mb-3">
+        <b-card no-body class="mb-3" v-if="utilisateurCourant.profilId==1">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
               <b-col>
@@ -115,12 +115,13 @@
                     size="sm"
                     class="mr-1"
                     variant="primary"
+                    v-if="utilisateurCourant.profilId==1"
                   >
                     <i class="material-icons">edit</i>
                   </b-btn>
                 </template>
               </editable>
-              <b-btn @click="editStruct(null)" class="btn btn-primary btn-lg btn-block">
+              <b-btn v-if="utilisateurCourant.profilId==1" @click="editStruct(null)" class="btn btn-primary btn-lg btn-block" >
                 <i class="material-icons">add</i>
               </b-btn>
             </b-card-body>
@@ -332,7 +333,7 @@
           </b-collapse>
         </b-card>
         <!-- ACCORDEON -- DOCUMENTS PUBLIES -->
-        <b-card no-body class="mb-3">
+        <b-card no-body class="mb-3" v-if="utilisateurCourant.profilId==1">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
               <b-col>
@@ -361,7 +362,7 @@
           </b-collapse>
         </b-card>
         <!--  ACCORDEON -- COMMENTAIRES -->
-        <b-card no-body class="mb-3">
+        <b-card no-body class="mb-3" >
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
               <b-col>
@@ -1001,7 +1002,7 @@ export default {
   //  CHARGEMENT ASYNCHRONE DES USERS, STRUCTURES ET INTERVENTIONS
   //
   computed: {
-    ...mapState(["interventions", "users", "structures", "statStructure"]),
+    ...mapState(["utilisateurCourant","interventions", "users", "structures", "statStructure"]),
     filteredInterventions: function() {
       return this.interventions.filter(intervention => {
         // Suppression des interventions sans commentaire

@@ -29,8 +29,18 @@ router.get('/:id', async function (req, res) {
 router.get('/', function (req, res) {
     log.i('::list - In')
     // La méthode get est appelée sans paramètre : On retourne la liste
+    var requete = ""
+    const user = req.session.user
+
+    requete = `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on FROM structure`
+    /* Pour un profil référent on supprime tout ce qui est relatif aux écoles */
+    if(user.pro_id == 4){
+        requete += ` where str_id <> 9`
+    }
+    requete += ` order by str_libellecourt`
+    log.d(requete)
     pgPool.query(
-        `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on FROM structure order by str_libellecourt`,
+        requete,
         function (err, result) {
             if (err) {
                 log.w('::list - Erreur lors de la requete', { requete, erreur: err.stack })

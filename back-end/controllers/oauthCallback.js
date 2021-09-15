@@ -115,7 +115,7 @@ module.exports = async (req, res, next) => {
               url = "/connexion/inscription"
             // User access the app
             } else {
-              if(utilisateur.pro_id == 1){
+              if(utilisateur.pro_id == 1 || utilisateur.pro_id == 4){
                 url = "/admin"
               } else if(utilisateur.pro_id == 2) {
                 url = "/partenaire"

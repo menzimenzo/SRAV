@@ -1,4 +1,4 @@
-*<template>
+<template>
   <b-container class="interventionModal">
     <b-row>
       <b-col cols="12" class="text-center">
@@ -516,6 +516,7 @@ export default {
       formUser: loadFormUser(this.$store.state.utilisateurSelectionne),
       listeprofil: [
         { text: "Administrateur", value: "1" },
+        { text: "Référent", value: "4" },
         { text: "Partenaire", value: "2" },
         { text: "Intervenant", value: "3" },
       ],
