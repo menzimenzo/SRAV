@@ -210,7 +210,7 @@ router.get('/', async function (req, res) {
     const utilisateurCourant = req.session.user
     //const utilisateurId = 1; // TODO à récupérer via GET ?
     
-    if ( utilisateurCourant.pro_id == 1) {
+    if ( utilisateurCourant.pro_id == 1 ||  utilisateurCourant.pro_id == 4) {
         // si on est admin, on affiche tous les utilisateurs
         requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
         uti.uti_siteweb as siteweb, 
@@ -224,8 +224,12 @@ router.get('/', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
-        join structure str on str.str_id = uti.str_id 
-        left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
+        join structure str on str.str_id = uti.str_id `;
+
+        if (utilisateurCourant.pro_id == 4) {
+            requete += ` and str.str_id<> 9 `;
+        }
+        requete += `left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
         order by uti_id asc`;
     }

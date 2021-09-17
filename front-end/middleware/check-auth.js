@@ -40,7 +40,7 @@ export default async function({ env, route, store, req, res, redirect, app, isSe
         }
 
         if(adminRoutes.indexOf(route.path) > -1){
-            if(store.state.utilisateurCourant.profilId != 1){
+            if(store.state.utilisateurCourant.profilId != 1 && store.state.utilisateurCourant.profilId != 4){
                 return redirect('/interventions')
             }
         }

@@ -100,6 +100,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
 
     /* Pour un profil Admin, on exporte toutes les interventions */
     var whereClause = ""
+    var whereClauseReferent = ""
     /* Pour un profil Intervenant on exporte que ces interventions */
     if(user.pro_id == 3){
         whereClause += ` and utilisateur.uti_id=${utilisateurId} `
@@ -108,6 +109,12 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     if(user.pro_id == 2){
         whereClause += ` and utilisateur.str_id=${user.str_id} `
     }
+    
+    /* Pour un profil référent, on exporte les interventions de toutes les structures sauf EN*/
+    if(user.pro_id == 4){
+        whereClauseReferent += ` and utilisateur.str_id<>9 `
+    }
+
     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
     const requete =`SELECT * from intervention 
     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
@@ -115,6 +122,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
     ${whereClause} 
     INNER JOIN structure ON structure.str_id = utilisateur.str_id 
+    ${whereClauseReferent} 
     order by int_id asc`;
     log.d('::csv - requet', { requete })
 
@@ -150,7 +158,10 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 //newIntervention.structureCode = intervention.str_libellecourt;
                 //newIntervention.structureLibelle = intervention.str_libelle;
                 newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
-                // Suppression du commentaire dans l'export CSV
+                // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
+                if(user.pro_id == 4){
+                    delete newIntervention.siteintervention;
+                }
                 delete newIntervention.commentaire                
                 
                 return newIntervention
@@ -182,6 +193,8 @@ router.get('/csv/:utilisateurId', async function (req, res) {
 //
 router.get('/nbattestations', async function (req, res) {
     log.i('::nbattestations - In')
+    const user = req.session.user
+
     if(!req.query.str_id){ 
         log.w('::nbattestations - Paramètres str_id manquant.')
         return res.sendStatus(403) 
@@ -194,6 +207,12 @@ router.get('/nbattestations', async function (req, res) {
     if(structureId != 0){
         whereClause += ` and str.str_id = ${structureId} `
     }
+
+    // Exclusion des structures éducation nationale pour le profil référent
+    if (user.pro_id == 4){
+        whereClause += ` and str.str_id <> 9 `
+    }
+
     const requete = `SELECT COALESCE(sum(int_nombreenfant),0) as nbattestations 
                 from intervention int 
                 inner join utilisateur uti on uti.uti_id = int.uti_id
@@ -327,8 +346,14 @@ router.get('/', async function (req, res) {
         whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
     // Utilisateur Administrateur : 
     } else {
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id LEFT JOIN structure ON structure.str_id = utilisateur.str_id `
+        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure ON structure.str_id = utilisateur.str_id `
+        // Exclusion des structures éducation nationale pour le profil référent
+        if(user.pro_id == 4){
+            whereClause += ` and structure.str_id <> 9 `
+        }
     }
+
+    // Utilisateur Administrateur : 
 
     const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
     log.d('::list - récuperation via la requête.',{ requete })

@@ -3,7 +3,7 @@
     <b-row>
       <b-col cols="12">
         <!--  ACCORDEON -- JE SAISIS UNE INTERVENTION -->
-        <b-card no-body class="mb-3">
+        <b-card no-body class="mb-3" v-if="utilisateurCourant.profilId!=4">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
               <b-col>
@@ -74,7 +74,7 @@
                         :loading="loading"
                         :defaultSortField="{ key: 'dateIntervention', order: 'desc' }"
                       >
-                        <template slot-scope="props" slot="actions">
+                        <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4">
                           <div style="min-width: 147px;">
                             <b-btn
                               @click="editIntervention(props.data.id)"

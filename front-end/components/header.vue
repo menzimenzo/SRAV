@@ -17,6 +17,9 @@
         <nuxt-link to="/admin" >
           <b-button variant="outline-primary" v-if="utilisateurCourant.profilId == 1" class="settingsBtn"><i class="material-icons" >settings</i> Espace admin</b-button>
         </nuxt-link>
+        <nuxt-link to="/admin" >
+          <b-button variant="outline-primary" v-if="utilisateurCourant.profilId == 4" class="settingsBtn"><i class="material-icons" >badge</i> Espace référent</b-button>
+        </nuxt-link>
         <nuxt-link to="/partenaire" v-if="utilisateurCourant.profilId == 2">
           <b-button variant="outline-primary" class="settingsBtn"><i class="material-icons" >settings</i> Espace partenaire</b-button>
         </nuxt-link>

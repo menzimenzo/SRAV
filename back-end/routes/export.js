@@ -92,7 +92,8 @@ requete =`SELECT str.str_libellecourt,
             uti_com_codepostal as codepostaluti,
             com_libelle as commune,
             uti_mailcontact as mailcontact,
-            uti_telephone as telephone
+            uti_telephone as telephone,
+            uti_structurelocale as structurelocale
             from utilisateur  uti
             inner join structure str on str.str_id = uti.str_id
             left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
