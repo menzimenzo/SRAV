@@ -158,7 +158,10 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 //newIntervention.structureCode = intervention.str_libellecourt;
                 //newIntervention.structureLibelle = intervention.str_libelle;
                 newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
-                // Suppression du commentaire dans l'export CSV
+                // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
+                if(user.pro_id == 4){
+                    delete newIntervention.siteintervention;
+                }
                 delete newIntervention.commentaire                
                 
                 return newIntervention
