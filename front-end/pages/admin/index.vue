@@ -75,7 +75,7 @@
           </b-collapse>
         </b-card>
         <!--  ACCORDEON -- GESTION STRUCTURES  -->
-        <b-card no-body class="mb-3">
+        <b-card no-body class="mb-3"  v-if="utilisateurCourant.profilId==1">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
               <b-col>
@@ -362,7 +362,7 @@
           </b-collapse>
         </b-card>
         <!--  ACCORDEON -- COMMENTAIRES -->
-        <b-card no-body class="mb-3" >
+        <b-card no-body class="mb-3"  v-if="utilisateurCourant.profilId==1">
           <b-card-header header-tag="header" class="p-1" role="tab">
             <b-form-row>
               <b-col>
