@@ -167,6 +167,12 @@
             Après mon intervention, je complète ou modifie les champs "nombre d'enfants", "genre" et "classe d'âge"
           </p>
         </div>
+        <div class="bv-example-row">
+          <p class="text-danger">
+            Une fois votre intervention déclarée, si besoin, vous avez jusqu'à <b>5 jours après la date de l'intervention pour la modifier</b>.<br>
+            Pour les interventions déclarées à postériori, vous avez <b>5 jours maximum après la date effective de l'intervention</b> pour effectuer la saisie.
+          </p>
+        </div>        
         <div
           class="mb-3 mt-3"
           v-if="formIntervention.dateMaj"
@@ -184,7 +190,7 @@
           </ul>
         </div>
 
-        <p class="modal-btns">
+        <p>
           <b-button
             v-on:click="resetform(); $modal.hide('editIntervention')"
             v-if="intervention.id"
@@ -256,6 +262,9 @@ export default {
   },
   data() {
     return {
+      parametreNbMoisMaxAnticip: null,
+      parametreNbJoursMaxRetroSaisie: null,
+      parametreNbJoursMaxModifInter: null,
       erreurformulaire: [],
       listecommune: [
         {
@@ -287,6 +296,12 @@ export default {
     };
   },
   methods: {
+    dateDiff: function(date1, date2){
+  date1 = date1.getTime() / 86400000;
+  date2 = date2.getTime() / 86400000;
+  return new Number(date2 - date1).toFixed(0);
+  
+  },
     showPDF: function(id) {
       console.info("showPDF");
       this.$axios({
@@ -343,6 +358,51 @@ export default {
         this.erreurformulaire.push("La date d'intervention");
         formOK = false;
       }
+      else
+      {
+
+        var date1 = this.formIntervention.dateIntervention;
+        var dateDelaiMaxAnticip = new Date()
+        dateDelaiMaxAnticip.setMonth(dateDelaiMaxAnticip.getMonth() + this.parametreNbMoisMaxAnticip);
+        var sdateDelaiMaxAnticip = dateDelaiMaxAnticip.toISOString().slice(0, 10)
+        var idateDelaiMaxAnticip = Number(sdateDelaiMaxAnticip.toString().replaceAll("-",""))
+        var idate1 = Number(date1.toString().replaceAll("-",""))
+        // Si la idateDelaiMaxAnticip (aujourd'hui + X mois) - date d'intervention > 0 Alors on a dépassé les X mois d'anticipation
+        /*
+        console.log("Delai:", this.parametreNbMoisMaxAnticip)
+        console.log("idateDelaiMaxAnticip:", idateDelaiMaxAnticip)
+        console.log("idate1:", idate1)
+        console.log("Delta:", idateDelaiMaxAnticip-idate1)
+        */
+        if (idateDelaiMaxAnticip-idate1<0) 
+        {
+          formOK = false;
+          this.erreurformulaire.push("La date d'intervention ne peut être anticipée de plus de " + this.parametreNbMoisMaxAnticip + " mois");
+        }
+
+
+        var dateRetroSaisie = new Date()
+        dateRetroSaisie.setDate(dateRetroSaisie.getDate() - this.parametreNbJoursMaxRetroSaisie);
+        var sdateRetroSaisie = dateRetroSaisie.toISOString().slice(0, 10)
+        var idateRetroSaisie = Number(sdateRetroSaisie.toString().replaceAll("-",""))
+        // Si la dateRetroSaisie (aujourd'hui - X jours) - date d'intervention <= 0 Alors on a dépassé les 5 jours pour la rétro saisie
+        /*
+        console.log("Delai:", this.parametreNbJoursMaxRetroSaisie)
+        console.log("idateRetroSaisie:", idateRetroSaisie)
+        console.log("idate1:", idate1)
+        console.log("Delta:", idate1-idateRetroSaisie)
+        */
+        if (idate1-idateRetroSaisie<=0) 
+        {
+          formOK = false;
+          this.erreurformulaire.push("La date d'intervention ne peut être antérieure de plus de " + this.parametreNbJoursMaxRetroSaisie + " jours");
+        }
+
+        
+      }
+
+      
+
       if (!this.formIntervention.cai) {
         this.erreurformulaire.push("Le cadre d'intervention");
         formOK = false;
@@ -474,6 +534,48 @@ export default {
     }
   },
   mounted() {
+
+    this.$store.dispatch("get_parametre", "MAX_ANTICIP_INTER")
+      .then(() => {
+        console.log(this.$store.state.parametreSelectionne.par_valeur)
+        this.parametreNbMoisMaxAnticip = Number(this.$store.state.parametreSelectionne.par_valeur)
+      })
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération du paramètre MAX_ANTICIP_INTER",
+          error
+        );
+      });    
+
+      this.$store.dispatch("get_parametre", "MAX_RETRO_INTER")
+        .then(() => {
+          console.log(this.$store.state.parametreSelectionne.par_valeur)
+          this.parametreNbJoursMaxRetroSaisie = Number(this.$store.state.parametreSelectionne.par_valeur)
+        })
+        .catch(error => {
+          console.error(
+            "Une erreur est survenue lors de la récupération du paramètre MAX_RETRO_INTER",
+            error
+          );
+        });    
+
+        
+      this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
+        .then(() => {
+          console.log(this.$store.state.parametreSelectionne.par_valeur)
+          this.parametreNbJoursMaxModifInter = Number(this.$store.state.parametreSelectionne.par_valeur)
+        })
+        .catch(error => {
+          console.error(
+            "Une erreur est survenue lors de la récupération du paramètre MAX_RETRO_INTER",
+            error
+          );
+        });    
+
+        
+
+
+
     this.recherchecommune().then(res => {
       if (this.formIntervention && this.formIntervention.commune) {
         this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
