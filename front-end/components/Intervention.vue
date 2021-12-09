@@ -19,6 +19,7 @@
         <div class="input-group-display">
           <span>Type de bloc * :</span>
           <b-form-select 
+            :disabled="this.isVerrouille"
             class="liste-deroulante"
             v-model="formIntervention.blocId" 
             :options="listebloc"/>
@@ -30,6 +31,7 @@
             <li class="input-group-display">
               <span>Code Postal * :</span>
               <b-form-input
+                :disabled="this.isVerrouille"
                 class="text-cinq-car"
                 aria-describedby="inputFormatterHelp"
                 maxlength="5"
@@ -41,6 +43,7 @@
             <li class="input-group-display">
               <span>Commune * :</span>
                 <b-form-select 
+                  :disabled="this.isVerrouille"
                   class="liste-deroulante"
                   v-model="selectedCommune">
                   <option :value="null">-- Choix de la commune --</option>
@@ -56,6 +59,7 @@
         <div class="input-group-display">
           <span>Nombre d'enfants * :</span>
             <b-form-input 
+              :disabled="this.isVerrouille"
               v-model="formIntervention.nbEnfants" 
               type="number" 
               min="0"
@@ -66,6 +70,7 @@
             <li>
               Dont
               <b-form-input 
+                :disabled="this.isVerrouille"
                 v-model="formIntervention.nbGarcons" 
                 type="number" 
                 min="0"
@@ -73,10 +78,12 @@
                 ></b-form-input>
               garçons et
               <b-form-input 
+                :disabled="this.isVerrouille"
                 v-model="formIntervention.nbFilles" 
                 type="number" 
                 min="0"
-                class="text-cinq-car"></b-form-input>
+                class="text-cinq-car"
+                ></b-form-input>
               filles
             </li>
             <li>
@@ -84,25 +91,25 @@
               <ul>
                 <li>
                   <span class="text-cinq-car">
-                    <b-form-input v-model="formIntervention.nbmoinssix" type="number" min="0"></b-form-input>
+                    <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbmoinssix" type="number" min="0"></b-form-input>
                   </span>
                   moins de 6 ans
                 </li>
                 <li>
                   <span class="text-cinq-car">
-                    <b-form-input v-model="formIntervention.nbsixhuit" type="number" min="0"></b-form-input>
+                    <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbsixhuit" type="number" min="0"></b-form-input>
                   </span>
                   6-7-8 ans
                 </li>
                 <li>
                   <span class="text-cinq-car">
-                    <b-form-input v-model="formIntervention.nbneufdix" type="number" min="0"></b-form-input>
+                    <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbneufdix" type="number" min="0"></b-form-input>
                   </span>
                   9-10 ans
                 </li>
                 <li>
                   <span class="text-cinq-car">
-                    <b-form-input v-model="formIntervention.nbplusdix" type="number" min="0"></b-form-input>
+                    <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbplusdix" type="number" min="0"></b-form-input>
                   </span>
                   plus de 10 ans
                 </li>
@@ -118,6 +125,7 @@
           <span>Date d'intervention * :</span>
           <b-form-input 
             maxlength="10" 
+            :disabled="this.isVerrouille"
             v-model="formIntervention.dateIntervention" 
             type="date"
             class="text-date date-input-width"></b-form-input>
@@ -132,6 +140,7 @@
           </b-popover>
           <b-form-group class="ml-3">
             <b-form-radio-group
+              :disabled="this.isVerrouille"
               v-model="formIntervention.cai"
               :options="listecadreintervention"
               plain
@@ -143,6 +152,7 @@
         <div class="input-group-display">
             <span>Site d'intervention :</span>
             <b-form-input 
+              :disabled="this.isVerrouille"
               v-model="formIntervention.siteintervention" 
               type="text"
               class="text"></b-form-input>
@@ -151,6 +161,7 @@
         <div class="mb-3 mt-3">
           <span>Commentaires libres :</span>
           <b-form-textarea
+            :disabled="this.isVerrouille"
             id="textarea1" 
             v-model="formIntervention.commentaire"
             placeholder
@@ -201,7 +212,7 @@
             v-if="!intervention.id"
             title="Réinitialiser le formulaire"
           >Réinitialiser le formulaire</b-button>
-          <b-button variant="success" v-on:click="checkform">Enregistrer</b-button>
+          <b-button :disabled="this.isVerrouille" variant="success" v-on:click="checkform">Enregistrer</b-button>
         </p>
       </b-col>
     </b-row>
@@ -210,6 +221,7 @@
 <script>
 import Vue from "vue";
 import moment from "moment";
+import { mapState } from "vuex";
 
 var loadFormIntervention = function(intervention) {
   let formIntervention = JSON.parse(
@@ -252,6 +264,7 @@ export default {
     }
   },
   computed: {
+    ...mapState(["utilisateurCourant"]),
     showAttestation() {
       return (
         this.intervention &&
@@ -262,6 +275,7 @@ export default {
   },
   data() {
     return {
+      isVerrouille: true,
       parametreNbMoisMaxAnticip: null,
       parametreNbJoursMaxRetroSaisie: null,
       parametreNbJoursMaxModifInter: null,
@@ -296,12 +310,6 @@ export default {
     };
   },
   methods: {
-    dateDiff: function(date1, date2){
-  date1 = date1.getTime() / 86400000;
-  date2 = date2.getTime() / 86400000;
-  return new Number(date2 - date1).toFixed(0);
-  
-  },
     showPDF: function(id) {
       console.info("showPDF");
       this.$axios({
@@ -374,12 +382,14 @@ export default {
         console.log("idate1:", idate1)
         console.log("Delta:", idateDelaiMaxAnticip-idate1)
         */
-        if (idateDelaiMaxAnticip-idate1<0) 
+        if (this.utilisateurCourant.profilId != 1)
         {
-          formOK = false;
-          this.erreurformulaire.push("La date d'intervention ne peut être anticipée de plus de " + this.parametreNbMoisMaxAnticip + " mois");
+          if (idateDelaiMaxAnticip-idate1<0) 
+          {
+            formOK = false;
+            this.erreurformulaire.push("La date d'intervention ne peut être anticipée de plus de " + this.parametreNbMoisMaxAnticip + " mois");
+          }
         }
-
 
         var dateRetroSaisie = new Date()
         dateRetroSaisie.setDate(dateRetroSaisie.getDate() - this.parametreNbJoursMaxRetroSaisie);
@@ -392,12 +402,14 @@ export default {
         console.log("idate1:", idate1)
         console.log("Delta:", idate1-idateRetroSaisie)
         */
-        if (idate1-idateRetroSaisie<=0) 
+        if (this.utilisateurCourant.profilId != 1)
         {
-          formOK = false;
-          this.erreurformulaire.push("La date d'intervention ne peut être antérieure de plus de " + this.parametreNbJoursMaxRetroSaisie + " jours");
+          if (idate1-idateRetroSaisie<0) 
+          {
+            formOK = false;
+            this.erreurformulaire.push("La date d'intervention ne peut être antérieure de plus de " + this.parametreNbJoursMaxRetroSaisie + " jours");
+          }
         }
-
         
       }
 
@@ -523,6 +535,15 @@ export default {
         formIntervention.dateIntervention
       );
       Vue.set(this, "formIntervention", loadFormIntervention(intervention));
+      
+/*
+var date1 = this.formIntervention.dateIntervention;
+      var dateDelaiMaxAnticip = new Date()
+      dateDelaiMaxAnticip.setMonth(dateDelaiMaxAnticip.getMonth() + this.parametreNbMoisMaxAnticip);
+      var sdateDelaiMaxAnticip = dateDelaiMaxAnticip.toISOString().slice(0, 10)
+      var idateDelaiMaxAnticip = Number(sdateDelaiMaxAnticip.toString().replaceAll("-",""))
+      var idate1 = Number(date1.toString().replaceAll("-",""))
+*/
     },
     "formIntervention.cp"(cp) {
       this.recherchecommune();
@@ -562,25 +583,53 @@ export default {
         
       this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
         .then(() => {
-          console.log(this.$store.state.parametreSelectionne.par_valeur)
           this.parametreNbJoursMaxModifInter = Number(this.$store.state.parametreSelectionne.par_valeur)
+
+          var date1 = new Date(this.formIntervention.dateIntervention);
+          date1.setDate(date1.getDate() + this.parametreNbJoursMaxModifInter);
+          var sdate1 = date1.toISOString().slice(0, 10)
+          var dateMaxModifInter = new Date()
+          var sdateMaxModifInter = dateMaxModifInter.toISOString().slice(0, 10)
+          var idateMaxModifInter = Number(sdateMaxModifInter.toString().replaceAll("-",""))
+          var idate1 = Number(sdate1.toString().replaceAll("-",""))
+          // Si la idateDelaiMaxAnticip (aujourd'hui + X mois) - date d'intervention > 0 Alors on a dépassé les X mois d'anticipation
+          /*          
+          console.log("Delai:", this.parametreNbJoursMaxModifInter)
+          console.log("idateMaxModifInter:", idateMaxModifInter)
+          console.log("idate1:", idate1)
+          console.log("Delta:", idateMaxModifInter-idate1)
+          */
+          if (this.utilisateurCourant.profilId != 1)
+          {
+            if (idateMaxModifInter-idate1>0) 
+            {
+              //console.log ("Intervention verrouillee")
+              this.isVerrouille = true;
+            }
+            else
+            {
+              //console.log ("Intervention NON verrouillee")
+              this.isVerrouille = false;
+            }
+          }
+          else
+          {
+            this.isVerrouille = false;
+          }
+
         })
         .catch(error => {
           console.error(
-            "Une erreur est survenue lors de la récupération du paramètre MAX_RETRO_INTER",
+            "Une erreur est survenue lors de la récupération du paramètre MAX_MODIF_INTER",
             error
           );
-        });    
+        }); 
 
-        
-
-
-
-    this.recherchecommune().then(res => {
-      if (this.formIntervention && this.formIntervention.commune) {
-        this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
-      }
-    });
+      this.recherchecommune().then(res => {
+        if (this.formIntervention && this.formIntervention.commune) {
+          this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
+        }
+      });
   }
 };
 </script>
