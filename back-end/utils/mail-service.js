@@ -77,7 +77,7 @@ module.exports = {
             body: `
             <p>Bonjour,</p>
 
-            <p>Vous recevez ce mail car vous avez effecuté une demande de réinitialisation de mot de passe sur le site Savoir Rouler à vélo</p>
+            <p>Vous recevez ce mail car vous avez effectué une demande de réinitialisation de mot de passe sur le site Savoir Rouler à vélo</p>
 
             <p>Veuillez entamer la procédure en cliquant sur le lien suivant:</p>
 
@@ -133,11 +133,22 @@ module.exports = {
         */
         console.log('EMail to  : ' + mailUtilisateurCourant)
 
-        sendEmail({
+
+
+        const params = {
             to: mailUtilisateurCourant,
             subject: objetMail,
-            body: corpsMail
+            body: corpsMail,
+            from: SENDER_EMAIL,
+            replyTo: SENDER_EMAIL
+            }
+        axios.post(sendNotificationUrl,  params).then(() => {
+            log.i('sendStatusNotification - Done', {params})
         })
+        .catch(err => {
+            log.w('sendStatusNotification', err)
+        })
+        //sendEmail(params)
         return 1
     }
 }

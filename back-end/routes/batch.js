@@ -28,9 +28,12 @@ router.get('/mailrelance', async function (req, res) {
     var premierUtilisateur;
     var corpsMail;
     var dateaffichee;
+    var dateintermaxmodifaffichee;
     var dernierEnregistrement;
     var compteInterventions;
     var startTime = new Date();
+
+
     const clauseWhere =  `where 
                         int_dateintervention <= current_date 
                         AND
@@ -41,25 +44,24 @@ router.get('/mailrelance', async function (req, res) {
                             OR
                             (int_datecreation < int_dateintervention 
                             AND int_datemaj < int_dateintervention)
+                            OR
+                            -- Déclaration a postériori : Si la date MAJ = date Création alors on relance
+							(int_datecreation > int_dateintervention 
+							AND int_datecreation = int_datemaj)
                         )
                         AND
                         (
                             (
                             -- Condition relance fait sur le premier jour : 0 : La relance n’a pas été faite
                             intervention.int_relancemail = 0
-                            AND to_char(int_dateintervention,'YYYMMDD') <= to_char(current_date,'YYYMMDD')
-                            )
-                            OR
-                            (
-                            -- Condition relance fait sur au bout de 7 jours : 1 : La relance n’a pas été faite
-                            intervention.int_relancemail = 1
-                            AND 
-                            (int_dateintervention + INTERVAL '7 day') <= current_date
+                            AND to_char(int_dateintervention,'YYYMMDD') < to_char(current_date,'YYYMMDD')
+                            AND to_char(current_date,'YYYMMDD') < to_char((int_dateintervention + INTERVAL '5 day'),'YYYMMDD')
                             )
                         )`;
 
-    const requete =`SELECT *, to_char(int_dateintervention,'DD/MM/YYYY') as dateintervention
+    const requete =`SELECT *, to_char(int_dateintervention,'DD/MM/YYYY') as dateintervention, to_char((int_dateintervention + INTERVAL '1 day' * par.par_valeur::integer),'DD/MM/YYYY') as dateinterventionmaxmodif
             from intervention 
+            LEFT JOIN parametres par on par.par_code = 'MAX_MODIF_INTER'
             LEFT JOIN bloc ON bloc.blo_id = intervention.blo_id 
             LEFT JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
             LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id ` + clauseWhere 
@@ -83,12 +85,13 @@ router.get('/mailrelance', async function (req, res) {
             nbIntervention = 0;
             interventionACompleter = false;
             interventionAVerifier = false;            
-            interventions.forEach(intervention => {
+            interventions.forEach((intervention, index) => {
 
                 compteInterventions = compteInterventions + 1;
                 log.d(`::mailrelance - Traitement de l'enregistrement N°` + compteInterventions);
 
                 dateaffichee = intervention.dateIntervention;
+                dateintermaxmodifaffichee = result.rows[index].dateinterventionmaxmodif;
 
                 if (premierUtilisateur == true) {
                     log.i(`::mailrelance - Premier enregistrement`);
@@ -141,6 +144,9 @@ router.get('/mailrelance', async function (req, res) {
                     //intervention.interventionAVerifier = true;
                 }
                 corpsMailTemp = corpsMailTemp + `<br/>`;
+                corpsMailTemp = corpsMailTemp + `Vous avez jusqu'au <b>` + dateintermaxmodifaffichee + `</b> pour modifier ou corriger votre intervention, passé ce délai, celle-ci ne sera plus modifiable.`;
+                corpsMailTemp = corpsMailTemp + `<br/>`;
+                
 
                 if (idUtilisateurCourant == intervention.utiId) {
                     corpsMail = corpsMail + corpsMailTemp;
@@ -166,6 +172,14 @@ router.get('/mailrelance', async function (req, res) {
                     EnteteMail = ``;
                 }   
                 if (dernierEnregistrement == true) {
+                    log.d("idUtilisateurCourant : ",idUtilisateurCourant)
+                    log.d("intervention.utiId : ",intervention.utiId)
+                    log.d("nomUtilisateurCourant :",nomUtilisateurCourant)
+                    log.d("mailUtilisateurCourant :",mailUtilisateurCourant)
+                    log.d("nbIntervention :",nbIntervention)
+                    log.d("interventionACompleter :",interventionACompleter)
+                    log.d("interventionAVerifier :",interventionAVerifier)
+                    log.d("corpsMail :",corpsMail)
                     formatAndSendMail(idUtilisateurCourant,intervention.utiId,nomUtilisateurCourant,mailUtilisateurCourant,nbIntervention,interventionACompleter,interventionAVerifier,corpsMail);
                 }
 
