@@ -1,0 +1,3 @@
+INSERT INTO parametres (par_id, par_code, par_description, par_valeur) values (1,'MAX_ANTICIP_INTER','Délai maximum pour la déclaration anticipée des interventions (mois)','3');
+INSERT INTO parametres (par_id, par_code, par_description, par_valeur) values (2,'MAX_RETRO_INTER','Délai maximum pour la saisie à postériori des interventions (jours)','5');
+INSERT INTO parametres (par_id, par_code, par_description, par_valeur) values (3,'MAX_MODIF_INTER','Délai maximum pour modifier une intervention (jours)','5');

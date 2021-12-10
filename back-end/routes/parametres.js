@@ -10,12 +10,12 @@ var moment = require('moment');
 
 // Route permettant de récupérer la valeur d'un paramètre dans la table paramètres
 // exemple : http://localhost/backend/api/parametres?code=PROTO_APPLI
-router.get('/', (req, res) => {
+router.get('/:codeParametre',async (req, res) => {
     log.i('::parametres - In')
 
     //var startTime = new Date();
     var requete = "";
-    var parametre = req.query.code
+    const  parametre = req.params.codeParametre
 
     log.d('::parametres - du paramètre : ' + parametre);
 
@@ -38,7 +38,8 @@ router.get('/', (req, res) => {
             }
             else
             {
-                return res.send(resultat[0]);
+                res.json({ parametre: resultat[0] });
+               // return res.send(resultat[0]);
             }
         }
     })

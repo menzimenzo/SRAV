@@ -6,7 +6,8 @@
 
 var config = require('../config')
 var moment = require('moment');
-
+moment().format();
+const fs = require('fs');
 
 module.exports = {
 
@@ -125,6 +126,14 @@ module.exports = {
     return result
   },
   logTrace : (batch,codeerreur,startTime) => {
+    const now = new Date();
+    var jour = now.getDate().toString().padStart(2, "0");
+    var mois = now.getMonth().toString().padStart(2, "0");
+    var annee = now.getFullYear();
+    var heure = now.getHours().toString().padStart(2, "0");
+    var minute = now.getMinutes().toString().padStart(2, "0");
+    var dateTimeFormate = annee + mois + jour + heure + minute;
+
     var execTime = new Date() - startTime;
     var fichierSupervision = config.PATH_SUPERVISION_BATCH;
     var checkLog;
@@ -135,7 +144,10 @@ module.exports = {
     {
         checkLog = 'Check log Backend SRAV';
     }    
-    var contenu = formatDate() + '|' + codeerreur + '|' + checkLog + '|ExecTime=' + execTime;
+    // L'appel à formatDate() ne fonctionne plus. A voir pourquoi. Duplication de code en attendant
+    //var contenu = formatDate() + '|' + codeerreur + '|' + checkLog + '|ExecTime=' + execTime;
+    var contenu = dateTimeFormate + '|' + codeerreur + '|' + checkLog + '|ExecTime=' + execTime;
+
 
     fs.writeFile(fichierSupervision + '/batch.' + batch + '.txt', contenu, function (err) {
         if (err) throw err;

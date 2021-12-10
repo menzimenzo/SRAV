@@ -77,6 +77,17 @@
                         <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4">
                           <div style="min-width: 147px;">
                             <b-btn
+                              v-if="!autoriseModifIntervention(props.data.dateIntervention)"
+                              @click="editIntervention(props.data.id)"
+                              size="sm"
+                              class="ml-1"
+                              variant="primary"
+                              v-b-popover.hover="`Visualiser l'intervention`"
+                            >
+                              <i class="material-icons">visibility</i>
+                            </b-btn>
+                            <b-btn
+                              v-if="autoriseModifIntervention(props.data.dateIntervention)"
                               @click="editIntervention(props.data.id)"
                               size="sm"
                               class="ml-1"
@@ -96,6 +107,7 @@
                               <i class="material-icons">cloud_download</i>
                             </b-btn>
                             <b-btn
+                              v-if="autoriseModifIntervention(props.data.dateIntervention)"
                               @click="deleteIntervention(props.data.id)"
                               size="sm"
                               class="ml-1"
@@ -190,6 +202,7 @@ export default {
   },
   data() {
     return {
+      parametreNbJoursMaxModifInter: null,
       loading: true,
       interventionsToDisplay: null,
       headers: [
@@ -285,6 +298,38 @@ export default {
             error
           );
         });
+    },
+    autoriseModifIntervention: function(dateIntervention) {
+
+          var date1 = new Date(dateIntervention);
+          date1.setDate(date1.getDate() + this.parametreNbJoursMaxModifInter);
+          var sdate1 = date1.toISOString().slice(0, 10)
+          var dateMaxModifInter = new Date()
+          var sdateMaxModifInter = dateMaxModifInter.toISOString().slice(0, 10)
+          var idateMaxModifInter = Number(sdateMaxModifInter.toString().replaceAll("-",""))
+          var idate1 = Number(sdate1.toString().replaceAll("-",""))
+          // Si la idateDelaiMaxAnticip (aujourd'hui + X mois) - date d'intervention > 0 Alors on a dépassé les X mois d'anticipation
+          /*          
+          console.log("Delai:", this.parametreNbJoursMaxModifInter)
+          console.log("idateMaxModifInter:", idateMaxModifInter)
+          console.log("idate1:", idate1)
+          console.log("Delta:", idateMaxModifInter-idate1)
+          */
+          if (this.utilisateurCourant.profilId != 1)
+          {
+            if (idateMaxModifInter-idate1>0) 
+            {
+              return false;
+            }
+            else
+            {
+              return true;
+            }      
+          }
+          else
+          {
+            return true;
+          }
     },
     deleteIntervention: function(idIntervention) {
       console.info("Suppression d'une intervention : " + idIntervention);
@@ -406,6 +451,19 @@ export default {
       this.$store.dispatch("get_interventions"),
       this.$store.dispatch("get_documents")
     ]);
+
+            
+    this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
+        .then(() => {
+          console.log(this.$store.state.parametreSelectionne.par_valeur)
+          this.parametreNbJoursMaxModifInter = Number(this.$store.state.parametreSelectionne.par_valeur)
+        })
+        .catch(error => {
+          console.error(
+            "Une erreur est survenue lors de la récupération du paramètre MAX_MODIF_INTER",
+            error
+          );
+        }); 
     //console.info("mounted", { interventions: this.interventions});
     // on supprime les interventions ne relevant pas de la structure si prod_id = 2 (partenaire)
     /*if (this.utilisateurCourant.profilId == 2) {

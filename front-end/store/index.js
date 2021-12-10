@@ -13,7 +13,8 @@ export const state = () => ({
   structures            : [],
   structureSelectionnee : [],
   documents             : [],
-  statStructure         : []
+  statStructure         : [],
+  parametreSelectionne : []
 
 });
 
@@ -129,6 +130,10 @@ export const mutations = {
     log.i(`mutations::set_documents`)    
     state.documents = documents
   },
+  set_parametreSelectionne(state, parametre) {
+    log.i(`mutations::set_parametreSelectionne`)
+    state.parametreSelectionne = parametre;
+  }
 };
 
 export const actions = {
@@ -405,7 +410,19 @@ export const actions = {
   set_state_element({ commit }, {key,value }) {
     log.i('actions::set_state_element - In',{key , value} )
     return commit('SET', { key, value })
-  }
+  },
+  async get_parametre({ commit,state }, codeParametre) {
+    log.i("actions::get_parametre - In");  
+    const url = process.env.API_URL + "/parametres/" + codeParametre;
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        commit("set_parametreSelectionne", response.parametre);
+      })
+      .catch(error => {
+        log.w("actions::get_parametre - In", error);
+      });
+  },
 };
 
 export const getters = {
