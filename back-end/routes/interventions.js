@@ -36,7 +36,11 @@ const formatIntervention = intervention => {
         dateMaj: intervention.int_datemaj,
         commentaire: intervention.int_commentaire,
         siteintervention: intervention.int_siteintervention,
-        departement:intervention.int_dep_num
+        departement:intervention.int_dep_num,
+        isenfantshandicapes: intervention.int_isenfantshandicapes,
+        nbenfantshandicapes: intervention.int_nbenfantshandicapes,
+        isqpv: intervention.int_isqpv,
+        qpvcode: intervention.int_qpv_code
     }
 
     if(intervention.uti_nom){
@@ -120,6 +124,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
     INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
+    LEFT JOIN qpv ON intervention.int_qpv_code = qpv.qpv_code
     ${whereClause} 
     INNER JOIN structure ON structure.str_id = utilisateur.str_id 
     ${whereClauseReferent} 
@@ -158,6 +163,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 //newIntervention.structureCode = intervention.str_libellecourt;
                 //newIntervention.structureLibelle = intervention.str_libelle;
                 newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
+                newIntervention.qpv = intervention.qpv_libelle;
                 // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
                 if(user.pro_id == 4){
                     delete newIntervention.siteintervention;
@@ -381,7 +387,7 @@ router.put('/:id', async function (req, res) {
 
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
         commentaire, cp, utilisateurId,siteintervention,
-        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix  } = intervention
+        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode  } = intervention
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -409,7 +415,11 @@ router.put('/:id', async function (req, res) {
         int_commentaire = $14,
         int_dep_num = $15,
         int_reg_num = $16,
-        int_siteintervention = $17
+        int_siteintervention = $17,
+        int_isenfantshandicapes = $18,
+        int_nbenfantshandicapes = $19,
+        int_isqpv = $20,
+        int_qpv_code = $21
         WHERE int_id = ${id}
         RETURNING *
         ;`    
@@ -431,7 +441,11 @@ router.put('/:id', async function (req, res) {
         commentaire,
         commune.dep_num,
         commune.reg_num,
-        siteintervention], (err, result) => {
+        siteintervention,
+        isenfantshandicapes,
+        nbenfantshandicapes,
+        isqpv,
+        qpvcode], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de la récupération', { requete, erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
@@ -454,7 +468,8 @@ router.post('/', function (req, res) {
 
     let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
          commentaire, cp, utilisateurId, siteintervention,
-         nbmoinssix, nbsixhuit, nbneufdix, nbplusdix } = intervention
+         nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,
+         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -469,13 +484,18 @@ router.post('/', function (req, res) {
                         int_nombreenfant,int_nombregarcon,int_nombrefille,int_dateintervention,
                         int_datecreation,int_datemaj,int_commentaire,
                         int_dep_num,int_reg_num,int_siteintervention,
-                        INT_NOMBREMOINSSIX, INT_NOMBRESIXHUIT, INT_NOMBRENEUFDIX, INT_NOMBREPLUSDIX) 
-                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20 ) RETURNING *`;
+                        INT_NOMBREMOINSSIX, INT_NOMBRESIXHUIT, INT_NOMBRENEUFDIX, INT_NOMBREPLUSDIX,
+                        int_isenfantshandicapes,
+                        int_nbenfantshandicapes,
+                        int_isqpv,
+                        int_qpv_code) 
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24 ) RETURNING *`;
     
     log.d('::post - requete',{ requete });
     pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
     nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
-    commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix],(err, result) => {
+    commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix, 
+    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode],(err, result) => {
         if (err) {
             log.w('::post - Erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');

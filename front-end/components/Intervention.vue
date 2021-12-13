@@ -94,29 +94,80 @@
                     <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbmoinssix" type="number" min="0"></b-form-input>
                   </span>
                   moins de 6 ans
-                </li>
-                <li>
                   <span class="text-cinq-car">
                     <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbsixhuit" type="number" min="0"></b-form-input>
                   </span>
                   6-7-8 ans
                 </li>
                 <li>
+                </li>
+                <li>
                   <span class="text-cinq-car">
                     <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbneufdix" type="number" min="0"></b-form-input>
                   </span>
                   9-10 ans
-                </li>
-                <li>
-                  <span class="text-cinq-car">
+                                    <span class="text-cinq-car">
                     <b-form-input :disabled="this.isVerrouille" v-model="formIntervention.nbplusdix" type="number" min="0"></b-form-input>
                   </span>
                   plus de 10 ans
+                </li>
+                <li>
+
                 </li>
               </ul>
             </li>
           </ul>
         </div>
+
+        <div class="mb-3 mt-3">
+         <b-form-group >
+            Des enfants sont en situation de handicap *
+            <b-form-radio-group 
+              :disabled="this.isVerrouille"
+              v-model="isHandicap" 
+              >
+              <b-form-radio value="true">Oui</b-form-radio>
+              <b-form-radio value="false">Non</b-form-radio>
+            </b-form-radio-group>
+          </b-form-group>
+        </div >
+        <div v-if="isHandicap == true || isHandicap == 'true'">
+             Nombre d'enfants concernés * : 
+              <b-form-input 
+                :disabled="this.isVerrouille"
+                v-model="formIntervention.nbenfantshandicapes" 
+                type="number" 
+                min="1"
+                class="text-cinq-car" 
+                >
+              </b-form-input>
+        </div>
+        <div class="mb-3 mt-3">
+         <b-form-group >
+            Intervention en QPV (Quartier Prioritaire de Politique de Ville) *
+            <b-form-radio-group 
+              :disabled="this.isVerrouille"
+              v-model="isQpv" 
+              >
+              <b-form-radio value="true">Oui</b-form-radio>
+              <b-form-radio value="false">Non</b-form-radio>
+            </b-form-radio-group>
+          </b-form-group>
+        </div >
+        <li class="input-group-display" v-if="isQpv == true || isQpv == 'true'">
+          <span>Quartier concerné * :</span>
+            <b-form-select 
+              :disabled="this.isVerrouille"
+              class="liste-deroulante"
+              v-model="formIntervention.qpvcode">
+              <option :value="null">-- Choix du QPV --</option>
+              <option
+                v-for="qpv in listeQPV"
+                :key="qpv.qpv_code"
+                :value="qpv.qpv_code"
+              >{{ qpv.qpv_libelle }}</option>
+            </b-form-select>
+        </li>            
       </b-col>
 
       <!-- SECONDE BLOC DE SAISIE INTERVENTION -->
@@ -275,6 +326,14 @@ export default {
   },
   data() {
     return {
+      isHandicap: {
+        type: Boolean,
+        default: null
+      },
+      isQpv: {
+        type: Boolean,
+        default: null
+      },
       isVerrouille: true,
       parametreNbMoisMaxAnticip: null,
       parametreNbJoursMaxRetroSaisie: null,
@@ -289,7 +348,7 @@ export default {
           codedep: null
         }
       ],
-
+      listeQPV: [],
       formIntervention: loadFormIntervention(this.intervention),
       //<aria-label="texte de l'infobulle">
       // v-b-popover.hover="'I am popover content!'"
@@ -337,6 +396,8 @@ export default {
     resetform: function() {
       const action = "reset_interventions";
       console.info({ action });
+      this.isQpv = null
+      this.isHandicap = null
       return this.$store.commit(action);
     },
 
@@ -412,8 +473,39 @@ export default {
         }
         
       }
+      console.log("this.isHandicap",this.isHandicap)
+      if (this.isHandicap == null) 
+      {
+        formOK = false;
+        this.erreurformulaire.push("Enfants en situation de handicap");
+      }
+      else
+      {
+        if (this.isHandicap == 'true' || this.isHandicap == true) {
+          if (!this.formIntervention.nbenfantshandicapes) 
+          {
+            formOK = false;
+            this.erreurformulaire.push("Nombre d'enfants en situation de handicap");
+          }
+        }
+      }
 
-      
+      if (this.isQpv == null) 
+      {
+        formOK = false;
+        this.erreurformulaire.push("Intervention en QPV");
+      }
+      else
+      {
+        console.log("this.formIntervention.isqpv",Boolean(this.formIntervention.isqpv))
+        if (this.isQpv == 'true' || this.isQpv == true) {
+          if (!this.formIntervention.qpvcode) 
+          {
+            formOK = false;
+            this.erreurformulaire.push("QPV associé à la commune d'intervention");
+          }
+        }
+      }
 
       if (!this.formIntervention.cai) {
         this.erreurformulaire.push("Le cadre d'intervention");
@@ -441,7 +533,11 @@ export default {
         blocId: this.formIntervention.blocId,
         dateIntervention: this.formIntervention.dateIntervention,
         commentaire: this.formIntervention.commentaire,
-        siteintervention: this.formIntervention.siteintervention
+        siteintervention: this.formIntervention.siteintervention,
+        isenfantshandicapes: this.formIntervention.isenfantshandicapes,
+        nbenfantshandicapes: this.formIntervention.nbenfantshandicapes,
+        isqpv: this.formIntervention.isqpv,
+        qpvcode: this.formIntervention.qpvcode
       };
 
       const action = intervention.id ? "put_intervention" : "post_intervention";
@@ -503,6 +599,32 @@ export default {
         this.listecommune = ["Veuillez saisir un code postal"];
         return Promise.resolve(null);
       }
+    },
+    rechercheqpv: function() {
+      console.info("Recherche de la qpv");
+      if (this.formIntervention.cp.length === 5) {
+        // Le code postal fait bien 5 caractères
+        const url =
+          process.env.API_URL +
+          "/listeqpv?codepostal=" +
+          this.formIntervention.cp;
+        console.info(url);
+        return this.$axios
+          .$get(url)
+          .then(response => {
+            this.listeQPV = response.qpv;
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération des qpv",
+              error
+            );
+          });
+      } else {
+        // On vide la liste car le code postal a changé
+        this.listeQPV = ["Veuillez saisir un code postal"];
+        return Promise.resolve(null);
+      }
     }
   },
   watch: {
@@ -547,6 +669,23 @@ var date1 = this.formIntervention.dateIntervention;
     },
     "formIntervention.cp"(cp) {
       this.recherchecommune();
+      this.rechercheqpv();
+    },
+    "isQpv"() {
+      console.log("IsQPV",this.isQpv)
+      this.formIntervention.isqpv = this.isQpv
+      if (this.isQpv == false || this.isQpv =='false')
+      {
+        this.formIntervention.qpvcode = null;
+      }
+    },
+    "isHandicap"() {
+      console.log("isHandicap",this.isHandicap)
+      this.formIntervention.isenfantshandicapes = this.isHandicap
+      if (this.isHandicap == false || this.isHandicap =='false')
+      {
+        this.formIntervention.nbenfantshandicapes = null;
+      }
     },
     selectedCommune() {
       this.formIntervention.commune = this.listecommune.find(commune => {
@@ -580,7 +719,10 @@ var date1 = this.formIntervention.dateIntervention;
           );
         });    
 
-        
+      this.isQpv = this.formIntervention.isqpv;
+      this.isHandicap  = this.formIntervention.isenfantshandicapes;
+      console.log("this.isQpv",this.isQpv)
+      console.log("this.isHandicap",this.isHandicap)
       this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
         .then(() => {
           this.parametreNbJoursMaxModifInter = Number(this.$store.state.parametreSelectionne.par_valeur)
@@ -629,6 +771,11 @@ var date1 = this.formIntervention.dateIntervention;
         if (this.formIntervention && this.formIntervention.commune) {
           this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
         }
+      });
+      this.rechercheqpv().then(res=>{
+          if (this.formIntervention && this.formIntervention.qpv) {
+            this.formIntervention.qpvcode = this.formIntervention.qpv.qpv_code;
+          }
       });
   }
 };
