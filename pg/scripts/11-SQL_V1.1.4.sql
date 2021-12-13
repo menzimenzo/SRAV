@@ -36,6 +36,37 @@ create  index IDX_QPV_INSEE on QPV_INSEE (
 QPV_INSEE,QPV_CODE
 );
 
+do $$ 
+DECLARE
+	f record;
+	user_srv varchar;
+	message_info varchar;
+BEGIN
+	SELECT distinct(rolname) INTO user_srv 
+	FROM pg_catalog.pg_roles
+	WHERE rolname LIKE 'u_srv_p%';
+	message_info = 'Lancement de la procédure de mise à jour des droits pour l''utilisateur ' || user_srv;
+	raise notice '%', message_info;
+	FOR f in SELECT tablename, tableowner 
+		FROM pg_tables 
+		WHERE 
+			tableowner <> user_srv and 
+			schemaname = 'public'
+	LOOP
+		raise notice 'Ajout des droits sur la Table %', f.tablename;
+		EXECUTE 'ALTER TABLE ' || f.tablename || ' OWNER TO ' || user_srv || ';';
+	END LOOP;
+
+	FOR f in SELECT c.relname, r.rolname 
+		FROM pg_class c 
+		JOIN pg_roles r on c.relowner = r.oid 
+		WHERE c.relkind = 'S' and r.rolname <> user_srv
+	LOOP
+		raise notice 'Sequence %', f.relname;
+		EXECUTE 'ALTER SEQUENCE ' || f.relname || ' OWNER TO ' || user_srv || ';';
+	END LOOP;
+END;
+$$
 
 -- Insee1
 INSERT INTO QPV_INSEE (QPV_CODE, QPV_INSEE) VALUES ('QP001001','01053');
