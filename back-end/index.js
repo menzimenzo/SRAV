@@ -60,7 +60,7 @@ const batch         = require('./routes/batch');
 const listeetablissement  = require('./routes/listeetablissement');
 const exportcsv        = require('./routes/export');
 const parametres         = require('./routes/parametres');
-
+const listeqpv      = require('./routes/listeqpv');
 
 // Route vers la page de connexion
 app.use(config.URL_PREFIX + '/connexion', connexion);
@@ -94,6 +94,8 @@ app.use(config.URL_PREFIX + '/export', exportcsv);
 app.use(config.URL_PREFIX + '/listeetablissement', listeetablissement);
 
 app.use(config.URL_PREFIX + '/parametres', parametres);
+
+app.use(config.URL_PREFIX + '/listeqpv', listeqpv);
 
 app.listen(3001, function () {
     console.log('Example app listening on port 3001!')

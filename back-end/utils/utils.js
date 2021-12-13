@@ -108,7 +108,11 @@ module.exports = {
         interventionACompleter: false,
         interventionAVerifier: false,
         corpsMail: null,
-        uti_mail: intervention.uti_mail
+        uti_mail: intervention.uti_mail,
+        isenfantshandicapes: intervention.int_isenfantshandicapes,
+        nbenfantshandicapes: intervention.int_nbenfantshandicapes,
+        isqpv: intervention.int_isqpv,
+        qpvcode: intervention.int_qpv_code
     }
 
     if(intervention.uti_nom){
