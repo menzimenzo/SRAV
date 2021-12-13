@@ -448,7 +448,7 @@ router.post('/reset-password', async function(req, res) {
 
     log.d('::reset-password - Mise à jour du user.')
     const newPwd= await crypto.createHash('md5').update(password).digest('hex')
-    const updateRequete = `UPDATE utilisateur SET uti_pwd=$1 WHERE uti_id=$2;`    
+    const updateRequete = `UPDATE utilisateur SET uti_pwd=$1, pwd_validated = true WHERE uti_id=$2;`    
     return pgPool.query(updateRequete,[ newPwd, user.uti_id],(err) => {
         if (err) {
             log.w('::reset-password - erreur lors de l\'update', {erreur: err.stack});
