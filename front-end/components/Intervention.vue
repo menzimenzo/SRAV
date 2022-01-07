@@ -219,6 +219,22 @@
             :rows="3"
           ></b-form-textarea>
         </div>
+        <!--<div v-if="listestructures.length > 1">-->
+        <div>
+          J'interviens pour la structure * :
+            <!-- STRUCTURE -->
+            <b-form-select 
+              class="liste-deroulante"
+              v-model="formIntervention.ustid">
+              <option :value="null">-- Choix de la structure --</option>
+              <option
+                style="width: 25em"
+                v-for="structure in listestructures"
+                :key="structure.ust_id"
+                :value="structure.ust_id"
+              >{{ structure.str_libellecourt}} - {{ structure.uti_structurelocale}}{{ structure.tco_libelle}} - {{ structure.com_libelle}} {{ structure.dep_libelle}}{{ structure.eta_nom}}{{ structure.epci_libelle }}</option>
+            </b-form-select>
+        </div>     
         <div class="mb-3 mt-3"  v-if="! formIntervention.dateMaj">
           <p class="text-info">
             Après mon intervention, je complète ou modifie les champs "nombre d'enfants", "genre" et "classe d'âge"
@@ -363,7 +379,18 @@ export default {
         { text: "Bloc 2 : Savoir circuler", value: "2" },
         { text: "Bloc 3 : Savoir rouler", value: "3" }
       ],
+      listeouinon: [
+        { text: `Oui`, value: "true" },
+        { text: `Non`, value: "false" }
+      ],
+      listestructures: [],
       selectedCommune: null,
+      selectedQPV: null,
+      //selectedStructure: null,
+      selectedCollectivite: null,
+      selectedEtablissement: null,
+      isHandicap: null,
+      isQPV: true,
       // Nécessaire pour le fonctionnement des popovers quand plusieurs composants intervention sont sur la page
       randomId: "popover-" + Math.floor(Math.random() * 100000)
     };
@@ -511,6 +538,10 @@ export default {
         this.erreurformulaire.push("Le cadre d'intervention");
         formOK = false;
       }
+      if (!this.formIntervention.ustid) {
+        this.erreurformulaire.push("La structure d'intervention est obligatoire");
+        formOK = false;
+      }
 
       if (!formOK) {
         console.info("Formulaire invalide", this.erreurformulaire);
@@ -537,9 +568,10 @@ export default {
         isenfantshandicapes: this.formIntervention.isenfantshandicapes,
         nbenfantshandicapes: this.formIntervention.nbenfantshandicapes,
         isqpv: this.formIntervention.isqpv,
-        qpvcode: this.formIntervention.qpvcode
+        qpvcode: this.formIntervention.qpvcode,
+        ustid: this.formIntervention.ustid
       };
-
+      console.log(intervention)
       const action = intervention.id ? "put_intervention" : "post_intervention";
       console.info({ intervention, action });
       return this.$store
@@ -626,6 +658,24 @@ export default {
         return Promise.resolve(null);
       }
     }
+    },
+    chargeUtiStructures(iduti) {
+      const url =  process.env.API_URL + "/structures/user/" + iduti;
+      console.info(url);
+      return this.$axios.$get(url).then(response => {
+              this.listestructures = response.structures;
+              // Si une seule structure, on la selectionne par défaut
+              if (this.listestructures.length == 1)
+                {this.selectedStructure = this.listestructures[0]}
+              this.loading = false;
+            })
+            .catch(error => {
+              console.error(
+                "Une erreur est survenue lors de la récupération des communes",
+                error
+              );
+            });
+    },      
   },
   watch: {
     intervention(intervention) {
@@ -777,6 +827,12 @@ var date1 = this.formIntervention.dateIntervention;
             this.formIntervention.qpvcode = this.formIntervention.qpv.qpv_code;
           }
       });
+    this.recherchecommune().then(res => {
+      if (this.formIntervention && this.formIntervention.commune) {
+        this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
+      }
+    });
+    this.chargeUtiStructures(this.$store.state.utilisateurCourant.id)
   }
 };
 </script>

@@ -93,9 +93,10 @@ requete =`SELECT str.str_libellecourt,
             com_libelle as commune,
             uti_mailcontact as mailcontact,
             uti_telephone as telephone,
-            uti_structurelocale as structurelocale
+            ust.uti_structurelocale as structurelocale
             from utilisateur  uti
-            inner join structure str on str.str_id = uti.str_id
+            inner join uti_str ust on ust.uti_id = uti.uti_id and ust.sus_id = 1
+            inner join structure str on str.str_id = ust.str_id
             left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
             where uti.uti_autorisepublicarte = true
             order by 3,4 asc`;

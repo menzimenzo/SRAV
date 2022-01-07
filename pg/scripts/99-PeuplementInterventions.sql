@@ -1,10 +1,14 @@
 ﻿DROP FUNCTION IF EXISTS srav_ins_creationintervention(INTEGER, INTEGER);
 
-CREATE OR REPLACE FUNCTION srav_ins_CreationIntervention(v_i_nb_util_creer INTEGER, v_i_nb_inter_creer INTEGER)
-  RETURNS TEXT AS
-$BODY$
+CREATE OR REPLACE FUNCTION public.srav_ins_creationintervention(
+	v_i_nb_util_creer integer,
+	v_i_nb_inter_creer integer)
+    RETURNS text
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
 DECLARE 
-
 
 	-- Recherche de la liste de patronyme à créer
 	cListePatronyme CURSOR FOR select nom
@@ -73,7 +77,7 @@ DECLARE
 	-- Nombre d'intervention pour l'utilisateur en cours
 	i_nb_intervention INTEGER;
 	i_nb_interventionparjour INTEGER;
-	i_nb_interventiondujour INTEGER [];
+	i_nb_interventiondujour INTEGER [1000];
 	i_nbjours INTEGER;
 	i_nbaleatintervention INTEGER;
 	curseurUtilisateur INTEGER;
@@ -124,7 +128,7 @@ BEGIN
 	i_nbjours := 1;
 	Sortie := 'Cumul i_nb_intervention : ' || i_nb_intervention;
 	RAISE NOTICE '%',Sortie;
-
+	RAISE NOTICE 'NB inter à créer %',v_i_nb_inter_creer;
 	WHILE (i_nb_intervention < v_i_nb_inter_creer) LOOP
 
 		Sortie := 'Ajout Nb Inter sur jour : ' || i_nbjours;
@@ -132,22 +136,23 @@ BEGIN
 		Sortie := 'Nombre d''intervention pour le jour : ' || i_nbaleatintervention;
 		-- RAISE NOTICE '%',Sortie;
 		
-		-- Par défaut la valeur est "null", il faut donc l'initialisée si ce n'est pas le cas (premier tour)
+		-- Par défaut la valeur est "null", il faut donc l'initialiser si ce n'est pas le cas (premier tour)
 		if i_nb_interventiondujour[i_nbjours] is null then
 			i_nb_interventiondujour[i_nbjours] = 0;
 		end if;
 		i_nb_interventiondujour[i_nbjours] := i_nb_interventiondujour[i_nbjours] + i_nbaleatintervention;
-
+		RAISE NOTICE 'i_nbjours %',i_nbjours;
 		Sortie := 'Nombre d''intervention pour le jour CUMUL Jour : ' || i_nb_interventiondujour[i_nbjours];
-		-- RAISE NOTICE '%',Sortie;
+		RAISE NOTICE '%',Sortie;
 		-- On cumule le nombre d'intervention total sur 2 ans
-		i_nb_intervention := i_nb_intervention + i_nbaleatintervention;
+		------ i_nb_intervention := i_nb_intervention + i_nbaleatintervention;
+		i_nb_intervention := i_nb_intervention + 1;
 		Sortie := 'Cumul i_nb_intervention : ' || i_nb_intervention;
-		-- RAISE NOTICE '%',Sortie;
+		RAISE NOTICE '%',Sortie;
 		-- On passe au jour suivant
 		i_nbjours := i_nbjours + 1;
 		-- Si on dépasse les deux ans et qu'on a pas atteind le quota de  15000 intervention on reboucle sur le premier jour
-		if i_nbjours > 365 * 2 then
+		if i_nbjours > 365  then
 			i_nbjours := 1;
 		end if;
 		Sortie := 'Création intervention : ' || i_nb_intervention;
@@ -161,13 +166,14 @@ BEGIN
 	d_int_datecreation := date '2019-04-01';
 	Sortie := 'd_int_datecreation : ' || d_int_datecreation;
 	RAISE NOTICE '%',Sortie;
+	RAISE NOTICE '%','170';
 
 	-- Parcours de chaque jour 
-	FOR i_nbjours IN 1..365*2 LOOP
+	FOR i_nbjours IN 1..365 LOOP
 		Sortie := 'Jour ' || i_nbjours;
-		RAISE NOTICE '%',Sortie;
+		RAISE NOTICE '%','i_nbjours:' || Sortie;
 		Sortie := 'Jour ' || i_nbjours || ' : ' || i_nb_interventiondujour[i_nbjours] || ' interventions';
-		RAISE NOTICE '%',Sortie;
+		RAISE NOTICE '%','i_nbjours/i_nb_interventiondujour:' || Sortie;
 
 		FOR i_nbutilisateur IN 1..i_nb_interventiondujour[i_nbjours] LOOP
 			select uti_id into i_uti_id from utilisateur where pro_id = 3 order by random() limit 1;
@@ -300,8 +306,13 @@ BEGIN
 
 	RETURN 'Opération terminée avec succès';
 END;
-$BODY$
-  LANGUAGE plpgsql VOLATILE;
+$BODY$;
+
+ALTER FUNCTION public.srav_ins_creationintervention(integer, integer)
+    OWNER TO u_srv_dev;
+
+
+select srav_ins_CreationIntervention(10,400);
 
 --select srav_ins_CreationIntervention(35,1500);
 

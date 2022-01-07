@@ -88,7 +88,8 @@ router.get('/csv', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur  uti
-        join structure str on str.str_id= uti.str_id 
+        join uti_str ust on ust.uti_id = uti.uti_id
+        join structure str on str.str_id= ust.str_id 
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id 
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
@@ -109,11 +110,12 @@ router.get('/csv', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur  uti
-        join structure str on str.str_id= uti.str_id 
+        join uti_str ust on ust.uti_id = uti.uti_id
+        join structure str on str.str_id= ust.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
-        where uti.str_id=${utilisateurCourant.str_id} order by 3,4 asc`;
+        where ust.str_id=${utilisateurCourant.str_id} order by 3,4 asc`;
     }
 
     pgPool.query(requete, (err, result) => {
@@ -150,7 +152,7 @@ router.get('/:id', async function (req, res) {
     const utilisateurCourant = req.session.user
     if ( utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb , 
+        requete = `SELECT uti.*,ust.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb , 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
@@ -161,15 +163,16 @@ router.get('/:id', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
-        join structure str on str.str_id= uti.str_id 
+        join uti_str ust on ust.uti_id = uti.uti_id
+        join structure str on str.str_id= ust.str_id 
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
-        where uti_id=${id} order by uti_id asc`;
+        where uti.uti_id=${id} order by uti.uti_id asc`;
     }
     else 
     {
         // si on est partenaire, on affiche l'utilisateur s'il appartient à ma structure
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
+        requete = `SELECT uti.*,ust.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
@@ -180,11 +183,12 @@ router.get('/:id', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
-        join structure str on str.str_id= uti.str_id 
+        join uti_str ust on ust.uti_id = uti.uti_id
+        join structure str on str.str_id= ust.str_id 
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
-        where uti_id=${id} and uti.str_id = ${utilisateurCourant.str_id}
-        order by uti_id asc `;
+        where uti.uti_id=${id} and ust.str_id = ${utilisateurCourant.str_id}
+        order by uti.uti_id asc `;
     }
 
     log.d('::get - select un USER'+requete)
@@ -212,7 +216,7 @@ router.get('/', async function (req, res) {
     
     if ( utilisateurCourant.pro_id == 1 ||  utilisateurCourant.pro_id == 4) {
         // si on est admin, on affiche tous les utilisateurs
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
+        requete = `SELECT uti.*,ust.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
         uti.uti_siteweb as siteweb, 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
@@ -224,20 +228,21 @@ router.get('/', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
-        join structure str on str.str_id = uti.str_id `;
+        join uti_str ust on ust.uti_id = uti.uti_id
+        join structure str on str.str_id = ust.str_id `;
 
         if (utilisateurCourant.pro_id == 4) {
             requete += ` and str.str_id<> 9 `;
         }
         requete += `left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
-        order by uti_id asc`;
+        order by uti.uti_id asc`;
     }
     else 
     {
         // si on est partenaire, on affiche seulements les utilisateurs de la structure
         // Sauf les Admin créés sur structure
-        requete = `SELECT uti.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
+        requete = `SELECT uti.*,ust.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,
@@ -248,10 +253,11 @@ router.get('/', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         str.str_typecollectivite typeCollectivite
         from utilisateur uti 
-        join structure str on str.str_id = uti.str_id 
+        join uti_str ust on ust.uti_id = uti.uti_id
+        join structure str on str.str_id = ust.str_id 
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
-        where uti.str_id=${utilisateurCourant.str_id} order by uti_id asc  `;
+        where ust.str_id=${utilisateurCourant.str_id} order by uti.uti_id asc  `;
     }
     log.d('::list - requete',{ requete })
     pgPool.query(requete, (err, result) => {

@@ -1,0 +1,12 @@
+
+Ligne 451 fichier Connection route router.post('/reset-password', async function(req, res) {
+
+Ajouter la validation du compte sur la réinitialisation du mot de passe
+const updateRequete = `UPDATE utilisateur SET uti_pwd=$1, pwd_validated = true WHERE uti_id=$2;`   
+à la place de
+const updateRequete = `UPDATE utilisateur SET uti_pwd=$1 WHERE uti_id=$2;`   
+A tester ensuite
+
+
+
+regarder pour la recherche utilisateur à partir du mot de passe c'est pas terrible.
