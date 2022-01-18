@@ -41,7 +41,9 @@ const formatIntervention = intervention => {
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
         qpvcode: intervention.int_qpv_code,
-        ustid: intervention.ust_id
+        ustid: intervention.ust_id,
+        tcoid: intervention.tco_id,
+        tcocode: intervention.tco_code
     }
 
     if(intervention.uti_nom){
@@ -365,7 +367,10 @@ router.get('/', async function (req, res) {
     // Utilisateur Administrateur : 
     } else {
         // multistructure
-        whereClause += `INNER JOIN uti_str ON uti_str.ust_id = intervention.ust_id INNER JOIN structure ON structure.str_id = uti_str.str_id `
+        whereClause += `INNER JOIN uti_str ON uti_str.ust_id = intervention.ust_id 
+                        left join detail_collectivite dco on dco.dco_id = uti_str.dco_id
+                        left join type_collectivite tco on tco.tco_id = dco.tco_id
+                        INNER JOIN structure ON structure.str_id = uti_str.str_id `
         // whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure ON structure.str_id = utilisateur.str_id `
         // Exclusion des structures éducation nationale pour le profil référent
         if(user.pro_id == 4){
@@ -436,7 +441,7 @@ router.put('/:id', async function (req, res) {
         int_nbenfantshandicapes = $19,
         int_isqpv = $20,
         int_qpv_code = $21,
-        int_
+        ust_id = $22
         WHERE int_id = ${id}
         RETURNING *
         ;`    

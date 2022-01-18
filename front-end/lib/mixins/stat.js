@@ -67,7 +67,17 @@ export default {
                 const nbEnfants = Number(intervention.nbEnfants);
                 const departement = intervention.departement
                 const cai = Number(intervention.cai);
-                const structure = intervention.structureCode;
+                var structure = null;
+                // Répartition des structure collectivité territorailes
+                // en 3 structures EPCI/COM/DEP via type collectivité
+                if (intervention.structureId == 99999) 
+                {
+                    structure = intervention.tcocode;
+                }
+                else
+                {
+                     structure = intervention.structureCode;
+                }
                 const structureId = intervention.structureId
                 let indice = 0;
                 let indiceMensuel = -1

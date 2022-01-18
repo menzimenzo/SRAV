@@ -86,27 +86,28 @@ router.post('/verify', async (req,res) => {
 
     log.d('::verify - Mise à jour de l\'utilisateur existant')    
 
+/*
+        uti_structurelocale = $2, \
+        user.uti_structurelocale, 
+*/
     const bddRes = await pgPool.query
     ("UPDATE utilisateur \
         SET uti_mail = lower($1), \
-        uti_structurelocale = $2, \
-        uti_nom = $3, \
-        uti_prenom = $4, \
+        uti_nom = $2, \
+        uti_prenom = $3, \
         validated = true, \
-        uti_siteweb = $6, \
-        uti_adresse = $7, \
-        uti_complementadresse = $8, \
-        uti_com_codeinsee = $9, \
-        uti_com_codepostal = $10, \
-        uti_mailcontact = $11, \
-        uti_telephone = $12, \
-        uti_autorisepublicarte = $13 \
-    WHERE uti_id = $5 RETURNING *", 
+        uti_siteweb = $4, \
+        uti_adresse = $5, \
+        uti_complementadresse = $6, \
+        uti_com_codeinsee = $7, \
+        uti_com_codepostal = $8, \
+        uti_mailcontact = $9, \
+        uti_telephone = $10, \
+        uti_autorisepublicarte = $11 \
+    WHERE uti_id = $12 RETURNING *", 
         [user.uti_mail, 
-        user.uti_structurelocale, 
         user.uti_nom, 
         user.uti_prenom, 
-        user.uti_id,
         user.uti_siteweb,
         user.uti_adresse,
         user.uti_complementadresse,
@@ -114,7 +115,9 @@ router.post('/verify', async (req,res) => {
         user.uti_com_codepostal,
         user.uti_mailcontact,
         user.uti_telephone,
-        Boolean(user.uti_autorisepublicarte)]
+        Boolean(user.uti_autorisepublicarte),
+        user.uti_id
+    ]
     ).catch(err => {
         log.w(err)
         throw err

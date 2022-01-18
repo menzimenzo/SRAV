@@ -38,6 +38,7 @@ router.get('/user/:id', async function (req, res) {
     if(user.pro_id == 3){
         requete = requete + `WHERE ust.sus_id = 1 and ust.uti_id=${userId} `;
     }
+    requete = requete + `order by str.str_libelle, ust.uti_structurelocale `;
 
     log.d('::get - /user/In', { requete })
 
@@ -52,7 +53,7 @@ router.get('/user/:id', async function (req, res) {
                 log.w('::get - aucune structure')
                 return res.status(200).json({ structures: [] });
             }
-            log.w('::get - ',{ structures })
+            //log.w('::get - ',{ structures })
             log.i('::get - /user/Done')
             return res.status(200).json({ structures })
         }
@@ -113,7 +114,9 @@ router.get('/', function (req, res) {
     var requete = ""
     const user = req.session.user
 
-    requete = `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on FROM structure`
+    requete = `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on 
+    FROM structure`
+    //left join type_collectivite tco on structure.str_id = 99999
     /* Pour un profil référent on supprime tout ce qui est relatif aux écoles */
     if(user.pro_id == 4){
         requete += ` where str_id <> 9`

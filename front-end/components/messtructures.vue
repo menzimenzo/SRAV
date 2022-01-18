@@ -28,7 +28,11 @@
            
           </template>
         </editable>
-        <b-btn v-if="!AjouterStructure" @click="addStruct(null)" class="btn btn-primary btn-lg btn-block" >
+        <b-card v-if="listestructures.length == 3" align="center">
+          Pour ajouter une nouvelle structure vous devez vous désaffilier d'une de vos structures<br>
+          3 structures maximum sont possibles
+        </b-card>
+        <b-btn v-if="!AjouterStructure && listestructures.length < 3" @click="addStruct(null)" class="btn btn-primary btn-lg btn-block" >
           Ajouter une structure<i class="material-icons">add</i>
         </b-btn>
       </b-card-body>

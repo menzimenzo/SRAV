@@ -66,7 +66,7 @@
                 :defaultSortField="{ key: 'nom', order: 'asc' }"
               >
                 <template slot-scope="props" slot="actions">
-                  <b-btn @click="editUser(props.data.id)" size="sm" class="mr-1" variant="primary">
+                  <b-btn @click="editUser(props.data.ustid)" size="sm" class="mr-1" variant="primary">
                     <i class="material-icons">edit</i>
                   </b-btn>
                 </template>
@@ -566,8 +566,8 @@ export default {
   },
 
   methods: {
-    editUser: function(id) {
-      return this.$store.dispatch("get_user", id)
+    editUser: function(ustid) {
+      return this.$store.dispatch("get_user", ustid)
         .then(() => {
           this.$modal.show("editUser");
         })
@@ -1022,12 +1022,12 @@ export default {
         if (this.nomFilter != "") {
           isMatch =
             isMatch &&
-            user.nom.toLowerCase().indexOf(this.nomFilter.toLowerCase()) > -1;
+            user.nom && user.nom.toLowerCase().indexOf(this.nomFilter.toLowerCase()) > -1;
         }
         if (this.prenomFilter != "") {
           isMatch =
             isMatch &&
-            user.prenom.toLowerCase().indexOf(this.prenomFilter.toLowerCase()) >
+            user.prenom && user.prenom.toLowerCase().indexOf(this.prenomFilter.toLowerCase()) >
               -1;
         }
         if (
@@ -1047,10 +1047,8 @@ export default {
           var isMatch = true;
           isMatch =
             isMatch &
-            (String(str.str_libellecourt) != "DS") &
-            (String(str.str_libellecourt) != "DEP") &
-            (String(str.str_libellecourt) != "COM") &
-            (String(str.str_libellecourt) != "EPCI");
+            (String(str.str_libellecourt) != "DS") &&
+            (String(str.str_id) != 99999);
           return isMatch;
         });
     }
@@ -1092,6 +1090,7 @@ export default {
     // Initaliasiation des couleurs et des structures.
     this.remplissage= this.statStructure[this.structure1].CouleurParDepartementAdmin
     // on positionne structure1 sur la structure de l'utilisateur
+    //console.log('Structure1', this.structure1)
     this.structure2 = this.structure1;
     // Affichage des graphiques
     this.viewHisto(this.structure2, this.structure3);

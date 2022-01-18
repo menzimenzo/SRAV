@@ -134,7 +134,7 @@ export const mutations = {
   set_parametreSelectionne(state, parametre) {
     log.i(`mutations::set_parametreSelectionne`)
     state.parametreSelectionne = parametre;
-  }
+  },
   get_user_structures(state, utilisateurStructures){
     log.i(`mutations::set_utilisateur_structure`)
     state.utilisateurStructures = utilisateurStructures
@@ -236,9 +236,9 @@ export const actions = {
         log.w("actions::get_users - erreur", error);
       });
   },
-  async get_user({ commit,state }, idUtilisateur) {
+  async get_user({ commit,state }, ustid) {
     log.i("actions::get_user - In");  
-    const url = process.env.API_URL + "/user/" + idUtilisateur;
+    const url = process.env.API_URL + "/user/" + ustid;
     return await this.$axios
       .$get(url)
       .then(response => {

@@ -225,7 +225,8 @@
             <!-- STRUCTURE -->
             <b-form-select 
               class="liste-deroulante"
-              v-model="formIntervention.ustid">
+              v-model="formIntervention.ustid"
+              :disabled="this.isVerrouille">
               <option :value="null">-- Choix de la structure --</option>
               <option
                 style="width: 25em"
@@ -389,8 +390,8 @@ export default {
       //selectedStructure: null,
       selectedCollectivite: null,
       selectedEtablissement: null,
-      isHandicap: null,
-      isQPV: true,
+      //isHandicap: null,
+      //isQPV: true,
       // Nécessaire pour le fonctionnement des popovers quand plusieurs composants intervention sont sur la page
       randomId: "popover-" + Math.floor(Math.random() * 100000)
     };
@@ -657,26 +658,26 @@ export default {
         this.listeQPV = ["Veuillez saisir un code postal"];
         return Promise.resolve(null);
       }
-    }
     },
-    chargeUtiStructures(iduti) {
-      const url =  process.env.API_URL + "/structures/user/" + iduti;
-      console.info(url);
-      return this.$axios.$get(url).then(response => {
-              this.listestructures = response.structures;
-              // Si une seule structure, on la selectionne par défaut
-              if (this.listestructures.length == 1)
-                {this.selectedStructure = this.listestructures[0]}
-              this.loading = false;
-            })
-            .catch(error => {
-              console.error(
-                "Une erreur est survenue lors de la récupération des communes",
-                error
-              );
-            });
-    },      
+  chargeUtiStructures(iduti) {
+    const url =  process.env.API_URL + "/structures/user/" + iduti;
+    console.info(url);
+    return this.$axios.$get(url).then(response => {
+            this.listestructures = response.structures;
+            // Si une seule structure, on la selectionne par défaut
+            if (this.listestructures.length == 1)
+              {this.formIntervention.ustid = this.listestructures[0].ust_id}
+            this.loading = false;
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération des communes",
+              error
+            );
+          });
+    },          
   },
+
   watch: {
     intervention(intervention) {
       let formIntervention = JSON.parse(

@@ -71,14 +71,14 @@ CREATE INDEX "IDX_UTI_STR"
 -- Ajout de l'information sur la structure d'appartenance d'un utilisateur
 ALTER TABLE intervention ADD ust_id bigint;
 
-CREATE INDEX "IDX_INT_STR"
+CREATE INDEX "IDX_INT_UST"
     ON intervention USING btree
-    (str_id);
+    (ust_id);
 
-CREATE TABLE structure_sav (SELECT * FROM structure);
-CREATE TABLE utilisateur_sav (SELECT * FROM utilisateur);
+CREATE TABLE structure_sav AS SELECT * FROM structure;
+CREATE TABLE utilisateur_sav AS SELECT * FROM utilisateur;
 	
-ALTER DEFAULT PRIVILEGES IN SCHEMA data
+ALTER DEFAULT PRIVILEGES IN SCHEMA public
     GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLES
     TO u_srv_dev;
 
@@ -122,7 +122,7 @@ DECLARE
 	DCO_ID_EXIST  BIGINT;
 BEGIN
 	--SELECT str_id into Str_Collectivite FROM  structure WHERE str_libellecourt = 'Collectivité territoriale';
-	Str_Collectivite = 99999
+	Str_Collectivite = 99999;
 	-- On vide les nouvelles table pour réexecution si besoin
 	truncate table UTI_STR;
 	truncate table DETAIL_COLLECTIVITE;
@@ -175,11 +175,11 @@ BEGIN
 				SELECT MAX(DCO.DCO_ID) INTO DCO_ID FROM DETAIL_COLLECTIVITE DCO;
 			end if;
 			-- On insère le lien entre la structure et l'utilisateur en y ajoutant le détail de collectivité 
-			INSERT INTO UTI_STR (UTI_ID,  STR_ID,  DCO_ID,  UTI_STRUCTURELOCALE) VALUES (Utilisateur.uti_id, Str_Collectivite, DCO_ID, Utilisateur.uti_structurelocale);
+			INSERT INTO UTI_STR (UTI_ID,  STR_ID,  DCO_ID,  UTI_STRUCTURELOCALE,SUS_ID) VALUES (Utilisateur.uti_id, Str_Collectivite, DCO_ID, Utilisateur.uti_structurelocale,1);
 		else
 			-- Cas d'une structure classique : le détail collectivité est positionné à null
 			Sortie := 'STR Type autre struct : ' || Utilisateur.str_libellecourt || ' - '  || Utilisateur.str_libelle;
-			INSERT INTO UTI_STR (UTI_ID,  STR_ID,  DCO_ID,  UTI_STRUCTURELOCALE) VALUES (Utilisateur.uti_id, Utilisateur.str_id,null, Utilisateur.uti_structurelocale);
+			INSERT INTO UTI_STR (UTI_ID,  STR_ID,  DCO_ID,  UTI_STRUCTURELOCALE,SUS_ID) VALUES (Utilisateur.uti_id, Utilisateur.str_id,null, Utilisateur.uti_structurelocale,1);
 		end if; 
 				
 		RAISE NOTICE '%',Sortie;
@@ -187,8 +187,18 @@ BEGIN
 	end loop;	
 	-- Suppression du lien entre l'utilisateur et la structure
 	update utilisateur set str_id = null;
+	update uti_str set uti_structurelocale = null where str_id = 99999;
 	-- Suppression des structures de type collectivité
 	delete from structure where str_libellecourt in ('COM', 'DEP', 'EPCI');
+	-- Affectation de la structure de l'utilisateur à l'intervention (couple utilisateur / structure désormais)
+	UPDATE 
+	intervention   int
+	SET 
+	ust_id = ust.ust_id
+	FROM 
+	uti_str ust
+	WHERE 
+	int.uti_id = ust.uti_id;
 
     RETURN 1;
 END;
@@ -202,22 +212,10 @@ left join detail_collectivite dco on dco.dco_id = us.dco_id;
 */
 
 
+COMMIT;
 
--- Reprise de données
--- On affecte la structure de l'utilisateur à partir de l'information de la table utilisateur
---insert into uti_str (select uti_id,str_id from utilisateur);
-
--- Affectation de la structure de l'utilisateur à l'intervention (couple utilisateur / structure désormais)
-UPDATE 
-  intervention int
-SET 
-  str_id = uti.str_id
-FROM 
-  utilisateur uti
-WHERE 
-  int.uti_id = uti.uti_id;
-  
 ALTER TABLE utilisateur DROP COLUMN str_id;
+ALTER TABLE utilisateur DROP COLUMN uti_structurelocale;
 
 GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO u_srv_dev;
 GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO u_srv_dev;

@@ -82,7 +82,6 @@
           >
             <!--Mantis 68055 value = 0 -->
             <option :value="0">Veuillez choisir votre structure...</option>
-            <option :value="99999">Collectivités territoriales</option>
             <option
               v-for="structure in listeStructures"
               :key="structure.str_id"
@@ -178,7 +177,7 @@
           >
             <b-form-select
               id="typeCollectiviteSelect"
-              v-model="formUser.typecollectivite"
+              v-model="formUser.tcoid"
               v-validate="{ required: true }"
               name="typeCol"
               :state="validateState('typeCol')"
@@ -198,7 +197,7 @@
             >
           </b-form-group>
           <!-- DEPARTEMENT -->
-          <div v-if="formUser.typecollectivite == 2">
+          <div v-if="formUser.tcoid == 2">
             <b-form-group
               id="Departement"
               label="Département :"
@@ -207,7 +206,7 @@
             >
               <b-form-select
                 id="departementSelect"
-                v-model="formUser.libelleCollectivite"
+                v-model="formUser.dcodep"
                 v-validate="{ required: true }"
                 name="departement"
                   :state="validateState('departement')"
@@ -216,7 +215,7 @@
                 <option
                   v-for="departement in listdepartement"
                   :key="departement.dep_num"
-                  :value="departement.dep_libelle"
+                  :value="departement.dep_num"
                 >
                   {{ departement.dep_libelle }}
                 </option>
@@ -228,7 +227,7 @@
           </div>
           <!-- FIN DEPARTEMENT -->
           <!-- COMMUNE -->
-          <div v-if="formUser.typecollectivite == 1">
+          <div v-if="formUser.tcoid == 1">
             <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
               <b-form-input
                 v-model="cp"
@@ -254,14 +253,14 @@
                 :state="validateState('commune')"
                 aria-describedby="communeFeedback"
                 type="text"
-                v-model="formUser.libelleCollectivite"
+                v-model="formUser.dcoinsee"
                 id="communeSelect"
               >
                 <option :value="null">-- Choix de la commune --</option>
                 <option
                   v-for="commune in listecommune"
                   :key="commune.cpi_codeinsee"
-                  :value="commune.com_libellemaj"
+                  :value="commune.cpi_codeinsee"
                 >
                   {{ commune.com_libellemaj }}
                 </option>
@@ -273,14 +272,14 @@
           </div>
           <!-- FIN COMMUNE -->
           <!-- EPCI -->
-          <div v-if="formUser.typecollectivite == 3">
+          <div v-if="formUser.tcoid == 3">
             <b-form-group
               id="CodePostalEpci"
               label="Code Postal EPCI:"
               label-for="cpEpci"
             >
               <b-form-input
-                v-model="cpEpci"
+                v-model="cp"
                 name="cpEpci"
                 key="cpEpci"
                 :state="validateState('cpEpci')"
@@ -290,7 +289,7 @@
                 placeholder="CP d'une des communes de l'EPCI"
               />
             </b-form-group>
-            <div v-if="cpEpci">
+            <div v-if="cp && formUser.tcoid == 3">
               <b-form-group
                 v-if="boolEpci"
                 id="ECPI"
@@ -300,7 +299,7 @@
               >
                 <b-form-select
                   id="epciSelect"
-                  v-model="formUser.libelleCollectivite"
+                  v-model="formUser.dcoepcicode"
                   v-validate="{ required: true }"
                   name="epcis"
                   :state="validateState('toto')"
@@ -308,8 +307,8 @@
                 >
                   <option
                     v-for="epci in listepci"
-                    :key="epci.epci_libelle"
-                    :value="epci.epci_libelle"
+                    :key="epci.epci_code"
+                    :value="epci.epci_code"
                   >
                     {{ epci.epci_libelle }}
                   </option>
@@ -326,7 +325,10 @@
           <!-- FIN EPCI-->
         </div>
         <!-- FIN Cas d'une collectivite territoriale-->
-
+        <div class="mb-3 mt-3">
+          Statut utilisateur pour cette structure :
+          <b-form-select v-model="formUser.susid" :options="liststatussus" />
+        </div>
         <!--
         <div class="mb-3 mt-3">
           Structure :
@@ -492,8 +494,7 @@ var loadFormUser = function (utilisateur) {
           structureLocale: "",
           statut: "",
           validated: "",
-          typecollectivite: "",
-          str_typecollectivite: ""
+          tcoid: ""
         },
         utilisateur
       )
@@ -521,6 +522,11 @@ export default {
         { text: "Intervenant", value: "3" },
       ],
       liststatus: [
+        { text: "Actif", value: "1" },
+        { text: "Bloqué", value: "2" },
+      ],
+      liststatussus: [
+        { text: "Inactif", value: "0" },
         { text: "Actif", value: "1" },
         { text: "Bloqué", value: "2" },
       ],
@@ -612,7 +618,7 @@ export default {
             str_libelle: this.formUser.libelleCollectivite,
             str_actif: "true",
             str_federation: "",
-            str_typecollectivite: this.formUser.typecol,
+            str_typecollectivite: this.formUser.str_typeCollectivite,
           };
           switch (this.formUser.typecol) {
             case "1":
@@ -749,10 +755,10 @@ export default {
       }
     },
     rechercheepci: function () {
-      if (this.cpEpci.length === 5) {
+      if (this.cp.length === 5) {
         // Le code postal fait bien 5 caractères
         console.info("Recherche de l'EPCI'");
-        const url = process.env.API_URL + "/listepci?codepostal=" + this.cpEpci;
+        const url = process.env.API_URL + "/listepci?codepostal=" + this.cp;
         console.info(url);
         return this.$axios
           .$get(url)
@@ -855,15 +861,35 @@ export default {
       }
 
       return null;
-    }
+    },
+    chargeTypeCollectivite: function() {
+      const url =  process.env.API_URL + "/structures/typecollectivite/";
+      console.info(url);
+      return this.$axios.$get(url).then(response => {
+              this.typeCollectivite = response.typeCollectivite;
+              //console.log (this.listestructures)
+              //this.loading = false;
+            })
+            .catch(error => {
+              console.error(
+                "Une erreur est survenue lors de la récupération des type de collectivité",
+                error
+              );
+            });
+    },    
   },
   watch: {
 
     cpEpci() {
-      this.rechercheepci();
     },
     cp() {
-      this.recherchecommune();
+      if (this.formUser.tcoid == 1) {
+        this.recherchecommune();
+      }
+      if (this.formUser.tcoid == 3) {
+        this.rechercheepci();
+      }
+      this.formUser.dcocodepostal = this.cp
     },
     "userStructureId"() {
       this.formUser.structure = this.userStructureId
@@ -916,6 +942,14 @@ export default {
     
     this.getDepartements().then((res) => {});
 
+    this.chargeTypeCollectivite()
+    console.log("insee user : ", this.formUser.dcoinsee)
+    console.log("code epci : ", this.formUser.dcoepcicode)
+    this.cp = this.formUser.dcocodepostal
+    console.log("Type collectivite user : ", this.formUser)
+    this.userStructureId = this.formUser.structure;
+    
+/*
     if (this.formUser.typecollectivite) {
       this.userStructureId = 99999;
     }
@@ -924,6 +958,7 @@ export default {
       this.userStructureId = this.formUser.structure;
 
     }
+    */
     // Recherchegement de l'établissement si il a été 
     if (this.userStructureId == 9) {
       this.rechercheetablissementuai()

@@ -63,6 +63,23 @@
                       <b-btn @click="exportCsv()" class="mb-2" variant="primary">
                         <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
                       </b-btn>
+                    <div>
+                      Structure d'intervention :
+                        <!-- STRUCTURE -->
+                        <b-form-select 
+                          class="liste-deroulante"
+                          v-model="selectedStructure"
+                          v-if="this.utilisateurCourant.profilId == 3"
+                          >
+                          <option :value="null">-- Choix de la structure --</option>
+                          <option
+                            style="width: 25em"
+                            v-for="structure in listestructures"
+                            :key="structure.ust_id"
+                            :value="structure.ust_id"
+                          >{{ structure.str_libellecourt}} - {{ structure.uti_structurelocale}}{{ structure.tco_libelle}} - {{ structure.com_libelle}} {{ structure.dep_libelle}}{{ structure.eta_nom}}{{ structure.epci_libelle }}</option>
+                        </b-form-select>
+                    </div>                          
                       <editable
                         :columns="headers"
                         :data="interventionsToDisplay"
@@ -120,6 +137,8 @@
                         </template>
                       </editable>
                     </div>
+ 
+                    
                     <h4
                       class="text-center"
                       v-if="(interventions.length == 0) && (loading===false)"
@@ -252,28 +271,18 @@ export default {
           type: "__slot:actions",
           sortable: false
         }
-      ]
+      ],
+      listestructures: [],
+      selectedStructure: null
     };
   },
   watch: {
     interventions: function() {
-      this.loading = true;
-      if (this.utilisateurCourant.profilId == 2) {
-       //console.info('suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
-       //console.info('nb inter avant: '+ this.interventions.length)
-        this.interventionsToDisplay = this.interventions.filter(x => {
-          var isMatch = true;
-          isMatch =
-            isMatch &&
-            (String(x.structureId) == this.utilisateurCourant.structureId ||
-              String(x.utiId) == this.utilisateurCourant.id);
-          return isMatch;
-        });
-        //console.info('nb inter apres filtrage structure: '+ this.interventionsToDisplay.length)
-      } else {
-        this.interventionsToDisplay = this.interventions;
-      }
-      this.loading = false;
+      this.filtreInterventions();
+    },
+    selectedStructure:function() {
+      console.log("this.selectedStructure",this.selectedStructure);
+      this.filtreInterventions();
     }
   },
   computed: mapState([
@@ -441,7 +450,61 @@ export default {
           console.log(JSON.stringify(err));
           this.$toasted.error("Erreur lors du téléchargement: " + err.message);
         });
+    },
+    chargeUtiStructures(iduti) {
+    const url =  process.env.API_URL + "/structures/user/" + iduti;
+    console.info(url);
+    return this.$axios.$get(url).then(response => {
+            this.listestructures = response.structures;
+            // Si une seule structure, on la selectionne par défaut
+            if (this.listestructures.length == 1) {
+                this.selectedStructure = this.listestructures[0].ust_id
+            }
+            this.loading = false;
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération des communes",
+              error
+            );
+          });
+    },
+    filtreInterventions(){
+      this.loading = true;
+      if (this.utilisateurCourant.profilId == 2) {
+       //console.info('suppression interventions hors structure_id : '+this.utilisateurCourant.structureId)
+       //console.info('nb inter avant: '+ this.interventions.length)
+        this.interventionsToDisplay = this.interventions.filter(x => {
+          var isMatch = true;
+          isMatch =
+            isMatch &&
+            (String(x.structureId) == this.utilisateurCourant.structureId ||
+              String(x.utiId) == this.utilisateurCourant.id);
+          return isMatch;
+        });
+        //console.info('nb inter apres filtrage structure: '+ this.interventionsToDisplay.length)
+      } else {
+        if (this.utilisateurCourant.profilId == 3) {
+          this.interventionsToDisplay = this.interventions.filter(x => {
+            var isMatch = true;
+            isMatch =
+              isMatch &&
+              (String(x.ustid) == this.selectedStructure &&
+                String(x.utiId) == this.utilisateurCourant.id);
+            return isMatch;
+          });
+          console.log ("Filtre intervenation",this.interventions)
+          //this.interventionsToDisplay = this.interventions;
+        }
+        else
+        {
+          this.interventionsToDisplay = this.interventions;
+        }
+      }
+
+      this.loading = false;
     }
+
   },
   //
   //  CHARGEMENT ASYNCHRONE DES INTERVENTIONS
@@ -464,6 +527,7 @@ export default {
             error
           );
         }); 
+    this.chargeUtiStructures(this.utilisateurCourant.id);
     //console.info("mounted", { interventions: this.interventions});
     // on supprime les interventions ne relevant pas de la structure si prod_id = 2 (partenaire)
     /*if (this.utilisateurCourant.profilId == 2) {
