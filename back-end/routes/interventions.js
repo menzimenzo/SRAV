@@ -112,7 +112,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     if(user.pro_id == 3){
         // Multistructure
         //whereClause += ` and utilisateur.uti_id=${utilisateurId} `
-        whereClause += ` and uti_str.uti_id=${utilisateurId} `
+        whereClause += ` and uti_str.sus_id = 1 and uti_str.uti_id=${utilisateurId} `
     }
     /* Pour un profil Partenaire, on exporte les interventions de sa structure*/
     if(user.pro_id == 2){

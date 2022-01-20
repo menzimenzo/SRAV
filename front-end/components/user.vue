@@ -43,13 +43,14 @@
         </div>
         <div class="mb-3 mt-3">
           Statut utilisateur :
-          <b-form-select v-model="formUser.statut" :options="liststatus" />
+          <b-form-select v-model="formUser.statut" :options="liststatus" :disabled="!isAdmin()"/>
         </div>
         <div class="mb-3 mt-3">
           <b-form-checkbox
             switch
             v-model="formUser.validated"
             name="check-button"
+            :disabled="!isAdmin()"
           >
             Utilisateur validé <b></b>
           </b-form-checkbox>
@@ -73,7 +74,7 @@
           <!--Mantis 68055 : min_value: 1-->
           <b-form-select
             id="structNatSelect"
-          :disabled="!isAdmin()"
+            :disabled="true"
             v-model="userStructureId"
             v-validate="{ required: true, min_value: 1 }"
             name="struct"

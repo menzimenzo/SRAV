@@ -206,8 +206,6 @@
               >Il est nécessaire de choisir un type de
               collectivité.</b-form-invalid-feedback
             >
-{{mastructure}}
-
             <!-- COLLECTIVITE TYPE COMMUNE -->
             <div v-if="mastructure.tco_id == 1">
               <!-- SAISIE DU CODE POSTAL -->

@@ -109,7 +109,7 @@ CREATE OR REPLACE FUNCTION RepriseDonnees() RETURNS integer AS $$
 DECLARE 
 	Sortie TEXT;
 	t_uti_nom TEXT;
-	cListeUti CURSOR FOR select uti.uti_id, str.str_id, str.str_libellecourt, str_libelle, str.str_typecollectivite, uti.uti_structurelocale
+	cListeUti CURSOR FOR select uti.uti_id, str.str_id, str.str_libellecourt, str_libelle, str.str_typecollectivite, uti.uti_structurelocale, uti.stu_id
 				from utilisateur uti
 				inner join structure str on str.str_id = uti.str_id;
 	Utilisateur RECORD;
@@ -175,7 +175,7 @@ BEGIN
 				SELECT MAX(DCO.DCO_ID) INTO DCO_ID FROM DETAIL_COLLECTIVITE DCO;
 			end if;
 			-- On insère le lien entre la structure et l'utilisateur en y ajoutant le détail de collectivité 
-			INSERT INTO UTI_STR (UTI_ID,  STR_ID,  DCO_ID,  UTI_STRUCTURELOCALE,SUS_ID) VALUES (Utilisateur.uti_id, Str_Collectivite, DCO_ID, Utilisateur.uti_structurelocale,1);
+			INSERT INTO UTI_STR (UTI_ID,  STR_ID,  DCO_ID,  UTI_STRUCTURELOCALE,SUS_ID) VALUES (Utilisateur.uti_id, Str_Collectivite, DCO_ID, Utilisateur.uti_structurelocale,Utilisateur.stu_id);
 		else
 			-- Cas d'une structure classique : le détail collectivité est positionné à null
 			Sortie := 'STR Type autre struct : ' || Utilisateur.str_libellecourt || ' - '  || Utilisateur.str_libelle;
