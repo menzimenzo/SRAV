@@ -14,7 +14,8 @@ export const state = () => ({
   structureSelectionnee : [],
   documents             : [],
   statStructure         : [],
-  parametreSelectionne : []
+  parametreSelectionne : [],
+  utilisateurStructures : []
 
 });
 
@@ -133,7 +134,20 @@ export const mutations = {
   set_parametreSelectionne(state, parametre) {
     log.i(`mutations::set_parametreSelectionne`)
     state.parametreSelectionne = parametre;
-  }
+  },
+  get_user_structures(state, utilisateurStructures){
+    log.i(`mutations::set_utilisateur_structure`)
+    state.utilisateurStructures = utilisateurStructures
+  },
+  post_del_user_structure(state, mastructure){
+    log.i(`mutations::post_del_user_structure`)
+    state.mastructure = mastructure
+  },
+  post_user_structures(state, mastructure) {
+    log.i(`mutations::post_user_structures`)
+    state.mastructure = mastructure
+    //state.utilisateurStructures.push(mastructure);
+  },
 };
 
 export const actions = {
@@ -222,9 +236,9 @@ export const actions = {
         log.w("actions::get_users - erreur", error);
       });
   },
-  async get_user({ commit,state }, idUtilisateur) {
+  async get_user({ commit,state }, ustid) {
     log.i("actions::get_user - In");  
-    const url = process.env.API_URL + "/user/" + idUtilisateur;
+    const url = process.env.API_URL + "/user/" + ustid;
     return await this.$axios
       .$get(url)
       .then(response => {
@@ -311,6 +325,46 @@ export const actions = {
       return structure
     });
   },
+
+
+/* #################################################################  */
+/* #                 STRUCTURES DE L'UTILISATEUR                   # */
+/* #################################################################  */
+
+  async get_user_structures({commit},utiid) {
+    log.i("actions::get_user_structure - In", { utiid });  
+    const url = process.env.API_URL + "/structures/user/" + utiid;
+
+    return this.$axios.get(url).then(response => {
+      commit("get_user_structures", response.data);
+      log.i("actions::get_user_structures - done");  
+    }).catch(err => {
+      log.w("actions::get_user_structures - error", { err });  
+    })
+  },
+
+  async post_user_structures({ commit, state }, mastructure) {
+    const url                        = process.env.API_URL + "/structures/user";
+    mastructure.utilisateurId = state.utilisateurCourant.id
+    return await this.$axios.$post(url, { mastructure }).then(({ mastructure }) => {
+      log.i("actions::post_user_structures - In", { mastructure });  
+      commit('post_user_structures', mastructure)
+      return mastructure
+    });
+  },
+
+  async post_del_user_structure({ commit, state }, mastructure) {
+    const url                        = process.env.API_URL + "/structures/desactiveuser";
+    mastructure.utilisateurId = state.utilisateurCourant.id
+    return await this.$axios.$post(url, { mastructure }).then(({ mastructure }) => {
+      log.i("actions::post_del_user_structure - In", { mastructure });  
+      commit('post_del_user_structure', mastructure)
+      return mastructure
+    });
+  },
+
+  /* FIN DE LA PARTIE STRUCTURES DE L'UTILISATEUR */
+
   async get_documents({commit}) {
     const url = process.env.API_URL + '/documents'
     log.i("actions::get_documents - In", { url });  

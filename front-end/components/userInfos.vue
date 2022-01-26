@@ -81,17 +81,15 @@
           <!--Mantis 68055 : min_value: 1-->
           <b-form-select
             id="structNatSelect"
-            v-model="user.structureId"
+            v-model="mastructure.str_id"
             v-validate="{ required: true, min_value: 1 }"
             name="struct"
             :state="validateState('struct')"
             aria-describedby="structFeedback"
             :disabled="!checkLegal"
-            @change="emitUser"
           >
             <!--Mantis 68055 value = 0 -->
             <option :value="0">Veuillez choisir votre structure...</option>
-            <option :value="99999">Collectivités territoriales</option>
             <option
               v-for="structure in listeStructures"
               :key="structure.str_id"
@@ -105,9 +103,8 @@
             structure.</b-form-invalid-feedback
           >
         </b-form-group>
-
         <!-- ETABLISSEMENT POUR STRUCTURE EDUCATION NATIONALE -->
-        <div v-if="user.structureId == 9">
+        <div v-if="mastructure.str_id == 9">
           <b-form-group id="CodePostalEtab" label="Code Postal Etablissement :" label-for="cpetab">
             <b-form-input
               v-model="cpetab"
@@ -133,7 +130,7 @@
               :state="validateState('etab')"
               aria-describedby="etabFeedback"
               type="text"
-              v-model="user.structureLocale"
+              v-model="mastructure.uti_structurelocale"
               id="etabSelect"
             >
               <option :value="null">-- Choix de l'établissement --</option>
@@ -153,7 +150,7 @@
         <!-- Cas d'une structure non collectivite territoriale
             le champ structureLocale ne doit apparaitre que si la structure n'est pas une collectivité
              quand Création de compte, ce qui définit une structure de type collectivité c'est user.structureId == 99999-> -->
-        <div v-if="user.structureId != 99999 && user.structureId != 9">
+        <div v-if="mastructure.str_id != 99999 && mastructure.str_id != 9">
           <b-form-group
             id="structLocaleGroup"
             label="Structure locale :"
@@ -168,7 +165,7 @@
               aria-describedby="structLocFeedback"
               id="structLocaleInput"
               type="text"
-              v-model="user.structureLocale"
+              v-model="mastructure.uti_structurelocale"
               placeholder="Nom de la structure locale"
             />
             <b-form-invalid-feedback id="structLocFeedback"
@@ -178,6 +175,177 @@
         </div>
         <!-- FIN Cas d'une structure non collectivite territoriale-->
         <!-- Cas d'une collectivite territoriale-->
+        
+        <!-- CHOIX POUR LA STRUCTURE DE TYPE COLLECTIVITE TERRITORIALE-->
+        <div v-if="mastructure.str_id == 99999">
+          <!-- CHOIX DU TYPE DE COLLECTIVITE-->
+
+          <b-form-group
+            required
+            id="typeCollectivite"
+            label="Type de collectivité territoriale :"
+            label-for="typeCollectiviteSelect"
+          >
+            <b-form-select
+              id="typeCollectiviteSelect"
+              v-model="mastructure.tco_id"
+              v-validate="{ required: true }"
+              name="typeCol"
+              :state="validateState('typeCol')"
+              aria-describedby="typeColFeedback"
+            >
+              <option
+                v-for="typeCol in typeCollectivite"
+                :key="typeCol.tco_id"
+                :value="typeCol.tco_id"
+              >
+                {{ typeCol.tco_libelle }}
+              </option>
+            </b-form-select>
+            <b-form-invalid-feedback id="typeColFeedback"
+              >Il est nécessaire de choisir un type de
+              collectivité.</b-form-invalid-feedback
+            >
+            <!-- COLLECTIVITE TYPE COMMUNE -->
+            <div v-if="mastructure.tco_id == 1">
+              <!-- SAISIE DU CODE POSTAL -->
+              <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
+                <b-form-input
+                  v-model="cp"
+                  name="cp"
+                  key="cp"
+                  :state="validateState('cp')"
+                  aria-describedby="cpFeedback"
+                  id="cp"
+                  type="number"
+                  placeholder="CP de la commune"
+                />
+              </b-form-group>
+              <!-- CHOIX DE LA COMMUNE -->
+              <b-form-group
+                id="Commune"
+                label="Commune :"
+                required
+                label-for="communeInput"
+                v-if="CommuneExiste"
+              >
+                <b-form-select
+                  v-validate="{ required: true }"
+                  name="commune"
+                  key="commune"
+                  :state="validateState('commune')"
+                  aria-describedby="communeFeedback"
+                  type="text"
+                  v-model="mastructure.dco_insee"
+                  id="communeSelect"
+                >
+                  <option :value="null">-- Choix de la commune --</option>
+                  <option
+                    v-for="commune in listecommune"
+                    :key="commune.cpi_codeinsee"
+                    :value="commune.cpi_codeinsee"
+                  >
+                    {{ commune.com_libellemaj }}
+                  </option>
+                </b-form-select>
+                <b-form-invalid-feedback id="communeFeedback"
+                  >La commune est obligatoire.</b-form-invalid-feedback
+                >
+              </b-form-group>
+            </div>   
+            <!-- COLLECTIVITE TYPE CONSEIL DEPARTEMENTAL -->
+            <div v-if="mastructure.tco_id == 2">
+              <b-form-group
+                id="Departement"
+                label="Département :"
+                required
+                label-for="departementSelect"
+              >
+                <b-form-select
+                  id="departementSelect"
+                  v-model="mastructure.dco_dep"
+                  v-validate="{ required: true }"
+                  name="departement"
+                    :state="validateState('departement')"
+                  aria-describedby="departementFeedback"
+                >
+                  <option
+                    v-for="departement in listdepartement"
+                    :key="departement.dep_num"
+                    :value="departement.dep_num"
+                  >
+                    {{ departement.dep_libelle }}
+                  </option>
+                </b-form-select>
+                <b-form-invalid-feedback id="communeFeedback"
+                  >Le département est obligatoire.</b-form-invalid-feedback
+                >
+              </b-form-group>
+            </div>
+            <!-- FIN DEPARTEMENT -->            
+            <!-- COLLECTIVITE TYPE EPCI -->
+          <div v-if="mastructure.tco_id == 3">
+            <b-form-group
+              id="CodePostalEpci"
+              label="Code Postal EPCI:"
+              label-for="cpEpci"
+            >
+              <b-form-input
+                v-model="cpEpci"
+                name="cpEpci"
+                key="cpEpci"
+                :state="validateState('cpEpci')"
+                aria-describedby="cpEpciFeedback"
+                id="cpEpci"
+                type="number"
+                placeholder="CP d'une des communes de l'EPCI"
+              />
+            </b-form-group>
+            <b-form-group  v-if="boolEpci == true">
+             EPCI correspondant : <b>{{mastructure.dco_insee}} {{listepci[0].epci_libelle}}</b></b-form-group
+            >
+            <b-form-group v-if="boolEpci == false">
+                Aucun EPCI correspondant</b-form-group
+            >
+            <div>
+              <!--
+              <b-form-group
+                v-if="boolEpci"
+                id="ECPI"
+                label="EPCI :"
+                required
+                label-for="epciInput"
+              >
+                <b-form-select
+                  id="epciSelect"
+                  v-model="mastructure.dco_insee"
+                  v-validate="{ required: true }"
+                  name="epcis"
+                  :state="validateState('toto')"
+                  aria-describedby="epciFeedback"
+                >
+                  <option
+                    v-for="epci in listepci"
+                    :key="epci.com_codeinsee"
+                    :value="epci.com_codeinsee"
+                  >
+                    {{ epci.epci_libelle }}+ {{epci.com_codeinsee}}
+                  </option>
+                </b-form-select>
+                <b-form-invalid-feedback id="epciFeedback"
+                  >L'EPCI est obligatoire.</b-form-invalid-feedback
+                ></b-form-group
+              >
+              <b-form-group v-if="boolEpci == false">
+                Aucun EPCI correspondant</b-form-group
+              >
+              -->
+            </div>
+          </div>
+
+          </b-form-group>    
+        </div>    
+        <!--
         <div v-if="user.structureId == 99999">
           <b-form-group
             required
@@ -208,7 +376,10 @@
               collectivité.</b-form-invalid-feedback
             >
           </b-form-group>
+
+        -->
           <!-- DEPARTEMENT -->
+        <!--
           <div v-if="user.typeCollectivite == 2">
             <b-form-group
               id="Departement"
@@ -238,8 +409,10 @@
               >
             </b-form-group>
           </div>
+        -->
           <!-- FIN DEPARTEMENT -->
           <!-- COMMUNE -->
+        <!--
           <div v-if="user.typeCollectivite == 1">
             <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
               <b-form-input
@@ -284,8 +457,10 @@
               >
             </b-form-group>
           </div>
+        -->
           <!-- FIN COMMUNE -->
           <!-- EPCI -->
+        <!--
           <div v-if="user.typeCollectivite == 3">
             <b-form-group
               id="CodePostalEpci"
@@ -337,12 +512,13 @@
               >
             </div>
           </div>
-          <!-- FIN EPCI-->
         </div>
+        -->
+          <!-- FIN EPCI-->
         <!-- FIN Cas d'une collectivite territoriale-->
       </b-form>
     </b-card>
-    <b-card class="mb-3" header="Vos coordonnées :" v-if="user.structureId!=9">
+    <b-card class="mb-3" header="Vos coordonnées :" v-if="mastructure.str_id !=9">
         <div>
           <b-form-group id="siteweb" label="Site Web :" label-for="siteweb">
               <b-form-input
@@ -536,6 +712,29 @@ export default {
         },
       ],
       cpetab: null,
+
+      mastructure:   {
+        str_id: null,
+        uti_structurelocale: null,
+        tco_id: null,
+        dco_id: null,
+        str_libellecourt: null ,
+        str_libelle: null ,
+        str_actif: null ,
+        str_federation: null ,
+        str_typecollectivite: null ,
+        dco_codepostal: null ,
+        dco_insee: null ,
+        dco_dep: null ,
+        dco_epci_code: null, 
+        
+      },
+      // COLLECTIVITE
+      maCollectivite: null,
+      typeCollectivite: [],
+      // COLLECTIVITE type Commune
+      maCommune: null,
+      CommuneExiste: false,
     };
   },
   props: ["submitTxt", "user", "checkLegal"],
@@ -543,7 +742,20 @@ export default {
     submit: function () {
       this.$validator.validateAll().then((isValid) => {
         if (isValid) {
-          this.$store.dispatch('set_state_element',{ key:'utilisateurCourant', value: this.user })
+
+          this.$store.dispatch('post_user_structures', this.mastructure) 
+            .then(message => {
+              console.info(message)
+              this.$toast.success(`structure #${this.mastructure.str_id} créée`, [])
+              //this.$store.dispatch('get_structures') 
+              //this.$modal.hide('editStruct')
+              this.$store.dispatch('set_state_element',{ key:'utilisateurCourant', value: this.user })
+
+            })
+            .catch(error => {
+              console.error('Une erreur est survenue lors de la création de la structure', error)
+            })
+
           return this.$emit("submit");
         }
       });
@@ -590,16 +802,18 @@ export default {
 
     // Get liste des communes correspondant au code postal
     recherchecommune: function () {
+      console.log("***************************")
       if (this.cp.length === 5) {
         // Le code postal fait bien 5 caractères
         console.info("Recherche de la commune");
-        this.user.cp = this.cp
+        this.mastructure.dco_codepostal = this.cp
         const url =
           process.env.API_URL + "/listecommune?codepostal=" + this.cp;
         console.info(url);
         return this.$axios
           .$get(url)
           .then((response) => {
+            this.CommuneExiste = true;
             this.listecommune = response.communes;
           })
           .catch((error) => {
@@ -611,6 +825,7 @@ export default {
       } else {
         // On vide la liste car le code postal a changé
         this.listecommune = ["Veuillez saisir un code postal"];
+        this.CommuneExiste = false;
         return Promise.resolve(null);
       }
     },
@@ -642,7 +857,7 @@ export default {
         return Promise.resolve(null);
       }
     },
- recherchecommune2: function() {
+    recherchecommune2: function() {
       // Recopie du CP dans le CP User
       this.user.codepostal = this.cpcontact
       if (this.user.codepostal.length === 5) {
@@ -702,12 +917,12 @@ export default {
     rechercheetablissementuai: function() {
       // Recopie du CP dans le CP User
       //console.log ("this.user.structureLocale.length" + this.user.structureLocale.length)
-      if (this.user.structureLocale.length === 8) {
+      if (this.mastructure.uti_structurelocale.length === 8) {
         //console.log ("this.user.structureLocale.length" + this.user.structureLocale.length)
         // Le code postal fait bien 5 caractères
         const url =
           process.env.API_URL +
-          "/listeetablissement?codeuai=" + this.user.structureLocale
+          "/listeetablissement?codeuai=" + this.mastructure.uti_structurelocale
 
           //console.log (url)
         // Retourne la liste des communes associées au Code postal
@@ -730,10 +945,54 @@ export default {
         this.listeetablissement = ["Veuillez saisir un code postal"];
         return Promise.resolve(null);
       }
-    },    
+    }, 
+    chargeTypeCollectivite: function() {
+      const url =  process.env.API_URL + "/structures/typecollectivite/";
+      console.info(url);
+      return this.$axios.$get(url).then(response => {
+              this.typeCollectivite = response.typeCollectivite;
+              //console.log (this.listestructures)
+              //this.loading = false;
+            })
+            .catch(error => {
+              console.error(
+                "Une erreur est survenue lors de la récupération des type de collectivité",
+                error
+              );
+            });
+    },
+    chargeUtiStructures(iduti) {
+      const url =  process.env.API_URL + "/structures/user/" + iduti;
+      console.info(url);
+      return this.$axios.$get(url).then(response => {
+              this.listestructures = response.structures;
 
+              console.log (this.listestructures)
+              this.loading = false;
+            })
+            .catch(error => {
+              console.error(
+                "Une erreur est survenue lors de la récupération des communes",
+                error
+              );
+            });
+    },    
     emitUser: function() {
-      return this.$store.dispatch('set_state_element',{ key:'utilisateurCourant', value: this.user }) 
+
+      this.$store.dispatch('post_user_structures', this.mastructure) 
+        .then(message => {
+          console.info(message)
+          this.$toast.success(`structure #${this.mastructure.str_id} créée`, [])
+          //this.$store.dispatch('get_structures') 
+          //this.$modal.hide('editStruct')
+          return this.$store.dispatch('set_state_element',{ key:'utilisateurCourant', value: this.user }) 
+
+        })
+        .catch(error => {
+          console.error('Une erreur est survenue lors de la création de la structure', error)
+        })
+
+      
     }
   },
   watch: {
@@ -758,7 +1017,7 @@ export default {
       
     },
     "userStructureId"() {
-      this.user.structureId = this.userStructureId
+      this.mastructure.str_id  = this.userStructureId
     },
     "cpetab"() {
       //console.log("Structure locale avant changement CP : "  + this.user.structurelocale)
@@ -784,11 +1043,16 @@ export default {
       //this.selectedCommune = this.user.cpi_codeinsee;
     }    
     // Recherchegement de l'établissement si il a été 
-    if (this.user.structureId == 9) {
+    if (this.mastructure.str_id  == 9) {
       this.rechercheetablissementuai()
     }
 
+    // Chargement des type de collectivités pour les collectivités territoriales
+    this.chargeTypeCollectivite().then((res) => {});
     
+    // CHargement de la structure de l'utilisateur
+    this.chargeUtiStructures(this.user.id);
+   
   },
   computed: {
     ...mapState(["structures"]),
@@ -811,12 +1075,14 @@ export default {
         if (!this.user.typeCollectivite) {
           liste = this.structures.filter((str) => {
             var isMatch = true;
-            isMatch =
-              isMatch &
-              (String(str.str_libellecourt) != "DS") &
+            isMatch =isMatch
+            &
+              (String(str.str_libellecourt) != "DS");
+              /*&
               (String(str.str_libellecourt) != "DEP") &
               (String(str.str_libellecourt) != "EPCI") &
               (String(str.str_libellecourt) != "COM");
+              */
             return isMatch;
           });
         } 

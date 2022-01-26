@@ -40,7 +40,10 @@ const formatIntervention = intervention => {
         isenfantshandicapes: intervention.int_isenfantshandicapes,
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
-        qpvcode: intervention.int_qpv_code
+        qpvcode: intervention.int_qpv_code,
+        ustid: intervention.ust_id,
+        tcoid: intervention.tco_id,
+        tcocode: intervention.tco_code
     }
 
     if(intervention.uti_nom){
@@ -105,18 +108,23 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     /* Pour un profil Admin, on exporte toutes les interventions */
     var whereClause = ""
     var whereClauseReferent = ""
-    /* Pour un profil Intervenant on exporte que ces interventions */
+    /* Pour un profil Intervenant on exporte que ses interventions */
     if(user.pro_id == 3){
-        whereClause += ` and utilisateur.uti_id=${utilisateurId} `
+        // Multistructure
+        //whereClause += ` and utilisateur.uti_id=${utilisateurId} `
+        whereClause += ` and uti_str.sus_id = 1 and uti_str.uti_id=${utilisateurId} `
     }
     /* Pour un profil Partenaire, on exporte les interventions de sa structure*/
     if(user.pro_id == 2){
-        whereClause += ` and utilisateur.str_id=${user.str_id} `
+        // Multistructure
+        //whereClause += ` and utilisateur.str_id=${user.str_id} `
+        whereClause += ` and uti_str.str_id=${user.str_id} `
     }
     
     /* Pour un profil référent, on exporte les interventions de toutes les structures sauf EN*/
     if(user.pro_id == 4){
-        whereClauseReferent += ` and utilisateur.str_id<>9 `
+        //whereClauseReferent += ` and utilisateur.str_id<>9 `
+        whereClauseReferent += ` and uti_str.str_id<>9 `
     }
 
     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
@@ -125,8 +133,9 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
     INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
     LEFT JOIN qpv ON intervention.int_qpv_code = qpv.qpv_code
+    INNER JOIN uti_str ON intervention.ust_id = uti_str.ust_id
     ${whereClause} 
-    INNER JOIN structure ON structure.str_id = utilisateur.str_id 
+    INNER JOIN structure ON structure.str_id = uti_str.str_id 
     ${whereClauseReferent} 
     order by int_id asc`;
     log.d('::csv - requet', { requete })
@@ -222,7 +231,8 @@ router.get('/nbattestations', async function (req, res) {
     const requete = `SELECT COALESCE(sum(int_nombreenfant),0) as nbattestations 
                 from intervention int 
                 inner join utilisateur uti on uti.uti_id = int.uti_id
-                inner join structure str on str.str_id = uti.str_id
+                inner join uti_str ust on ust.uti_id = uti.uti_id
+                inner join structure str on str.str_id = ust.str_id
                 ${whereClause}
                 where int.blo_id = 3`;
 
@@ -349,10 +359,19 @@ router.get('/', async function (req, res) {
     // Utilisateur est intervenant => ses interventions
     //} 
     if(user.pro_id == 3){
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
+        // Multistructure
+        //whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id where utilisateur.uti_id=${utilisateurId} `
+        whereClause += `LEFT JOIN uti_str ust ON ust.ust_id = intervention.ust_id
+                        LEFT JOIN utilisateur ON ust.uti_id = utilisateur.uti_id 
+                        where ust.uti_id=${utilisateurId} `
     // Utilisateur Administrateur : 
     } else {
-        whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure ON structure.str_id = utilisateur.str_id `
+        // multistructure
+        whereClause += `INNER JOIN uti_str ON uti_str.ust_id = intervention.ust_id 
+                        left join detail_collectivite dco on dco.dco_id = uti_str.dco_id
+                        left join type_collectivite tco on tco.tco_id = dco.tco_id
+                        INNER JOIN structure ON structure.str_id = uti_str.str_id `
+        // whereClause += `LEFT JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure ON structure.str_id = utilisateur.str_id `
         // Exclusion des structures éducation nationale pour le profil référent
         if(user.pro_id == 4){
             whereClause += ` and structure.str_id <> 9 `
@@ -387,7 +406,7 @@ router.put('/:id', async function (req, res) {
 
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
         commentaire, cp, utilisateurId,siteintervention,
-        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode  } = intervention
+        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid  } = intervention
 
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -395,6 +414,8 @@ router.put('/:id', async function (req, res) {
     if (nbsixhuit == '') { nbsixhuit = null }
     if (nbneufdix == '') { nbneufdix = null }
     if (nbplusdix == '') { nbplusdix = null }
+
+    log.d("ustid ! ", ustid)
 
     //insert dans la table intervention
     const requete = `UPDATE intervention 
@@ -419,7 +440,8 @@ router.put('/:id', async function (req, res) {
         int_isenfantshandicapes = $18,
         int_nbenfantshandicapes = $19,
         int_isqpv = $20,
-        int_qpv_code = $21
+        int_qpv_code = $21,
+        ust_id = $22
         WHERE int_id = ${id}
         RETURNING *
         ;`    
@@ -445,7 +467,8 @@ router.put('/:id', async function (req, res) {
         isenfantshandicapes,
         nbenfantshandicapes,
         isqpv,
-        qpvcode], (err, result) => {
+        qpvcode,
+        ustid], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de la récupération', { requete, erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
@@ -469,7 +492,7 @@ router.post('/', function (req, res) {
     let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
          commentaire, cp, utilisateurId, siteintervention,
          nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,
-         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode } = intervention
+         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -488,14 +511,16 @@ router.post('/', function (req, res) {
                         int_isenfantshandicapes,
                         int_nbenfantshandicapes,
                         int_isqpv,
-                        int_qpv_code) 
-                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24 ) RETURNING *`;
+                        int_qpv_code, 
+                        ust_id
+                        ) 
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25 ) RETURNING *`;
     
     log.d('::post - requete',{ requete });
     pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
     nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
     commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix, 
-    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode],(err, result) => {
+    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid],(err, result) => {
         if (err) {
             log.w('::post - Erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');

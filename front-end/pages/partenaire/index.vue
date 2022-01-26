@@ -79,7 +79,7 @@
               >
                 <template slot-scope="props" slot="actions">
                   <b-btn
-                    @click="editUser(props.data.id)"
+                    @click="editUser(props.data.ustid)"
                     size="sm"
                     class="mr-1"
                     variant="primary"
@@ -876,9 +876,9 @@ export default {
         },
       };
     },
-    editUser: function (id) {
+    editUser: function (ustid) {
       return this.$store
-        .dispatch("get_user", id)
+        .dispatch("get_user", ustid)
         .then(() => {
           this.$modal.show("editUser");
         })
@@ -1013,10 +1013,8 @@ export default {
         var isMatch = true;
         isMatch =
           isMatch &
-          (String(str.str_libellecourt) != "DS") &
-          (String(str.str_libellecourt) != "DEP") &
-          (String(str.str_libellecourt) != "COM") &
-          (String(str.str_libellecourt) != "EPCI");
+          (String(str.str_libellecourt) != "DS") &&
+          (String(str.str_id) != 99999);
         return isMatch;
       });
     },

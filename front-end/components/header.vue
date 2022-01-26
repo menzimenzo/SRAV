@@ -29,6 +29,9 @@
         <b-dropdown-item to="/connexion/profil">
           Mon compte
         </b-dropdown-item>
+        <b-dropdown-item to="/connexion/structures" v-if="utilisateurCourant.profilId == 3">
+          Mes structures
+        </b-dropdown-item>
         <b-dropdown-item href="#" @click="logout()">Se déconnecter</b-dropdown-item>
       </b-dropdown>
     </div>
@@ -54,6 +57,12 @@ export default {
     logout(){
       return this.$axios.$get(process.env.API_URL + '/connexion/logout').then(async response => {
         await this.$store.dispatch('logout')
+        response.url ? window.location.replace(response.url) : this.$router.push('/')
+      })
+    },
+    messtructures(){
+      return this.$axios.$get(process.env.API_URL + '/connexion/structures').then(async response => {
+        await this.$store.dispatch('structures')
         response.url ? window.location.replace(response.url) : this.$router.push('/')
       })
     }
