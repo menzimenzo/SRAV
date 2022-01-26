@@ -48,3 +48,4 @@ Thumbs.db
 
 # Volume postgres-data
 pg/postgres-data
+pg/scripts/db.dump
