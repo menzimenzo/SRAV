@@ -77,10 +77,6 @@ CREATE INDEX "IDX_INT_UST"
 
 CREATE TABLE structure_sav AS SELECT * FROM structure;
 CREATE TABLE utilisateur_sav AS SELECT * FROM utilisateur;
-	
-ALTER DEFAULT PRIVILEGES IN SCHEMA public
-    GRANT INSERT, SELECT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON TABLES
-    TO u_srv_dev;
 
 /*==============================================================*/
 /* Peuplement des tables de référence : TYPE_COLLECTIVITE       */
@@ -205,18 +201,9 @@ END;
 $$ LANGUAGE plpgsql;
 
 select RepriseDonnees();
-/*
-select * 
-from uti_str us
-left join detail_collectivite dco on dco.dco_id = us.dco_id;
-*/
-
 
 COMMIT;
 
 ALTER TABLE utilisateur DROP COLUMN str_id;
 ALTER TABLE utilisateur DROP COLUMN uti_structurelocale;
 
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO u_srv_dev;
-GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public TO u_srv_dev;
-GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public TO u_srv_dev;
