@@ -34,7 +34,7 @@ echo '11-SQL_V1.1.4.sql'
 psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/11-SQL_V1.1.4.sql
 
 # Version 1.1.5
-echo '10-SQL_V1.1.5.sql'
+echo '12-SQL_V1.1.5.sql'
 psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/12-SQL_V1.1.5.sql
 
 # Hors Version : Intégration de données aléatoires pour avoir un peu de matière
