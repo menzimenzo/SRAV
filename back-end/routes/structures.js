@@ -1,10 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const pgPool = require('../pgpool').getPool();
-
+const tracker = require('../utils/operation-tracking')
 const logger = require('../utils/logger')
 const {formatStructure} = require('../utils/utils')
 const log = logger(module.filename)
+const tracking = tracker()
 
 // Route pour récupérer les structures d'un utilisateur
 router.get('/user/:id', async function (req, res) {
@@ -178,7 +179,7 @@ router.post('/desactiveuser/', function (req, res) {
     // Création du détail de la collectivité si c'est une collectivité
     // Retour de la promesse
     log.d("uti_structurelocale",uti_structurelocale)
-    
+
     log.d("dco_id",dco_id)
     if (!uti_structurelocale) {
         param3 = dco_id
@@ -201,6 +202,7 @@ router.post('/desactiveuser/', function (req, res) {
             return res.status(400).json('erreur lors de la suppression de la structure de l\'utilisateur');
         }
         else {
+            tracking.log(req.session.user.uti_id, req.session.user.pro_id, utilisateurId, null, str_id, "structure", param3, "POST /desactiveuser/", "Désactive l'utilisateur sur une structure");
             log.i('::post desactiveuser- Done')
             return res.status(200).json({ structure: (result.rows[0]) });
         }
@@ -233,6 +235,7 @@ router.post('/user/', function (req, res) {
                 return res.status(400).json('erreur lors de la création de la structure de l\'utilisateur');
             }
             else {
+                tracking.log(req.session.user.uti_id, req.session.user.pro_id, utilisateurId, null, str_id, "structure", uti_structurelocale, "POST /user/", "Ajoute l'utilisateur sur une structure");
                 log.i('::post - Done')
                 return res.status(200).json({ structure: (result.rows[0]) });
             }
