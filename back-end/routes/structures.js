@@ -7,10 +7,26 @@ const {formatStructure} = require('../utils/utils')
 const log = logger(module.filename)
 
 // Route pour récupérer les structures d'un utilisateur
-router.get('/user/:id', async function (req, res) {
 
-    const userId = req.params.id;
+let byUserHandler = async function (req, res) {
+
+    const userId = req.params.id
+    const statuts = req.params.statuts
     const user = req.session.user
+
+    // traduction du parametre statuts
+    let statutList = []
+    if (statuts == null || statuts === "ACTUELLES") {
+        statutList.push(1) // actif
+    } else if (statuts === "PASSEES") {
+        statutList.push(0) // inactif
+        statutList.push(2) // bloqué
+    } else if (statuts === "ALL") {
+        statutList.push(0) // inactif
+        statutList.push(1) // actif
+        statutList.push(2) // bloqué
+    }
+
     var requete = null
     log.i('::get - /user/In', { userId })
 
@@ -29,14 +45,15 @@ router.get('/user/:id', async function (req, res) {
     /* Pour un profil Admin on récupère toutes les structures */
     // Donc on ne fait rien
     /* Pour un profil partenaire on ne récupère que ses structures actives */
-    if(user.pro_id == 2){
-        requete = requete + `WHERE ust.sus_id = 1 and ust.str_id in (select ustd.str_id from uti_str ustd where ustd.uti_id = ${userId}) `;
+    if(user.pro_id == 2) {
+        requete += ` WHERE ust.sus_id in (${statutList}) `
+        requete += ` and ust.str_id in (select ustd.str_id from uti_str ustd where ustd.uti_id = ${userId}) `
     }
 
-
     /* Pour un profil Intervenant on ne récupère que ses structures actives */
-    if(user.pro_id == 3){
-        requete = requete + `WHERE ust.sus_id = 1 and ust.uti_id=${userId} `;
+    if(user.pro_id == 3) {
+        requete += ` WHERE ust.sus_id in (${statutList}) `
+        requete += ` and ust.uti_id=${userId} `
     }
     requete = requete + `order by str.str_libelle, ust.uti_structurelocale `;
 
@@ -58,8 +75,10 @@ router.get('/user/:id', async function (req, res) {
             return res.status(200).json({ structures })
         }
     })
-})
+}
 
+router.get('/user/:id', byUserHandler)
+router.get('/user/:id/:statuts', byUserHandler)
 
 router.get('/typecollectivite/', async function (req, res) {
 
@@ -202,6 +221,46 @@ router.post('/desactiveuser/', function (req, res) {
         }
         else {
             log.i('::post desactiveuser- Done')
+            return res.status(200).json({ structure: (result.rows[0]) });
+        }
+    });
+})
+
+
+router.post('/activeuser/', function (req, res) {
+    log.i('::post activeuser - In')
+    //const structure = req.body.structure
+    const mastructure = req.body.mastructure
+    //console.log(mastructure)
+    var param3, requete
+    let { utilisateurId,str_id, dco_id, uti_structurelocale } = mastructure
+    // Création du détail de la collectivité si c'est une collectivité
+    // Retour de la promesse
+    log.d("uti_structurelocale",uti_structurelocale)
+
+    log.d("dco_id",dco_id)
+    if (!uti_structurelocale) {
+        param3 = dco_id
+        requete = `UPDATE uti_str SET sus_id = 1
+                        WHERE uti_id = $1 AND str_id = $2 AND dco_id = $3 
+                        RETURNING *`;
+    }
+    else
+    {
+        param3 = uti_structurelocale
+        requete = `UPDATE uti_str SET sus_id = 1
+        WHERE uti_id = $1 AND str_id = $2 AND uti_structurelocale = $3
+        RETURNING *`;
+    }
+    log.d("param",utilisateurId, str_id, dco_id)
+    log.d("requete",requete)
+    pgPool.query(requete, [utilisateurId, str_id, param3],(err, result) => {
+        if (err) {
+            log.w('::post activeuser- Erreur lors de la suppression.', { requete , erreur: err.stack})
+            return res.status(400).json('erreur lors de l\'association de la structure à l\'utilisateur');
+        }
+        else {
+            log.i('::post activeuser- Done')
             return res.status(200).json({ structure: (result.rows[0]) });
         }
     });
