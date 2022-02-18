@@ -29,13 +29,13 @@ router.get('/user/:id', async function (req, res) {
     /* Pour un profil Admin on récupère toutes les structures */
     // Donc on ne fait rien
     /* Pour un profil partenaire on ne récupère que ses structures actives */
-    if(user.pro_id == 2){
+    if(user && user.pro_id == 2){
         requete = requete + `WHERE ust.sus_id = 1 and ust.str_id in (select ustd.str_id from uti_str ustd where ustd.uti_id = ${userId}) `;
     }
 
 
     /* Pour un profil Intervenant on ne récupère que ses structures actives */
-    if(user.pro_id == 3){
+    if(user && user.pro_id == 3){
         requete = requete + `WHERE ust.sus_id = 1 and ust.uti_id=${userId} `;
     }
     requete = requete + `order by str.str_libelle, ust.uti_structurelocale `;
