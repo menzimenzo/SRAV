@@ -3,11 +3,6 @@
     <b-container class="interventions">
       <b-row>
         <b-col cols="12" offset="0" >
-            <div class="text-center mb-3">
-              <h1>
-                Mes structures
-              </h1>
-            </div>
             <mes-structures :user="user" :check-legal="false" :cancel-txt="'Annuler'" :submit-txt="'Enregistrer'" @submit="editProfile" @cancel="cancelEdit"/>        </b-col>
       </b-row>
     </b-container>
@@ -34,7 +29,7 @@ export default {
             await this.$store.dispatch('set_utilisateur', response.user);
             this.$toast.success('Profil enregistré avec succès.')
             // On ferme la fenêtre car on a terminé
-            this.$router.push('/')            
+            this.$router.push('/')
 
         }).catch(err => {
             console.log(err)

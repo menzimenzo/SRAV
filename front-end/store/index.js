@@ -128,7 +128,7 @@ export const mutations = {
     state.structureSelectionnee = null;
   },
   set_documents(state, documents){
-    log.i(`mutations::set_documents`)    
+    log.i(`mutations::set_documents`)
     state.documents = documents
   },
   set_parametreSelectionne(state, parametre) {
@@ -158,7 +158,7 @@ export const actions = {
       return
     }
     await this.$axios.$get(process.env.PROXY_URL + '/backend/api/connexion/user').then(utilisateur => {
-      log.i('actions::nuxtServerInit - Done')      
+      log.i('actions::nuxtServerInit - Done')
       commit("set_utilisateurCourant", utilisateur)
     }).catch((err) => {
       log.w('actions::nuxtServerInit - Error - nuxtServerInit', err.stack)
@@ -186,7 +186,7 @@ export const actions = {
       });
   },
   async get_intervention({ commit, state }, idIntervention) {
-    log.i("actions::get_intervention - In");  
+    log.i("actions::get_intervention - In");
     const url = process.env.API_URL + "/interventions/" + idIntervention;
     return await this.$axios
       .$get(url)
@@ -205,13 +205,13 @@ export const actions = {
     const url                        = process.env.API_URL + "/interventions";
           intervention.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$post(url, { intervention }).then(({ intervention }) => {
-      log.i("actions::post_intervention - In", { intervention });  
+      log.i("actions::post_intervention - In", { intervention });
       commit('add_intervention', intervention)
       return intervention
     });
   },
   async put_intervention({ commit, state }, intervention) {
-    log.i("actions::put_intervention - In", { intervention });  
+    log.i("actions::put_intervention - In", { intervention });
     const url                        = process.env.API_URL + "/interventions/" + intervention.id;
     const index                      = state.interventions.findIndex(i => i.id === intervention.id )
           intervention.utilisateurId = state.utilisateurCourant.id
@@ -224,7 +224,7 @@ export const actions = {
     commit("set_utilisateurCourant", utilisateur)
   },
   async get_users({ commit, state }) {
-    log.i("actions::get_users - In");  
+    log.i("actions::get_users - In");
     const url = process.env.API_URL + "/user/";
     return await this.$axios
       .$get(url)
@@ -237,7 +237,7 @@ export const actions = {
       });
   },
   async get_user({ commit,state }, ustid) {
-    log.i("actions::get_user - In");  
+    log.i("actions::get_user - In");
     const url = process.env.API_URL + "/user/" + ustid;
     return await this.$axios
       .$get(url)
@@ -250,7 +250,7 @@ export const actions = {
   },
   async put_user({ commit, state }, utilisateurSelectionne) {
     const url = process.env.API_URL + "/user/" + utilisateurSelectionne.id;
-    log.i("actions::put_user - In", { url });  
+    log.i("actions::put_user - In", { url });
     var userIndex = state.users.findIndex(utilisateur => {
       return utilisateur.id == utilisateurSelectionne.id
     })
@@ -258,7 +258,7 @@ export const actions = {
       .$put(url, { utilisateurSelectionne })
       .then(async res => {
         const url = process.env.API_URL + "/user/" + res.user.id;
-        log.d("actions::put_user - get updated user", { url });          
+        log.d("actions::put_user - get updated user", { url });
         return this.$axios
           .$get(url)
           .then(response => {
@@ -266,37 +266,37 @@ export const actions = {
           })
       })
       .catch(error => {
-        log.w("actions::put_user - erreur", { error });  
+        log.w("actions::put_user - erreur", { error });
       });
-  }, 
+  },
   async logout({ commit }) {
     commit("set_utilisateurCourant", null)
   },
   async get_structures({commit}) {
-    log.i("actions::get_structures - In");  
+    log.i("actions::get_structures - In");
     const url = process.env.API_URL + '/structures'
     return this.$axios.get(url).then(response => {
       commit("set_structures", response.data);
-      log.i("actions::get_structures - done");  
+      log.i("actions::get_structures - done");
     }).catch(err => {
-      log.w("actions::get_structures - error", { err });  
+      log.w("actions::get_structures - error", { err });
     })
   },
   async get_structure({ commit,state }, idStructure) {
-    log.i("actions::get_structure - In", { idStructure });  
+    log.i("actions::get_structure - In", { idStructure });
     const url = process.env.API_URL + "/structures/" + idStructure;
     return await this.$axios
       .$get(url)
       .then(response => {
         commit("set_structureSelectionnee", response.structures);
-        log.i("actions::get_structure - done");  
+        log.i("actions::get_structure - done");
       })
       .catch(error => {
-        log.w("actions::get_structure - erreur", { error });  
+        log.w("actions::get_structure - erreur", { error });
       });
   },
   async put_structure({ commit, state }, structureSelectionnee) {
-    log.i("actions::put_structure - In", { structureSelectionnee });  
+    log.i("actions::put_structure - In", { structureSelectionnee });
     const url = process.env.API_URL + "/structures/" + structureSelectionnee.str_id;
     var structureIndex = state.structures.findIndex(structure=> {
       return structure.id == structureSelectionnee.id
@@ -309,19 +309,19 @@ export const actions = {
           .$get(url)
           .then(response => {
             commit("put_user", {structure: response.structure, index: structureIndex});
-            log.i("actions::put_structure - done");  
+            log.i("actions::put_structure - done");
           })
       })
       .catch(error => {
-        log.w("actions::put_structure - error", { error });  
+        log.w("actions::put_structure - error", { error });
       });
-  }, 
+  },
   async post_structure({ commit, state }, structure) {
     const url  = process.env.API_URL + "/structures";
-    log.i("actions::post_structure - In", { url });  
+    log.i("actions::post_structure - In", { url });
     return await this.$axios.$post(url, { structure }).then(({ structure }) => {
       commit('add_structure', structure)
-      log.i("actions::post_structure - done");  
+      log.i("actions::post_structure - done");
       return structure
     });
   },
@@ -332,14 +332,14 @@ export const actions = {
 /* #################################################################  */
 
   async get_user_structures({commit},utiid) {
-    log.i("actions::get_user_structure - In", { utiid });  
+    log.i("actions::get_user_structure - In", { utiid });
     const url = process.env.API_URL + "/structures/user/" + utiid;
 
     return this.$axios.get(url).then(response => {
       commit("get_user_structures", response.data);
-      log.i("actions::get_user_structures - done");  
+      log.i("actions::get_user_structures - done");
     }).catch(err => {
-      log.w("actions::get_user_structures - error", { err });  
+      log.w("actions::get_user_structures - error", { err });
     })
   },
 
@@ -347,7 +347,7 @@ export const actions = {
     const url                        = process.env.API_URL + "/structures/user";
     mastructure.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$post(url, { mastructure }).then(({ mastructure }) => {
-      log.i("actions::post_user_structures - In", { mastructure });  
+      log.i("actions::post_user_structures - In", { mastructure });
       commit('post_user_structures', mastructure)
       return mastructure
     });
@@ -357,8 +357,18 @@ export const actions = {
     const url                        = process.env.API_URL + "/structures/desactiveuser";
     mastructure.utilisateurId = state.utilisateurCourant.id
     return await this.$axios.$post(url, { mastructure }).then(({ mastructure }) => {
-      log.i("actions::post_del_user_structure - In", { mastructure });  
+      log.i("actions::post_del_user_structure - In", { mastructure });
       commit('post_del_user_structure', mastructure)
+      return mastructure
+    });
+  },
+
+  async post_add_user_structure({ commit, state }, mastructure) {
+    const url                        = process.env.API_URL + "/structures/activeuser";
+    mastructure.utilisateurId = state.utilisateurCourant.id
+    return await this.$axios.$post(url, { mastructure }).then(({ mastructure }) => {
+      log.i("actions::post_add_user_structure - In", { mastructure });
+      commit('post_add_user_structure', mastructure)
       return mastructure
     });
   },
@@ -367,16 +377,16 @@ export const actions = {
 
   async get_documents({commit}) {
     const url = process.env.API_URL + '/documents'
-    log.i("actions::get_documents - In", { url });  
+    log.i("actions::get_documents - In", { url });
     return this.$axios.get(url).then(response => {
       var documents = response.data
       documents.forEach(doc => {
         delete doc.doc_contenu
       })
-      log.i("actions::get_documents - done");  
+      log.i("actions::get_documents - done");
       commit("set_documents", response.data);
     }).catch(err => {
-      log.w("actions::get_documents - error", { err });  
+      log.w("actions::get_documents - error", { err });
     })
   },
   login({ commit }, { mail, password }) {
@@ -389,7 +399,7 @@ export const actions = {
             const { user, redirect, message } = res
             log.d('login - response from server', user)
             if(!user || !user.id) {
-              log.w('login - authserver, user not found')              
+              log.w('login - authserver, user not found')
               throw new Error('Email ou mot de passe incorrect.')
             } else if (redirect) {
               log.i('login - Done but redirect', { user, redirect })
@@ -466,7 +476,7 @@ export const actions = {
     return commit('SET', { key, value })
   },
   async get_parametre({ commit,state }, codeParametre) {
-    log.i("actions::get_parametre - In");  
+    log.i("actions::get_parametre - In");
     const url = process.env.API_URL + "/parametres/" + codeParametre;
     return await this.$axios
       .$get(url)
