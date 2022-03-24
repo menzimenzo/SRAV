@@ -111,12 +111,13 @@ router.get('/csv', async function (req, res) {
         dco.tco_id str_typeCollectivite
         from utilisateur  uti
         join uti_str ust on ust.uti_id = uti.uti_id
+        join uti_str ustpar on ustpar.str_id = uti.str_id and ustpar.uti_id = ${utilisateurCourant.uti_id}
         left join detail_collectivite dco on dco.dco_id = ust.dco_id
         join structure str on str.str_id= ust.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join statut_utilisateur  stu on stu.stu_id = uti.stu_id
-        where ust.str_id=${utilisateurCourant.str_id} order by 3,4 asc`;
+        order by 3,4 asc`;
     }
 
     pgPool.query(requete, (err, result) => {
@@ -153,7 +154,7 @@ router.get('/:ustid', async function (req, res) {
     //log.i('::get - In', { id })
     log.i('::get - In', { ustid })
     const utilisateurCourant = req.session.user
-    if ( utilisateurCourant.pro_id == 1) {
+    if ( utilisateurCourant.pro_id && utilisateurCourant.pro_id == 1) {
         // si on est admin, on affiche l'utilisateur
         requete = `SELECT uti.*,ust.*,dco.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription, str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb , 
         uti.uti_adresse as adresse,
@@ -190,11 +191,11 @@ router.get('/:ustid', async function (req, res) {
         ust.uti_structurelocale structurelocale
         from utilisateur uti 
         join uti_str ust on ust.uti_id = uti.uti_id and ust.ust_id=${ustid}
+        join uti_str ustpar on ust.str_id = ustpar.str_id and ustpar.ust_id=${utilisateurCourant.uti_id}
         left join detail_collectivite dco on dco.dco_id = ust.dco_id
         join structure str on str.str_id= ust.str_id 
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id
-        where ust.str_id = ${utilisateurCourant.str_id}
         order by uti.uti_id asc `;
     }
 
@@ -222,8 +223,8 @@ router.get('/', async function (req, res) {
     log.i('::list - In')
     const utilisateurCourant = req.session.user
     //const utilisateurId = 1; // TODO à récupérer via GET ?
-    
-    if ( utilisateurCourant.pro_id == 1 ||  utilisateurCourant.pro_id == 4) {
+
+    if ( utilisateurCourant.pro_id && (utilisateurCourant.pro_id == 1 ||  utilisateurCourant.pro_id == 4)) {
         // si on est admin, on affiche tous les utilisateurs
         requete = `SELECT uti.*,ust.*, dco.* ,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
         uti.uti_siteweb as siteweb, 
@@ -267,9 +268,10 @@ router.get('/', async function (req, res) {
         join uti_str ust on ust.uti_id = uti.uti_id
         left join detail_collectivite dco on dco.dco_id = ust.dco_id
         join structure str on str.str_id = ust.str_id 
+        join uti_str strpart on strpart.str_id = str.str_id and strpart.uti_id = ${utilisateurCourant.uti_id}
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
-        where ust.str_id=${utilisateurCourant.str_id} order by uti.uti_id asc  `;
+        order by uti.uti_id asc  `;
     }
     log.d('::list - requete',{ requete })
     pgPool.query(requete, (err, result) => {

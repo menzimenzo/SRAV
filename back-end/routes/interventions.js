@@ -231,7 +231,7 @@ router.get('/nbattestations', async function (req, res) {
     const requete = `SELECT COALESCE(sum(int_nombreenfant),0) as nbattestations 
                 from intervention int 
                 inner join utilisateur uti on uti.uti_id = int.uti_id
-                inner join uti_str ust on ust.uti_id = uti.uti_id
+                inner join uti_str ust on ust.ust_id = int.ust_id
                 inner join structure str on str.str_id = ust.str_id
                 ${whereClause}
                 where int.blo_id = 3`;

@@ -137,7 +137,8 @@ router.get('/', function (req, res) {
     FROM structure`
     //left join type_collectivite tco on structure.str_id = 99999
     /* Pour un profil référent on supprime tout ce qui est relatif aux écoles */
-    if(user.pro_id == 4){
+    // Correction Mantis 89306
+    if(user && user.pro_id == 4){
         requete += ` where str_id <> 9`
     }
     requete += ` order by str_libellecourt`
