@@ -17,12 +17,12 @@ module.exports = async function(req, res) {
         return res.status(400).json({ message: 'Aucun mot de passe fournit pour identification.'});
     }
 
-    const requete = `SELECT * FROM utilisateur WHERE uti_mail='${mail}'`;
-    /*const requete = `SELECT * FROM utilisateur uti \
+    //const requete = `SELECT * FROM utilisateur WHERE uti_mail='${mail}'`;
+    const requete = `SELECT uti.*, str.* FROM utilisateur uti \
     left join uti_str ust on ust.uti_id = uti.uti_id \
     left join structure str on str.str_id = ust.str_id \
     WHERE uti.uti_mail='${mail}' limit 1`;
-    */
+    
     const crypted = await crypto.createHash('md5').update(password).digest('hex');
 
     pgPool.query(requete, (err, result) => {
