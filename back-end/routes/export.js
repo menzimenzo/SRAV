@@ -165,9 +165,7 @@ router.get('/intervention/', async function (req, res) {
     // Ajout de la clause sur la date d'intervention, on n'envoie pas les interventions qui n'ont pas encore eu lieu.
     requete =`SELECT to_char(int.int_dateintervention,'DD/MM/YYYY') int_dateintervention,int.int_nombreenfant , int.int_dep_num, int.int_com_libelle, int.int_com_codeinsee, int.int_com_codepostal, int.int_reg_num from intervention int
     INNER JOIN bloc blo ON blo.blo_id = int.blo_id and blo.blo_id = 3
-    INNER JOIN cadreintervention cai ON cai.cai_id = int.cai_id 
-    INNER JOIN utilisateur uti ON int.uti_id = uti.uti_id 
-    INNER JOIN structure str ON str.str_id = uti.str_id
+    INNER JOIN cadreintervention cai ON cai.cai_id = int.cai_id
     WHERE to_char(int.int_dateintervention,'YYYMMDD') < to_char(current_date,'YYYMMDD')
     order by int.int_id asc`;
 
