@@ -41,6 +41,7 @@ const formatIntervention = intervention => {
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
         qpvcode: intervention.int_qpv_code,
+        zrrstatut: intervention.zst_libelle,
         ustid: intervention.ust_id,
         tcoid: intervention.tco_id,
         tcocode: intervention.tco_code
@@ -133,6 +134,8 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
     INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
     LEFT JOIN qpv ON intervention.int_qpv_code = qpv.qpv_code
+    LEFT JOIN zrr_insee zin on intervention.int_com_codeinsee = zin.zin_insee
+    LEFT JOIN zrr_statut zst on zin.zst_id = zst.zst_id
     INNER JOIN uti_str ON intervention.ust_id = uti_str.ust_id
     ${whereClause} 
     INNER JOIN structure ON structure.str_id = uti_str.str_id 
@@ -178,7 +181,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                     delete newIntervention.siteintervention;
                 }
                 delete newIntervention.commentaire                
-                
+
                 return newIntervention
             })
             if (!interventions || !interventions.length) {
