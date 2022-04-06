@@ -1,16 +1,35 @@
 
+-- Correspondance entre les ZRR et les codes Insee (Ref 2018)
 create table ZRR_INSEE (
    ZIN_INSEE           VARCHAR(5)               not null,
    ZST_ID          INTEGER          not null,
    constraint PK_ZRR_INSEE primary key (zin_insee)
 );
 
+-- Liste des statut lié aux type de zrr
 create table ZRR_STATUT (
    ZST_ID               INTEGER               not null,
    ZST_LIBELLE          VARCHAR(50)          not null,
    constraint PK_ZST_ID primary key (ZST_ID)
 );
 
+-- Ajout de l'information sur le fait que le partenaire soir un partenaire titre ou pas
+alter table STRUCTURE add column STR_PARTENAIRE_TITRE BOOLEAN DEFAULT FALSE;
+alter table STRUCTURE add column STR_LOGO_PROPORTION       INTEGER              default 100;
+alter table STRUCTURE add column STR_LOGO_POS_HORIZONTAL   FLOAT                default 0;
+alter table STRUCTURE add column STR_LOGO_POS_VERTICAL     FLOAT                default 0;
+
+-- Stockage des logos pour les partenaires titres et affichage sur l'attestation
+create table STRUCTURE_LOGO (
+   STR_ID               BIGINT               not null,
+   STL_DOCUMENT         BYTEA                null,
+   constraint PK_STR_ID primary key (STR_ID)
+);
+
+-- Initialisation des structures avec un logo vide
+INSERT INTO STRUCTURE_LOGO (STR_ID, STL_DOCUMENT) (SELECT STR_ID,'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' FROM STRUCTURE)
+
+-- Initialisation du référentiel des statuts ZRR
 INSERT INTO ZRR_STATUT (ZST_ID, ZST_LIBELLE) VALUES (0,'Non classée');
 INSERT INTO ZRR_STATUT (ZST_ID, ZST_LIBELLE) VALUES (1,'Bénéficiaire');
 

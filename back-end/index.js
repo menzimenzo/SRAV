@@ -53,6 +53,7 @@ const listedepartement  = require('./routes/listedepartement');
 const listepci  = require('./routes/listepci');
 const attestations  = require('./routes/attestations');
 const structures    = require('./routes/structures');
+const logos    = require('./routes/logos');
 const pdf           = require('./routes/pdf');
 const user          = require('./routes/user');
 const documents     = require('./routes/documents');
@@ -76,6 +77,8 @@ app.use(config.URL_PREFIX + '/listepci', listepci);
 app.use(config.URL_PREFIX + '/attestations', attestations);
 
 app.use(config.URL_PREFIX + '/structures', structures);
+
+app.use(config.URL_PREFIX + '/logos', logos);
 
 app.use(config.URL_PREFIX + '/documents', documents);
 

@@ -133,7 +133,7 @@ router.get('/', function (req, res) {
     var requete = ""
     const user = req.session.user
 
-    requete = `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on 
+    requete = `SELECT *, replace(replace(str_actif::text,'true','Oui'),'false','Non') as str_actif_on, replace(replace(str_federation::text,'true','Oui'),'false','Non') as str_federation_on, replace(replace(str_partenaire_titre::text,'true','Oui'),'false','Non') as str_partenaire_titre_on 
     FROM structure`
     //left join type_collectivite tco on structure.str_id = 99999
     /* Pour un profil référent on supprime tout ce qui est relatif aux écoles */
@@ -161,21 +161,29 @@ router.put('/:id', async function (req, res) {
     const structure = req.body.structureSelectionnee    
     const id = req.params.id
     log.i('::update - In', { id })
-    let { str_libelle, str_libellecourt, str_actif,str_federation } = structure
+    let { str_libelle, str_libellecourt, str_actif,str_federation,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical } = structure
 
     //insert dans la table intervention
     const requete = `UPDATE structure 
         SET str_libelle = $1,
         str_libellecourt = $2,
         str_actif = $3,
-        str_federation = $4
+        str_federation = $4,
+        str_partenaire_titre = $5,
+        str_logo_proportion = $6,
+        str_logo_pos_horizontal = $7,
+        str_logo_pos_vertical = $8
         WHERE str_id = ${id}
         RETURNING *
         ;`    
     pgPool.query(requete,[str_libelle,
         str_libellecourt,
         str_actif,
-        str_federation], (err, result) => {
+        str_federation,
+        str_partenaire_titre,
+        str_logo_proportion,
+        str_logo_pos_horizontal, 
+        str_logo_pos_vertical ], (err, result) => {
         if (err) {
             log.w('::update - Erreur lors de la mise à jour', { requete , erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de la structure');
@@ -337,19 +345,22 @@ router.post('/', function (req, res) {
     const structure = req.body.structure
     console.log(structure)
     
-    let { str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite } = structure
+    let { str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical} = structure
 
 
     if (str_actif == '') { str_actif = false } else { str_actif = true}
     if (str_federation == '') { str_federation = false } else { str_federation = true}
+    if (str_partenaire_titre == '') { str_partenaire_titre = false } else { str_partenaire_titre = true}
+    
+    
     if ( ! str_typecollectivite ) { str_typecollectivite = null } 
     //insert dans la table structure
     const requete = `insert into structure 
-                    (str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite)
-                    values($1,$2,$3,$4,$5 ) RETURNING *`;
+                    (str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical)
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9 ) RETURNING *`;
     
     //console.log({ requete });
-    pgPool.query(requete, [str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite],(err, result) => {
+    pgPool.query(requete, [str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical],(err, result) => {
         if (err) {
             log.w('::update - Erreur lors de la création.', { requete , erreur: err.stack})                
             return res.status(400).json('erreur lors de la création de la structure');
