@@ -539,6 +539,11 @@ export default {
           sortable: true
         },
         {
+          path: "str_partenaire_titre_on",
+          title: "Partenaire titre",
+          type: "text",
+          sortable: true
+        },        {
           path: "__slot:actions",
           title: "Actions",
           type: "__slot:actions",

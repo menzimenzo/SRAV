@@ -480,7 +480,7 @@ router.put('/:id', async function (req, res) {
             log.i('::update - Done')
             // generation du pdf (synchrone)
             if (blocId == 3 ) {
-                myPdf.generate(id,nbEnfants, dateIntervention)  
+                myPdf.generate(id,nbEnfants, dateIntervention,ustid)  
             }
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
 
