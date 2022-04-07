@@ -674,59 +674,73 @@ export default {
           });
     },
     ChargeBlocsStructure(ustid) {
-      this.listebloc = []
+      console.log("this.isVerrouille",this.isVerrouille)
+      if (this.isVerrouille == true) {
+        
+        this.listebloc = [
+            { text: "Bloc 1 : Savoir pédaler", value: "1" },
+            { text: "Bloc 2 : Savoir circuler", value: "2" },
+            { text: "Bloc 3 : Savoir rouler", value: "3" }]  
 
-      if (ustid) {
-        /*
-          { text: "-- Choix du type de bloc --", value: null },
-          { text: "Bloc 1 : Savoir pédaler", value: "1" },
-          { text: "Bloc 2 : Savoir circuler", value: "2" },
-          { text: "Bloc 3 : Savoir rouler", value: "3" }]         
-        */
-        const url =  process.env.API_URL + "/structures/ust/" + ustid;
-        var structureSelectionne
-        return this.$axios.$get(url)
-        .then(response => {
-          structureSelectionne = response.structure;
-          this.listebloc =  [{ text: "-- Choix du type de bloc --", value: null }]         
-          // Si une seule structure, on la selectionne par défaut
-          if (structureSelectionne.str_aut_bloc1 == true) {
-            this.listebloc.push({ text: "Bloc 1 : Savoir pédaler", value: "1" });
-          }
-          else
-          {
-            // Si un petit malin a pensé à mettre le bloc 3 sur une autre structure et qu'il 
-            // change de structure alors qu'elle n'a pas le droit au bloc 1
-            // Alors on remet à null
-            if (this.formIntervention.blocId == 1) { this.formIntervention.blocId = null}
-          }
+       console.log("this.listebloc",this.listebloc )
 
-          if (structureSelectionne.str_aut_bloc2 == true) {
-            this.listebloc.push({ text: "Bloc 2 : Savoir circuler", value: "2" });
-          }
-          else
-          { 
-            if (this.formIntervention.blocId == 2) { this.formIntervention.blocId = null}
-          }
-
-          if (structureSelectionne.str_aut_bloc3 == true) {
-            this.listebloc.push({ text: "Bloc 3 : Savoir rouler", value: "3" });
-          }
-          else
-          {
-            if (this.formIntervention.blocId == 3) { this.formIntervention.blocId = null}
-          }
-        })
-        .catch(error => {
-          console.error(
-            "Une erreur est survenue lors de la récupération des blocs des structures",
-            error
-          );
-        });
       }
       else
       {
-        this.listebloc =  [{ text: "-- Choisissez votre structure --", value: null }]         
+        this.listebloc = []
+
+        if (ustid) {
+          /*
+            { text: "-- Choix du type de bloc --", value: null },
+            { text: "Bloc 1 : Savoir pédaler", value: "1" },
+            { text: "Bloc 2 : Savoir circuler", value: "2" },
+            { text: "Bloc 3 : Savoir rouler", value: "3" }]         
+          */
+          const url =  process.env.API_URL + "/structures/ust/" + ustid;
+          var structureSelectionne
+          return this.$axios.$get(url)
+          .then(response => {
+            structureSelectionne = response.structure;
+            this.listebloc =  [{ text: "-- Choix du type de bloc --", value: null }]         
+            // Si une seule structure, on la selectionne par défaut
+            if (structureSelectionne.str_aut_bloc1 == true) {
+              this.listebloc.push({ text: "Bloc 1 : Savoir pédaler", value: "1" });
+            }
+            else
+            {
+              // Si un petit malin a pensé à mettre le bloc 3 sur une autre structure et qu'il 
+              // change de structure alors qu'elle n'a pas le droit au bloc 1
+              // Alors on remet à null
+              if (this.formIntervention.blocId == 1) { this.formIntervention.blocId = null}
+            }
+
+            if (structureSelectionne.str_aut_bloc2 == true) {
+              this.listebloc.push({ text: "Bloc 2 : Savoir circuler", value: "2" });
+            }
+            else
+            { 
+              if (this.formIntervention.blocId == 2) { this.formIntervention.blocId = null}
+            }
+
+            if (structureSelectionne.str_aut_bloc3 == true) {
+              this.listebloc.push({ text: "Bloc 3 : Savoir rouler", value: "3" });
+            }
+            else
+            {
+              if (this.formIntervention.blocId == 3) { this.formIntervention.blocId = null}
+            }
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération des blocs des structures",
+              error
+            );
+          });
+        }
+        else
+        {
+          this.listebloc =  [{ text: "-- Choisissez votre structure --", value: null }]         
+        }
       }
     }
   },
@@ -856,6 +870,8 @@ var date1 = this.formIntervention.dateIntervention;
             {
               //console.log ("Intervention verrouillee")
               this.isVerrouille = true;
+              this.ChargeBlocsStructure(0)
+
             }
             else
             {
