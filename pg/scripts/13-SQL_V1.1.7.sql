@@ -18,6 +18,10 @@ alter table STRUCTURE add column STR_PARTENAIRE_TITRE BOOLEAN DEFAULT FALSE;
 alter table STRUCTURE add column STR_LOGO_PROPORTION       INTEGER              default 100;
 alter table STRUCTURE add column STR_LOGO_POS_HORIZONTAL   FLOAT                default 0;
 alter table STRUCTURE add column STR_LOGO_POS_VERTICAL     FLOAT                default 0;
+alter table STRUCTURE add column STR_AUT_BLOC1             BOOLEAN DEFAULT TRUE;
+alter table STRUCTURE add column STR_AUT_BLOC2             BOOLEAN DEFAULT TRUE;
+alter table STRUCTURE add column STR_AUT_BLOC3             BOOLEAN DEFAULT TRUE;
+
 
 -- Stockage des logos pour les partenaires titres et affichage sur l'attestation
 create table STRUCTURE_LOGO (

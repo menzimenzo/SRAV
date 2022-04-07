@@ -16,6 +16,22 @@
             Seule la réalisation du bloc 3 permet l'impression de l'attestation.
           </p>
         </div>
+        <div>
+          J'interviens pour la structure * :
+            <!-- STRUCTURE -->
+            <b-form-select 
+              class="liste-deroulante"
+              v-model="formIntervention.ustid"
+              :disabled="this.isVerrouille">
+              <option :value="null">-- Choix de la structure --</option>
+              <option
+                style="width: 25em"
+                v-for="structure in listestructures"
+                :key="structure.ust_id"
+                :value="structure.ust_id"
+              >{{ structure.str_libellecourt}} - {{ structure.uti_structurelocale}}{{ structure.tco_libelle}} - {{ structure.com_libelle}} {{ structure.dep_libelle}}{{ structure.eta_nom}}{{ structure.epci_libelle }}</option>
+            </b-form-select>
+        </div>     
         <div class="input-group-display">
           <span>Type de bloc * :</span>
           <b-form-select 
@@ -219,23 +235,6 @@
             :rows="3"
           ></b-form-textarea>
         </div>
-        <!--<div v-if="listestructures.length > 1">-->
-        <div>
-          J'interviens pour la structure * :
-            <!-- STRUCTURE -->
-            <b-form-select 
-              class="liste-deroulante"
-              v-model="formIntervention.ustid"
-              :disabled="this.isVerrouille">
-              <option :value="null">-- Choix de la structure --</option>
-              <option
-                style="width: 25em"
-                v-for="structure in listestructures"
-                :key="structure.ust_id"
-                :value="structure.ust_id"
-              >{{ structure.str_libellecourt}} - {{ structure.uti_structurelocale}}{{ structure.tco_libelle}} - {{ structure.com_libelle}} {{ structure.dep_libelle}}{{ structure.eta_nom}}{{ structure.epci_libelle }}</option>
-            </b-form-select>
-        </div>     
         <div class="mb-3 mt-3"  v-if="! formIntervention.dateMaj">
           <p class="text-info">
             Après mon intervention, je complète ou modifie les champs "nombre d'enfants", "genre" et "classe d'âge"
@@ -374,12 +373,7 @@ export default {
         { text: `Péri-scolaire`, value: "1" },
         { text: `Extra-scolaire (clubs, associations ...)`, value: "2" }
       ],
-      listebloc: [
-        { text: "-- Choix du type de bloc --", value: null },
-        { text: "Bloc 1 : Savoir pédaler", value: "1" },
-        { text: "Bloc 2 : Savoir circuler", value: "2" },
-        { text: "Bloc 3 : Savoir rouler", value: "3" }
-      ],
+      listebloc:  [{ text: "-- Choisissez votre structure --", value: null }],
       listeouinon: [
         { text: `Oui`, value: "true" },
         { text: `Non`, value: "false" }
@@ -665,8 +659,11 @@ export default {
     return this.$axios.$get(url).then(response => {
             this.listestructures = response.structures;
             // Si une seule structure, on la selectionne par défaut
-            if (this.listestructures.length == 1)
-              {this.formIntervention.ustid = this.listestructures[0].ust_id}
+            if (this.listestructures.length == 1) {
+              this.formIntervention.ustid = this.listestructures[0].ust_id
+              console.log("Une seule structure : ", this.formIntervention.ustid)
+              this.ChargeBlocsStructure(this.formIntervention.ustid)
+            }
             this.loading = false;
           })
           .catch(error => {
@@ -675,7 +672,77 @@ export default {
               error
             );
           });
-    },          
+    },
+    ChargeBlocsStructure(ustid) {
+      console.log("this.isVerrouille",this.isVerrouille)
+      if (this.isVerrouille == true) {
+        
+        this.listebloc = [
+            { text: "Bloc 1 : Savoir pédaler", value: "1" },
+            { text: "Bloc 2 : Savoir circuler", value: "2" },
+            { text: "Bloc 3 : Savoir rouler", value: "3" }]  
+
+       console.log("this.listebloc",this.listebloc )
+
+      }
+      else
+      {
+        this.listebloc = []
+
+        if (ustid) {
+          /*
+            { text: "-- Choix du type de bloc --", value: null },
+            { text: "Bloc 1 : Savoir pédaler", value: "1" },
+            { text: "Bloc 2 : Savoir circuler", value: "2" },
+            { text: "Bloc 3 : Savoir rouler", value: "3" }]         
+          */
+          const url =  process.env.API_URL + "/structures/ust/" + ustid;
+          var structureSelectionne
+          return this.$axios.$get(url)
+          .then(response => {
+            structureSelectionne = response.structure;
+            this.listebloc =  [{ text: "-- Choix du type de bloc --", value: null }]         
+            // Si une seule structure, on la selectionne par défaut
+            if (structureSelectionne.str_aut_bloc1 == true) {
+              this.listebloc.push({ text: "Bloc 1 : Savoir pédaler", value: "1" });
+            }
+            else
+            {
+              // Si un petit malin a pensé à mettre le bloc 3 sur une autre structure et qu'il 
+              // change de structure alors qu'elle n'a pas le droit au bloc 1
+              // Alors on remet à null
+              if (this.formIntervention.blocId == 1) { this.formIntervention.blocId = null}
+            }
+
+            if (structureSelectionne.str_aut_bloc2 == true) {
+              this.listebloc.push({ text: "Bloc 2 : Savoir circuler", value: "2" });
+            }
+            else
+            { 
+              if (this.formIntervention.blocId == 2) { this.formIntervention.blocId = null}
+            }
+
+            if (structureSelectionne.str_aut_bloc3 == true) {
+              this.listebloc.push({ text: "Bloc 3 : Savoir rouler", value: "3" });
+            }
+            else
+            {
+              if (this.formIntervention.blocId == 3) { this.formIntervention.blocId = null}
+            }
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération des blocs des structures",
+              error
+            );
+          });
+        }
+        else
+        {
+          this.listebloc =  [{ text: "-- Choisissez votre structure --", value: null }]         
+        }
+      }
+    }
   },
 
   watch: {
@@ -742,6 +809,11 @@ var date1 = this.formIntervention.dateIntervention;
       this.formIntervention.commune = this.listecommune.find(commune => {
         return commune.cpi_codeinsee == this.selectedCommune;
       });
+    },
+    "formIntervention.ustid"() {
+      // Chargement des blocs autorisé pour cette structure
+      this.ChargeBlocsStructure(this.formIntervention.ustid)
+
     }
   },
   mounted() {
@@ -798,6 +870,8 @@ var date1 = this.formIntervention.dateIntervention;
             {
               //console.log ("Intervention verrouillee")
               this.isVerrouille = true;
+              this.ChargeBlocsStructure(0)
+
             }
             else
             {
