@@ -1,74 +1,91 @@
 <template>
   <b-container class="interventionModal">
-    <b-col cols="12" class="text-center">
-      <h2 class="mb-3 interventionTitle">
-        Edition de la structure
-        <br>
-        <b>{{formStruct.str_libellecourt}}</b>
-      </h2>
-    </b-col>
-    <b-col cols="12">
-      <b-row>
-        <b-col cols="8">
-          <div class="mb-3 mt-3">
-            Libelle :
-            <b-form-input
-              aria-describedby="inputFormatterHelp"
-              v-model="formStruct.str_libelle"
-              type="text"
-            ></b-form-input>
-          </div>
-        </b-col>
-        <b-col cols="4">
-          <div class="mb-3 mt-3">
-            Libelle Court :
-            <b-form-input
-              aria-describedby="inputFormatterHelp"
-              v-model="formStruct.str_libellecourt"
-              type="text"
-            ></b-form-input>
-          </div>
-        </b-col>
-      </b-row>
-    </b-col>
     <b-row>
-      <b-col>
-        <div class="mb-3 mt-3">
-          <b-form-checkbox switch v-model="formStruct.str_actif" name="check-button">
+      <b-col cols="12" class="text-center">
+        <h2 class="mb-3 interventionTitle">
+          Edition de la structure
+          <br>
+          <b>{{formStruct.str_libellecourt}}</b>
+        </h2>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col cols="12">
+        <b-row>
+          <b-col cols="8">
+            <div class="mb-3 mt-3">
+              Libelle :
+              <b-form-input
+                aria-describedby="inputFormatterHelp"
+                v-model="formStruct.str_libelle"
+                type="text"
+              ></b-form-input>
+            </div>
+          </b-col>
+          <b-col cols="4">
+            <div class="mb-3 mt-3">
+              Libelle Court :
+              <b-form-input
+                aria-describedby="inputFormatterHelp"
+                v-model="formStruct.str_libellecourt"
+                type="text"
+              ></b-form-input>
+            </div>
+          </b-col>
+        </b-row>
+      </b-col>
+    </b-row>
+    <b-row>
+      <b-col cols="3" >
+          <b-form-checkbox  switch v-model="formStruct.str_aut_bloc1" name="check-button">
+            Bloc 1 autorisé
+          </b-form-checkbox>
+      </b-col>
+      <b-col cols="3" >
+          <b-form-checkbox  switch v-model="formStruct.str_aut_bloc2" name="check-button">
+            Bloc 2 autorisé
+          </b-form-checkbox>
+      </b-col>
+      <b-col cols="3" >
+          <b-form-checkbox  switch v-model="formStruct.str_aut_bloc3" name="check-button">
+            Bloc 3 autorisé
+          </b-form-checkbox>          
+      </b-col>
+    </b-row>
+    <br>
+    <b-row>
+      <b-col  cols="3" >
+        <b-form-checkbox switch v-model="formStruct.str_actif" name="check-button">
             structure active
-            <b></b>
-          </b-form-checkbox>
-        </div>
+        </b-form-checkbox>
       </b-col>
-      <b-col>
-        <div class="mb-3 mt-3">
-          <b-form-checkbox switch v-model="formStruct.str_federation" name="check-button">
+      <b-col cols="3">
+        <b-form-checkbox switch v-model="formStruct.str_federation" name="check-button">
             fédération
-            <b></b>
-          </b-form-checkbox>
-        </div>
+        </b-form-checkbox>
       </b-col>
-      <b-col>
-        <div class="mb-3 mt-3">
+      <b-col cols="3">
           <b-form-checkbox switch v-model="formStruct.str_partenaire_titre" name="check-button">
             Partenaire titre
-            <b></b>
           </b-form-checkbox>
-        </div>
       </b-col>    
-      <b-col cols="12" >
-        <b-col cols="5">
+    </b-row >
+    <b-row >
+        <b-col cols="4">
             <b-form-group
                 label="Logo partenaire :">
-              <b-form-file label="Logo partenaire :" @change="previewImage" v-model="file" placeholder="Choisissez un fichier..." :browse-text="'Parcourir'"/>
+              <b-form-file label="Logo partenaire :" @change="previewImage" v-model="file" placeholder="Choisissez un logo..." :browse-text="'Parcourir'"/>
             </b-form-group>
         </b-col>
-        <b-col cols="5">
+        <b-col cols="8">
               <div class="image-preview" v-if="imageData.length > 0">
                   <img class="preview" :src="imageData" :width="this.formStruct.str_logo_proportion*imageData.length/10000">
               </div>
         </b-col>
-        <div class="mb-3 mt-3">
+      </b-row >
+      <b-row >
+        <b-col cols="12">
+        
           Proportion ({{formStruct.str_logo_proportion}} %):
           <b-form-input
             aria-describedby="inputFormatterHelp"
@@ -87,8 +104,7 @@
             v-model="formStruct.str_logo_pos_vertical"
             type="range" min="0" max="595.28" step="0.01"
           ></b-form-input>
-        </div>        
-      </b-col>
+        </b-col>
     </b-row>    
      &nbsp;
     <b-row>
@@ -116,6 +132,9 @@ var loadFormStruct = function(structure) {
           str_logo_proportion: "100",
           str_logo_pos_horizontal: "0",
           str_logo_pos_vertical: "0",
+          str_aut_bloc1: true,
+          str_aut_bloc2: true,
+          str_aut_bloc3: true
         },
         structure
       )

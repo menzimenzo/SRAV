@@ -80,6 +80,40 @@ let byUserHandler = async function (req, res) {
 router.get('/user/:id', byUserHandler)
 router.get('/user/:id/:statuts', byUserHandler)
 
+// Permet la récupération d'une structure à partir de l'utilisateur (ustid)
+// Utilisé dans le cadre de la modification dynamique des blocs.
+router.get('/ust/:ustid', async function (req, res) {
+    const ustid = req.params.ustid;
+    log.i('::get - In', { ustid })
+    const utilisateurCourant = req.session.user
+    if (utilisateurCourant.pro_id) {
+        // si on est admin, on affiche l'utilisateur
+        requete = `SELECT str.*
+        from utilisateur uti 
+        join uti_str ust on ust.uti_id = uti.uti_id and ust.ust_id=${ustid}
+        join structure str on str.str_id= ust.str_id`;
+
+        log.d('::get - select un Structure User'+requete)
+
+        pgPool.query(requete, (err, result) => {
+            if (err) { 
+                log.w('::get - Erreur lors de la requête', err.stack)
+                return res.status(400).json('erreur lors de la structure de l\'utilisateur');
+            }
+            else {
+                const structure = result.rows && result.rows.length && result.rows[0];
+                if (!structure) {
+                    log.w('::get - Utilisateur inexistant')
+                    return res.status(400).json({ message: 'Utilisateur inexistant' });
+                }
+                log.d({structure})
+                log.d('::get - Done')
+                res.json({ structure });
+            }
+        })
+    }
+});
+
 router.get('/typecollectivite/', async function (req, res) {
 
     log.i('::get - /typecollectivite/In')
@@ -161,7 +195,7 @@ router.put('/:id', async function (req, res) {
     const structure = req.body.structureSelectionnee    
     const id = req.params.id
     log.i('::update - In', { id })
-    let { str_libelle, str_libellecourt, str_actif,str_federation,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical } = structure
+    let { str_libelle, str_libellecourt, str_actif,str_federation,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical,str_aut_bloc1,str_aut_bloc2,str_aut_bloc3 } = structure
 
     //insert dans la table intervention
     const requete = `UPDATE structure 
@@ -172,7 +206,10 @@ router.put('/:id', async function (req, res) {
         str_partenaire_titre = $5,
         str_logo_proportion = $6,
         str_logo_pos_horizontal = $7,
-        str_logo_pos_vertical = $8
+        str_logo_pos_vertical = $8,
+        str_aut_bloc1 = $9,
+        str_aut_bloc2 = $10,
+        str_aut_bloc3 = $11
         WHERE str_id = ${id}
         RETURNING *
         ;`    
@@ -183,7 +220,10 @@ router.put('/:id', async function (req, res) {
         str_partenaire_titre,
         str_logo_proportion,
         str_logo_pos_horizontal, 
-        str_logo_pos_vertical ], (err, result) => {
+        str_logo_pos_vertical,
+        str_aut_bloc1,
+        str_aut_bloc2,
+        str_aut_bloc3 ], (err, result) => {
         if (err) {
             log.w('::update - Erreur lors de la mise à jour', { requete , erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de la structure');
@@ -345,7 +385,7 @@ router.post('/', function (req, res) {
     const structure = req.body.structure
     console.log(structure)
     
-    let { str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical} = structure
+    let { str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical, str_aut_bloc1, str_aut_bloc2, str_aut_bloc3} = structure
 
 
     if (str_actif == '') { str_actif = false } else { str_actif = true}
@@ -356,11 +396,11 @@ router.post('/', function (req, res) {
     if ( ! str_typecollectivite ) { str_typecollectivite = null } 
     //insert dans la table structure
     const requete = `insert into structure 
-                    (str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical)
-                    values($1,$2,$3,$4,$5,$6,$7,$8,$9 ) RETURNING *`;
+                    (str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical, str_aut_bloc1, str_aut_bloc2, str_aut_bloc3)
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12 ) RETURNING *`;
     
     //console.log({ requete });
-    pgPool.query(requete, [str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical],(err, result) => {
+    pgPool.query(requete, [str_libelle,  str_libellecourt, str_actif, str_federation,str_typecollectivite,str_partenaire_titre,str_logo_proportion,str_logo_pos_horizontal, str_logo_pos_vertical, str_aut_bloc1, str_aut_bloc2, str_aut_bloc3],(err, result) => {
         if (err) {
             log.w('::update - Erreur lors de la création.', { requete , erreur: err.stack})                
             return res.status(400).json('erreur lors de la création de la structure');
