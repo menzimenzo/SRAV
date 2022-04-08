@@ -425,7 +425,6 @@ export default {
             idformate = "0" + idformate;
         }
         idformate = "SRAV_Attestation-" + idformate;  
-        console.log("intervention : " + idformate);      
         link.setAttribute("download", `${idformate}.pdf`); //or any other extension
         document.body.appendChild(link);
         link.click();
@@ -512,7 +511,6 @@ export default {
         }
         
       }
-      console.log("this.isHandicap",this.isHandicap)
       if (this.isHandicap == null) 
       {
         formOK = false;
@@ -536,7 +534,6 @@ export default {
       }
       else
       {
-        console.log("this.formIntervention.isqpv",Boolean(this.formIntervention.isqpv))
         if (this.isQpv == 'true' || this.isQpv == true) {
           if (!this.formIntervention.qpvcode) 
           {
@@ -584,7 +581,6 @@ export default {
         ustid: this.formIntervention.ustid,
         strcorealisatrice: this.formIntervention.strcorealisatrice
       };
-      console.log(intervention)
       const action = intervention.id ? "put_intervention" : "post_intervention";
       console.info({ intervention, action });
       return this.$store
@@ -601,7 +597,6 @@ export default {
               class: "toastLink"
             });
           }
-          console.log(serverIntervention);
           var interventionLabel = serverIntervention.id
             ? "#" + serverIntervention.id
             : "";
@@ -679,7 +674,6 @@ export default {
             // Si une seule structure, on la selectionne par défaut
             if (this.listestructures.length == 1) {
               this.formIntervention.ustid = this.listestructures[0].ust_id
-              console.log("Une seule structure : ", this.formIntervention.ustid)
             }
             this.ChargeBlocsStructure(this.formIntervention.ustid)
             this.loading = false;
@@ -709,24 +703,18 @@ export default {
       });
     },    
     ChargeBlocsStructure(ustid) {
-      console.log("ChargeBlocsStructure this.isVerrouille",this.isVerrouille)
       if (this.isVerrouille == true) {
         
         this.listebloc = [
             { text: "Bloc 1 : Savoir pédaler", value: "1" },
             { text: "Bloc 2 : Savoir circuler", value: "2" },
             { text: "Bloc 3 : Savoir rouler", value: "3" }]  
-
-       console.log("this.listebloc",this.listebloc )
-
       }
       else
       {
-        console.log("On vide ListeBloc")
         this.listebloc = []
 
         if (ustid) {
-          console.log("Ajout Bloc pour structure ustid", ustid)
           /*
             { text: "-- Choix du type de bloc --", value: null },
             { text: "Bloc 1 : Savoir pédaler", value: "1" },
@@ -738,13 +726,9 @@ export default {
           return this.$axios.$get(url)
           .then(response => {
             structureSelectionne = response.structure;
-            console.log("Ajout Bloc 1",structureSelectionne.str_aut_bloc1)
-            console.log("Ajout Bloc 2",structureSelectionne.str_aut_bloc2)
-            console.log("Ajout Bloc 3",structureSelectionne.str_aut_bloc3)
             this.listebloc =  [{ text: "-- Choix du type de bloc --", value: null }]         
             // Si une seule structure, on la selectionne par défaut
             if (structureSelectionne.str_aut_bloc1 == true) {
-              console.log("Ajout Bloc 1")
               this.listebloc.push({ text: "Bloc 1 : Savoir pédaler", value: "1" });
             }
             else
@@ -756,7 +740,6 @@ export default {
             }
 
             if (structureSelectionne.str_aut_bloc2 == true) {
-              console.log("Ajout Bloc 2")
               this.listebloc.push({ text: "Bloc 2 : Savoir circuler", value: "2" });
             }
             else
@@ -765,14 +748,12 @@ export default {
             }
 
             if (structureSelectionne.str_aut_bloc3 == true) {
-              console.log("Ajout Bloc 3")
               this.listebloc.push({ text: "Bloc 3 : Savoir rouler", value: "3" });
             }
             else
             {
               if (this.formIntervention.blocId == 3) { this.formIntervention.blocId = null}
             }
-            console.log("Fin ChargeBlocsStructure this.listebloc",this.listebloc )
           })
           .catch(error => {
             console.error(
@@ -784,7 +765,6 @@ export default {
         }
         else
         {
-          console.log("Choisissez la structure ustid inconnu")
           this.listebloc =  [{ text: "-- Choisissez votre structureYYY --", value: null }]         
         }
       }
@@ -836,7 +816,6 @@ var date1 = this.formIntervention.dateIntervention;
       this.rechercheqpv();
     },
     "isQpv"() {
-      console.log("IsQPV",this.isQpv)
       this.formIntervention.isqpv = this.isQpv
       if (this.isQpv == false || this.isQpv =='false')
       {
@@ -844,7 +823,6 @@ var date1 = this.formIntervention.dateIntervention;
       }
     },
     "isHandicap"() {
-      console.log("isHandicap",this.isHandicap)
       this.formIntervention.isenfantshandicapes = this.isHandicap
       if (this.isHandicap == false || this.isHandicap =='false')
       {
@@ -866,7 +844,6 @@ var date1 = this.formIntervention.dateIntervention;
 
     this.$store.dispatch("get_parametre", "MAX_ANTICIP_INTER")
       .then(() => {
-        console.log(this.$store.state.parametreSelectionne.par_valeur)
         this.parametreNbMoisMaxAnticip = Number(this.$store.state.parametreSelectionne.par_valeur)
       })
       .catch(error => {
@@ -878,7 +855,6 @@ var date1 = this.formIntervention.dateIntervention;
 
       this.$store.dispatch("get_parametre", "MAX_RETRO_INTER")
         .then(() => {
-          console.log(this.$store.state.parametreSelectionne.par_valeur)
           this.parametreNbJoursMaxRetroSaisie = Number(this.$store.state.parametreSelectionne.par_valeur)
         })
         .catch(error => {
@@ -890,8 +866,6 @@ var date1 = this.formIntervention.dateIntervention;
 
       this.isQpv = this.formIntervention.isqpv;
       this.isHandicap  = this.formIntervention.isenfantshandicapes;
-      console.log("this.isQpv",this.isQpv)
-      console.log("this.isHandicap",this.isHandicap)
       this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
         .then(() => {
           this.parametreNbJoursMaxModifInter = Number(this.$store.state.parametreSelectionne.par_valeur)
