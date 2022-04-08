@@ -389,7 +389,7 @@ export default {
         { text: `Péri-scolaire`, value: "1" },
         { text: `Extra-scolaire (clubs, associations ...)`, value: "2" }
       ],
-      listebloc:  [{ text: "-- Choisissez votre structure --", value: null }],
+      listebloc:  [{ text: "-- Choisissez votre structureXXX --", value: null }],
       listeouinon: [
         { text: `Oui`, value: "true" },
         { text: `Non`, value: "false" }
@@ -680,8 +680,8 @@ export default {
             if (this.listestructures.length == 1) {
               this.formIntervention.ustid = this.listestructures[0].ust_id
               console.log("Une seule structure : ", this.formIntervention.ustid)
-              this.ChargeBlocsStructure(this.formIntervention.ustid)
             }
+            this.ChargeBlocsStructure(this.formIntervention.ustid)
             this.loading = false;
           })
           .catch(error => {
@@ -709,7 +709,7 @@ export default {
       });
     },    
     ChargeBlocsStructure(ustid) {
-      console.log("this.isVerrouille",this.isVerrouille)
+      console.log("ChargeBlocsStructure this.isVerrouille",this.isVerrouille)
       if (this.isVerrouille == true) {
         
         this.listebloc = [
@@ -722,9 +722,11 @@ export default {
       }
       else
       {
+        console.log("On vide ListeBloc")
         this.listebloc = []
 
         if (ustid) {
+          console.log("Ajout Bloc pour structure ustid", ustid)
           /*
             { text: "-- Choix du type de bloc --", value: null },
             { text: "Bloc 1 : Savoir pédaler", value: "1" },
@@ -736,9 +738,13 @@ export default {
           return this.$axios.$get(url)
           .then(response => {
             structureSelectionne = response.structure;
+            console.log("Ajout Bloc 1",structureSelectionne.str_aut_bloc1)
+            console.log("Ajout Bloc 2",structureSelectionne.str_aut_bloc2)
+            console.log("Ajout Bloc 3",structureSelectionne.str_aut_bloc3)
             this.listebloc =  [{ text: "-- Choix du type de bloc --", value: null }]         
             // Si une seule structure, on la selectionne par défaut
             if (structureSelectionne.str_aut_bloc1 == true) {
+              console.log("Ajout Bloc 1")
               this.listebloc.push({ text: "Bloc 1 : Savoir pédaler", value: "1" });
             }
             else
@@ -750,6 +756,7 @@ export default {
             }
 
             if (structureSelectionne.str_aut_bloc2 == true) {
+              console.log("Ajout Bloc 2")
               this.listebloc.push({ text: "Bloc 2 : Savoir circuler", value: "2" });
             }
             else
@@ -758,23 +765,27 @@ export default {
             }
 
             if (structureSelectionne.str_aut_bloc3 == true) {
+              console.log("Ajout Bloc 3")
               this.listebloc.push({ text: "Bloc 3 : Savoir rouler", value: "3" });
             }
             else
             {
               if (this.formIntervention.blocId == 3) { this.formIntervention.blocId = null}
             }
+            console.log("Fin ChargeBlocsStructure this.listebloc",this.listebloc )
           })
           .catch(error => {
             console.error(
               "Une erreur est survenue lors de la récupération des blocs des structures",
               error
             );
+
           });
         }
         else
         {
-          this.listebloc =  [{ text: "-- Choisissez votre structure --", value: null }]         
+          console.log("Choisissez la structure ustid inconnu")
+          this.listebloc =  [{ text: "-- Choisissez votre structureYYY --", value: null }]         
         }
       }
     }
@@ -905,6 +916,7 @@ var date1 = this.formIntervention.dateIntervention;
             {
               //console.log ("Intervention verrouillee")
               this.isVerrouille = true;
+              console.log("ChargeBlocsStructure(0)")
               this.ChargeBlocsStructure(0)
 
             }
