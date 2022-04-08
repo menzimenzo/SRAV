@@ -235,6 +235,22 @@
             :rows="3"
           ></b-form-textarea>
         </div>
+        <div>
+          Intervention co-réalisée avec 
+            <!-- STRUCTURE -->
+            <b-form-select 
+              class="liste-deroulante"
+              v-model="formIntervention.strcorealisatrice"
+              :disabled="this.isVerrouille">
+              <option :value="null">-- Choix de la structure --</option>
+              <option
+                style="width: 25em"
+                v-for="structureco in listecostructures"
+                :key="structureco.str_id"
+                :value="structureco.str_id"
+              >{{ structureco.str_libellecourt}}</option>
+            </b-form-select>
+        </div>     
         <div class="mb-3 mt-3"  v-if="! formIntervention.dateMaj">
           <p class="text-info">
             Après mon intervention, je complète ou modifie les champs "nombre d'enfants", "genre" et "classe d'âge"
@@ -379,6 +395,7 @@ export default {
         { text: `Non`, value: "false" }
       ],
       listestructures: [],
+      listecostructures: [],
       selectedCommune: null,
       selectedQPV: null,
       //selectedStructure: null,
@@ -564,7 +581,8 @@ export default {
         nbenfantshandicapes: this.formIntervention.nbenfantshandicapes,
         isqpv: this.formIntervention.isqpv,
         qpvcode: this.formIntervention.qpvcode,
-        ustid: this.formIntervention.ustid
+        ustid: this.formIntervention.ustid,
+        strcorealisatrice: this.formIntervention.strcorealisatrice
       };
       console.log(intervention)
       const action = intervention.id ? "put_intervention" : "post_intervention";
@@ -673,6 +691,23 @@ export default {
             );
           });
     },
+    chargeCoStructures() {
+      const url =  process.env.API_URL + "/structures/";
+      return this.$axios.$get(url).then(response => {
+          this.listecostructures = response;
+          // Suppression des Collectivités territoriales de la liste des structures
+          var IndexCT = this.listecostructures.findIndex(i => i.str_id == "99999");
+          if (IndexCT !== -1) {
+              this.listecostructures.splice(IndexCT, 1);
+          }            
+      })
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération de la liste des co-structures",
+          error
+        );
+      });
+    },    
     ChargeBlocsStructure(ustid) {
       console.log("this.isVerrouille",this.isVerrouille)
       if (this.isVerrouille == true) {
@@ -907,7 +942,8 @@ var date1 = this.formIntervention.dateIntervention;
         this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
       }
     });
-    this.chargeUtiStructures(this.$store.state.utilisateurCourant.id)
+    this.chargeUtiStructures(this.$store.state.utilisateurCourant.id);
+    this.chargeCoStructures();
   }
 };
 </script>

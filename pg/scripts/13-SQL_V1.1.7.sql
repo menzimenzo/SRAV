@@ -30,6 +30,9 @@ create table STRUCTURE_LOGO (
    constraint PK_STR_ID primary key (STR_ID)
 );
 
+-- Id de la structure qui co-réalise l'intervention
+alter table INTERVENTION add column STR_ID_CO_REALISE BIGINT;
+
 -- Initialisation des structures avec un logo vide
 INSERT INTO STRUCTURE_LOGO (STR_ID, STL_DOCUMENT) (SELECT STR_ID,'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' FROM STRUCTURE)
 
