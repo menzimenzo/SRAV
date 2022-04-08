@@ -235,6 +235,22 @@
             :rows="3"
           ></b-form-textarea>
         </div>
+        <div>
+          Intervention co-réalisée avec 
+            <!-- STRUCTURE -->
+            <b-form-select 
+              class="liste-deroulante"
+              v-model="formIntervention.strcorealisatrice"
+              :disabled="this.isVerrouille">
+              <option :value="null">-- Choix de la structure --</option>
+              <option
+                style="width: 25em"
+                v-for="structureco in listecostructures"
+                :key="structureco.str_id"
+                :value="structureco.str_id"
+              >{{ structureco.str_libellecourt}}</option>
+            </b-form-select>
+        </div>     
         <div class="mb-3 mt-3"  v-if="! formIntervention.dateMaj">
           <p class="text-info">
             Après mon intervention, je complète ou modifie les champs "nombre d'enfants", "genre" et "classe d'âge"
@@ -373,12 +389,13 @@ export default {
         { text: `Péri-scolaire`, value: "1" },
         { text: `Extra-scolaire (clubs, associations ...)`, value: "2" }
       ],
-      listebloc:  [{ text: "-- Choisissez votre structure --", value: null }],
+      listebloc:  [{ text: "-- Choisissez votre structureXXX --", value: null }],
       listeouinon: [
         { text: `Oui`, value: "true" },
         { text: `Non`, value: "false" }
       ],
       listestructures: [],
+      listecostructures: [],
       selectedCommune: null,
       selectedQPV: null,
       //selectedStructure: null,
@@ -408,7 +425,6 @@ export default {
             idformate = "0" + idformate;
         }
         idformate = "SRAV_Attestation-" + idformate;  
-        console.log("intervention : " + idformate);      
         link.setAttribute("download", `${idformate}.pdf`); //or any other extension
         document.body.appendChild(link);
         link.click();
@@ -495,7 +511,6 @@ export default {
         }
         
       }
-      console.log("this.isHandicap",this.isHandicap)
       if (this.isHandicap == null) 
       {
         formOK = false;
@@ -519,7 +534,6 @@ export default {
       }
       else
       {
-        console.log("this.formIntervention.isqpv",Boolean(this.formIntervention.isqpv))
         if (this.isQpv == 'true' || this.isQpv == true) {
           if (!this.formIntervention.qpvcode) 
           {
@@ -564,9 +578,9 @@ export default {
         nbenfantshandicapes: this.formIntervention.nbenfantshandicapes,
         isqpv: this.formIntervention.isqpv,
         qpvcode: this.formIntervention.qpvcode,
-        ustid: this.formIntervention.ustid
+        ustid: this.formIntervention.ustid,
+        strcorealisatrice: this.formIntervention.strcorealisatrice
       };
-      console.log(intervention)
       const action = intervention.id ? "put_intervention" : "post_intervention";
       console.info({ intervention, action });
       return this.$store
@@ -583,7 +597,6 @@ export default {
               class: "toastLink"
             });
           }
-          console.log(serverIntervention);
           var interventionLabel = serverIntervention.id
             ? "#" + serverIntervention.id
             : "";
@@ -661,9 +674,8 @@ export default {
             // Si une seule structure, on la selectionne par défaut
             if (this.listestructures.length == 1) {
               this.formIntervention.ustid = this.listestructures[0].ust_id
-              console.log("Une seule structure : ", this.formIntervention.ustid)
-              this.ChargeBlocsStructure(this.formIntervention.ustid)
             }
+            this.ChargeBlocsStructure(this.formIntervention.ustid)
             this.loading = false;
           })
           .catch(error => {
@@ -673,17 +685,30 @@ export default {
             );
           });
     },
+    chargeCoStructures() {
+      const url =  process.env.API_URL + "/structures/";
+      return this.$axios.$get(url).then(response => {
+          this.listecostructures = response;
+          // Suppression des Collectivités territoriales de la liste des structures
+          var IndexCT = this.listecostructures.findIndex(i => i.str_id == "99999");
+          if (IndexCT !== -1) {
+              this.listecostructures.splice(IndexCT, 1);
+          }            
+      })
+      .catch(error => {
+        console.error(
+          "Une erreur est survenue lors de la récupération de la liste des co-structures",
+          error
+        );
+      });
+    },    
     ChargeBlocsStructure(ustid) {
-      console.log("this.isVerrouille",this.isVerrouille)
       if (this.isVerrouille == true) {
         
         this.listebloc = [
             { text: "Bloc 1 : Savoir pédaler", value: "1" },
             { text: "Bloc 2 : Savoir circuler", value: "2" },
             { text: "Bloc 3 : Savoir rouler", value: "3" }]  
-
-       console.log("this.listebloc",this.listebloc )
-
       }
       else
       {
@@ -735,11 +760,12 @@ export default {
               "Une erreur est survenue lors de la récupération des blocs des structures",
               error
             );
+
           });
         }
         else
         {
-          this.listebloc =  [{ text: "-- Choisissez votre structure --", value: null }]         
+          this.listebloc =  [{ text: "-- Choisissez votre structureYYY --", value: null }]         
         }
       }
     }
@@ -790,7 +816,6 @@ var date1 = this.formIntervention.dateIntervention;
       this.rechercheqpv();
     },
     "isQpv"() {
-      console.log("IsQPV",this.isQpv)
       this.formIntervention.isqpv = this.isQpv
       if (this.isQpv == false || this.isQpv =='false')
       {
@@ -798,7 +823,6 @@ var date1 = this.formIntervention.dateIntervention;
       }
     },
     "isHandicap"() {
-      console.log("isHandicap",this.isHandicap)
       this.formIntervention.isenfantshandicapes = this.isHandicap
       if (this.isHandicap == false || this.isHandicap =='false')
       {
@@ -820,7 +844,6 @@ var date1 = this.formIntervention.dateIntervention;
 
     this.$store.dispatch("get_parametre", "MAX_ANTICIP_INTER")
       .then(() => {
-        console.log(this.$store.state.parametreSelectionne.par_valeur)
         this.parametreNbMoisMaxAnticip = Number(this.$store.state.parametreSelectionne.par_valeur)
       })
       .catch(error => {
@@ -832,7 +855,6 @@ var date1 = this.formIntervention.dateIntervention;
 
       this.$store.dispatch("get_parametre", "MAX_RETRO_INTER")
         .then(() => {
-          console.log(this.$store.state.parametreSelectionne.par_valeur)
           this.parametreNbJoursMaxRetroSaisie = Number(this.$store.state.parametreSelectionne.par_valeur)
         })
         .catch(error => {
@@ -844,8 +866,6 @@ var date1 = this.formIntervention.dateIntervention;
 
       this.isQpv = this.formIntervention.isqpv;
       this.isHandicap  = this.formIntervention.isenfantshandicapes;
-      console.log("this.isQpv",this.isQpv)
-      console.log("this.isHandicap",this.isHandicap)
       this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
         .then(() => {
           this.parametreNbJoursMaxModifInter = Number(this.$store.state.parametreSelectionne.par_valeur)
@@ -870,6 +890,7 @@ var date1 = this.formIntervention.dateIntervention;
             {
               //console.log ("Intervention verrouillee")
               this.isVerrouille = true;
+              console.log("ChargeBlocsStructure(0)")
               this.ChargeBlocsStructure(0)
 
             }
@@ -907,7 +928,8 @@ var date1 = this.formIntervention.dateIntervention;
         this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
       }
     });
-    this.chargeUtiStructures(this.$store.state.utilisateurCourant.id)
+    this.chargeUtiStructures(this.$store.state.utilisateurCourant.id);
+    this.chargeCoStructures();
   }
 };
 </script>
