@@ -24,7 +24,7 @@
     "lodash": "^4.17.14",
     "lodash.template": "^4.5.0",
     "mem": "^5.1.1",
-    "moment": "^2.24.0",
+    "moment": "^2.29.2",
     "nuxt": "^2.4.0",
     "passport-franceconnect": "^1.0.2",
     "tar": "^4.4.10",
