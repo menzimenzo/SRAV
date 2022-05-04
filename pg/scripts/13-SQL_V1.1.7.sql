@@ -32,6 +32,42 @@ create table STRUCTURE_LOGO (
 
 -- Id de la structure qui co-réalise l'intervention
 alter table INTERVENTION add column STR_ID_CO_REALISE BIGINT;
+-- Id de l'événement de l'intervention s'il y a lieu
+alter table INTERVENTION add column EVE_ID BIGINT;
+
+-- Création de la table Evenement
+create table EVENEMENT (
+   EVE_ID                SERIAL               not null,
+   EVE_TITRE             VARCHAR(50)          not null,
+   EVE_DATE_DEBUT        DATE,
+   EVE_DATE_FIN          DATE,
+   EVE_TOUTES_STRUCTURES BOOLEAN,
+   EVE_BLOC1             BOOLEAN,
+   EVE_BLOC2             BOOLEAN,
+   EVE_BLOC3             BOOLEAN,
+   EVE_CAI_ID            INTEGER,
+   constraint PK_EVE_ID primary key (EVE_ID)
+);
+-- Création de la table de lien evenement/structure
+create table EVE_STR (
+   EVS_STR_ID               BIGINT               not null,
+   EVS_EVE_ID               BIGINT               not null
+);
+
+
+/*==============================================================*/
+/* Index : IDX_EVS_STR_ID                                      */
+/*==============================================================*/
+create  index IDX_EVS_STR_ID on EVE_STR (
+EVS_STR_ID
+);
+/*==============================================================*/
+/* Index : EVS_EVE_ID                                           */
+/*==============================================================*/
+create  index EVS_EVE_ID on EVE_STR (
+EVS_EVE_ID
+);
+
 
 -- Initialisation des structures avec un logo vide
 INSERT INTO STRUCTURE_LOGO (STR_ID, STL_DOCUMENT) (SELECT STR_ID,'R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7' FROM STRUCTURE);

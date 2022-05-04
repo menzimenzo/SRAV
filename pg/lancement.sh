@@ -42,7 +42,7 @@ psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/12-SQL_V1.1.
 
 # Version 1.1.7
 echo '13-SQL_V1.1.7.sql'
-psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/12-SQL_V1.1.7.sql
+psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/13-SQL_V1.1.7.sql
 
 
 # Hors Version : Intégration de données aléatoires pour avoir un peu de matière

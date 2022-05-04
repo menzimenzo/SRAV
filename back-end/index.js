@@ -62,6 +62,7 @@ const listeetablissement  = require('./routes/listeetablissement');
 const exportcsv        = require('./routes/export');
 const parametres         = require('./routes/parametres');
 const listeqpv      = require('./routes/listeqpv');
+const evenements         = require('./routes/evenements');
 
 // Route vers la page de connexion
 app.use(config.URL_PREFIX + '/connexion', connexion);
@@ -99,6 +100,8 @@ app.use(config.URL_PREFIX + '/listeetablissement', listeetablissement);
 app.use(config.URL_PREFIX + '/parametres', parametres);
 
 app.use(config.URL_PREFIX + '/listeqpv', listeqpv);
+
+app.use(config.URL_PREFIX + '/evenements', evenements);
 
 app.listen(3001, function () {
     console.log('Example app listening on port 3001!')
