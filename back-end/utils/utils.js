@@ -112,7 +112,8 @@ module.exports = {
         isenfantshandicapes: intervention.int_isenfantshandicapes,
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
-        qpvcode: intervention.int_qpv_code
+        qpvcode: intervention.int_qpv_code,
+        eveid: intervention.eve_id
     }
 
     if(intervention.uti_nom){
@@ -166,6 +167,24 @@ module.exports = {
     var minute = now.getMinutes().toString().padStart(2, "0");
     var dateTimeFormate = annee + mois + jour + heure + minute;
     return dateTimeFormate;
+  },
+  formatEvenement: (evenement, toClient = true) => {
+    if(toClient) {
+      return {
+          id: evenement.eve_id,
+          titre: evenement.eve_titre,
+          datedebut: evenement.eve_date_debut,
+          datefin: evenement.eve_date_fin,
+          toutesstructures: evenement.eve_toutes_structures
+      }
+    } else {
+      return {
+          eve_id: evenement.id,
+          eve_titre : evenement.titre,
+          eve_date_debut: evenement.datedebut,
+          eve_date_fin: evenement.datefin,
+          eve_toutes_structures: evenement.toutesstructures
+      }
+    }
   }
-
 }

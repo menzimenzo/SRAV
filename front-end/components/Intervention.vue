@@ -224,6 +224,25 @@
               type="text"
               class="text"></b-form-input>
         </div>
+        <div class="mb-3 mt-3" v-if="evenements && evenements.length > 0">
+          <span class="material-icons">
+            emoji_events
+            </span>
+
+            Cette intervention rentre dans le cadre de l'événement suivant :
+          <b-form-select 
+            :disabled="this.isVerrouille"
+            class="liste-deroulante"
+            v-model="formIntervention.eveid">
+            <option :value="null">-- Choix de l'événement --</option>
+            <option
+              v-for="eve in evenements"
+              :key="eve.eve_id"
+              :value="eve.eve_id"
+            >{{ eve.eve_titre }} du {{ eve.eve_date_debut }} au {{ eve.eve_date_fin }}</option>
+          </b-form-select>
+        </div>        
+
 
         <div class="mb-3 mt-3">
           <span>Commentaires libres :</span>
@@ -283,7 +302,6 @@
             <li v-for="erreur in erreurformulaire" :key="erreur">{{ erreur }}</li>
           </ul>
         </div>
-
         <p>
           <b-button
             v-on:click="resetform(); $modal.hide('editIntervention')"
@@ -325,7 +343,8 @@ var loadFormIntervention = function(intervention) {
           blocId: null,
           cai: null,
           commentaire: "",
-          siteintervention: ""
+          siteintervention: "",
+          eveid: null
         },
         intervention
       )
@@ -395,6 +414,7 @@ export default {
         { text: `Non`, value: "false" }
       ],
       listestructures: [],
+      evenements: [],
       listecostructures: [],
       selectedCommune: null,
       selectedQPV: null,
@@ -436,6 +456,7 @@ export default {
       console.info({ action });
       this.isQpv = null
       this.isHandicap = null
+      this.evenements = null
       return this.$store.commit(action);
     },
 
@@ -579,7 +600,8 @@ export default {
         isqpv: this.formIntervention.isqpv,
         qpvcode: this.formIntervention.qpvcode,
         ustid: this.formIntervention.ustid,
-        strcorealisatrice: this.formIntervention.strcorealisatrice
+        strcorealisatrice: this.formIntervention.strcorealisatrice,
+        eveid: this.formIntervention.eveid
       };
       const action = intervention.id ? "put_intervention" : "post_intervention";
       console.info({ intervention, action });
@@ -701,7 +723,32 @@ export default {
           error
         );
       });
-    },    
+    },  
+    ChargeEvenements()  {
+      console.log("ChargeEvenements")
+      console.log("ustid",this.formIntervention.ustid)
+      console.log("blocId",this.formIntervention.blocId)
+      console.log("blocId",this.formIntervention.cai)
+      console.log("dateIntervention",this.formIntervention.dateIntervention)
+      if (this.formIntervention.ustid && this.formIntervention.blocId && this.formIntervention.dateIntervention) {
+        // Charge les événements ayant lieu pour cette structure, ce bloc et cette date
+        const url = process.env.API_URL + "/evenements/liste?ustid=" + this.formIntervention.ustid + "&blocid=" + this.formIntervention.blocId + "&dateintervention=" + this.formIntervention.dateIntervention+ "&caiid=" + this.formIntervention.cai;
+        console.log(url);
+        this.$axios.$get(url)
+        .then(response => {
+          if (response) 
+          {
+            console.log("liste",response.evenements )
+            this.evenements= response.evenements;
+            if (this.evenements.length == 0) {
+              this.formIntervention.eveid = null;
+            }
+          }
+        }).catch(err => {
+          console.log(err)
+        })
+      }
+    },
     ChargeBlocsStructure(ustid) {
       if (this.isVerrouille == true) {
         
@@ -765,7 +812,7 @@ export default {
         }
         else
         {
-          this.listebloc =  [{ text: "-- Choisissez votre structureYYY --", value: null }]         
+          this.listebloc =  [{ text: "-- Choisissez votre structure --", value: null }]         
         }
       }
     }
@@ -837,8 +884,21 @@ var date1 = this.formIntervention.dateIntervention;
     "formIntervention.ustid"() {
       // Chargement des blocs autorisé pour cette structure
       this.ChargeBlocsStructure(this.formIntervention.ustid)
-
-    }
+      this.ChargeEvenements()
+    },
+    "formIntervention.blocId"(){
+      this.ChargeEvenements()
+    },
+    "formIntervention.dateIntervention"(){
+      if (this.formIntervention.blocId){
+        this.ChargeEvenements()
+      }
+    },
+    "formIntervention.cai"(){
+      if (this.formIntervention.cai){
+        this.ChargeEvenements()
+      }
+    },
   },
   mounted() {
 
@@ -930,6 +990,8 @@ var date1 = this.formIntervention.dateIntervention;
     });
     this.chargeUtiStructures(this.$store.state.utilisateurCourant.id);
     this.chargeCoStructures();
+    console.log("formIntervention.eveid",this.formIntervention.eveid);
+    this.ChargeEvenements();
   }
 };
 </script>
