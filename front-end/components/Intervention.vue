@@ -725,20 +725,13 @@ export default {
       });
     },  
     ChargeEvenements()  {
-      console.log("ChargeEvenements")
-      console.log("ustid",this.formIntervention.ustid)
-      console.log("blocId",this.formIntervention.blocId)
-      console.log("blocId",this.formIntervention.cai)
-      console.log("dateIntervention",this.formIntervention.dateIntervention)
       if (this.formIntervention.ustid && this.formIntervention.blocId && this.formIntervention.dateIntervention) {
         // Charge les événements ayant lieu pour cette structure, ce bloc et cette date
         const url = process.env.API_URL + "/evenements/liste?ustid=" + this.formIntervention.ustid + "&blocid=" + this.formIntervention.blocId + "&dateintervention=" + this.formIntervention.dateIntervention+ "&caiid=" + this.formIntervention.cai;
-        console.log(url);
         this.$axios.$get(url)
         .then(response => {
           if (response) 
           {
-            console.log("liste",response.evenements )
             this.evenements= response.evenements;
             if (this.evenements.length == 0) {
               this.formIntervention.eveid = null;
@@ -950,7 +943,7 @@ var date1 = this.formIntervention.dateIntervention;
             {
               //console.log ("Intervention verrouillee")
               this.isVerrouille = true;
-              console.log("ChargeBlocsStructure(0)")
+              //console.log("ChargeBlocsStructure(0)")
               this.ChargeBlocsStructure(0)
 
             }
@@ -990,7 +983,6 @@ var date1 = this.formIntervention.dateIntervention;
     });
     this.chargeUtiStructures(this.$store.state.utilisateurCourant.id);
     this.chargeCoStructures();
-    console.log("formIntervention.eveid",this.formIntervention.eveid);
     this.ChargeEvenements();
   }
 };

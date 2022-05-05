@@ -384,7 +384,7 @@
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
-            <b-card-body v-if="!loading">
+            <b-card-body v-if="!loading && utilisateurCourant.profilId==1">
               <h5>
                 <i class="material-icons ml-2 mr-1">emoji_events</i> Répartition des événements par structure<br>
               </h5>
@@ -746,7 +746,7 @@ export default {
       }
     },
     editEvenement: function(id) {
-      console.log("Ouverture Evenement")
+      //console.log("Ouverture Evenement")
       if (id === null) {
         this.$store.commit("clean_evenementSelectionnee");
         this.$modal.show("editEvenement");
@@ -767,12 +767,12 @@ export default {
       const url = process.env.API_URL + "/evenements/indicateurs";
       return this.$axios.$get(url)
       .then(({suiviEvenements }) => {
-          console.log('suiviEvenements -Done')
-          console.log("suiviEvenements",suiviEvenements)
+          //console.log('suiviEvenements -Done')
+          //console.log("suiviEvenements",suiviEvenements)
           return this.suiviEvenements = suiviEvenements;
       })
       .catch(error => {
-          console.log('suiviEvenements -Error', error)
+          //console.log('suiviEvenements -Error', error)
           return this.$toast.error("Une erreur est survenue lors de la récupération des indicateurs des événements")
       })
     },
@@ -795,10 +795,10 @@ export default {
           // Télécharge le fichier
           link.click();
           link.remove();
-          console.log("Done - Download", { fileName });
+          //console.log("Done - Download", { fileName });
         })
         .catch(err => {
-          console.log(JSON.stringify(err));
+          //console.log(JSON.stringify(err));
           this.$toasted.error("Erreur lors du téléchargement: " + err.message);
         });
     },
@@ -1260,7 +1260,7 @@ export default {
     .then(response => {
       if (response) 
       {
-        console.log("nbAttestations",response.nbattestations )
+        //console.log("nbAttestations",response.nbattestations )
         this.nbAttestations= response.nbattestations;
       }
     }).catch(err => {
@@ -1279,7 +1279,9 @@ export default {
     this.viewHisto(this.structure2, this.structure3);
     this.viewDoughnut(this.structure2);
     this.data4 = this.statStructure["nationale"].data4;
-    this.indicateursEvenements();
+    if (this.utilisateurCourant.profilId==1) {
+      this.indicateursEvenements();
+    }
     this.loading = false;
   }
 };
