@@ -87,7 +87,7 @@ cp -r ../mail-server ./
 #rm -r ./mail-server/node_modules
 rm ./mail-server/pm2.integ.json
 
-tar -zcvf srav-1.1.6.tar.gz  front-end back-end mail-server
+tar -zcvf srav-1.1.7.tar.gz  front-end back-end mail-server
 
 echo "Suppression des répertoires temporaires"
 rm -r ./front-end
