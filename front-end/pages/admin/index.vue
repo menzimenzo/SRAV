@@ -127,6 +127,60 @@
             </b-card-body>
           </b-collapse>
         </b-card>
+        <!-- ACCORDEON -- EVENEMENTS -->
+        <b-card no-body class="mb-3" v-if="utilisateurCourant.profilId==1">
+          <b-card-header header-tag="header" class="p-1" role="tab">
+            <b-form-row>
+              <b-col>
+                <!-- IMAGE RAYEE BANNER INTERVENTION -->
+                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)" />
+                <b-btn
+                  class="accordionBtn"
+                  block
+                  href="#"
+                  v-b-toggle.accordion6
+                  variant="Dark link"
+                >
+                  <h4>
+                    <i class="material-icons accordion-chevron">chevron_right</i>
+                    <i class="material-icons ml-2 mr-2">emoji_events</i>
+                    Gestion des événements
+                  </h4>
+                </b-btn>
+              </b-col>
+            </b-form-row>
+          </b-card-header>
+          <b-collapse id="accordion6" accordion="my-accordion" role="tabpanel">
+            <b-card-body>
+              <editable
+                :columns="headersEvenements"
+                :data="evenements"
+                :removable="false"
+                :creable="false"
+                :editable="false"
+                :noDataLabel="''"
+                tableMaxHeight="none"
+                :loading="loading"
+              >
+                <template slot-scope="props" slot="actions">
+                  <b-btn
+                    @click="editEvenement(props.data.eve_id)"
+                    size="sm"
+                    class="mr-1"
+                    variant="primary"
+                    v-if="utilisateurCourant.profilId==1"
+                  >
+                    <i class="material-icons">edit</i>
+                  </b-btn>
+                </template>
+              </editable>
+              <b-btn v-if="utilisateurCourant.profilId==1" @click="editEvenement(null)" class="btn btn-primary btn-lg btn-block" >
+                <i class="material-icons">add</i>
+              </b-btn>
+            </b-card-body>
+            
+          </b-collapse>
+        </b-card>        
         <!-- ACCORDEON -- ACCES AUX INDICATEURS -->
         <b-card no-body class="mb-3">
           <b-card-header header-tag="header" class="p-1" role="tab">
@@ -330,6 +384,33 @@
               </b-col>
             </b-row>
             <b-row>&nbsp;</b-row>
+            <b-card-body v-if="!loading && utilisateurCourant.profilId==1">
+              <h5>
+                <i class="material-icons ml-2 mr-1">emoji_events</i> Répartition des événements par structure<br>
+              </h5>
+              <table class="table table-striped">
+                <thead  >
+                  <tr >
+                    <th scope="col">Titre</th>
+                    <th scope="col">Structure</th>
+                    <th scope="col">Scolaire</th>
+                    <th scope="col">Périscolaire</th>
+                    <th scope="col">Extrascolaire</th>
+                    <th scope="col">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr  v-for="suiviEvenement in suiviEvenements" :key="suiviEvenement.eve_titre + suiviEvenement.str_libellecourt">
+                    <td><b>{{suiviEvenement.eve_titre}}</b></td>
+                    <td><b>{{suiviEvenement.str_libellecourt}}</b></td>
+                    <td><b>{{suiviEvenement.scolaire}}</b></td>
+                    <td><b>{{suiviEvenement.periscolaire}}</b></td>
+                    <td><b>{{suiviEvenement.extrascolaire}}</b></td>
+                    <td><b>{{suiviEvenement.total}}</b></td>
+                  </tr>
+                </tbody>
+              </table>
+            </b-card-body>            
           </b-collapse>
         </b-card>
         <!-- ACCORDEON -- DOCUMENTS PUBLIES -->
@@ -425,6 +506,9 @@
     <modal name="editStruct" height="auto" width="900px" :scrollabe="true">
       <struct />
     </modal>
+    <modal name="editEvenement" height="auto" width="900px" :scrollabe="true">
+      <event-management />
+    </modal>
   </b-container>
 </template>
 
@@ -438,6 +522,7 @@ import BarChart from "~/components/histogramme.vue";
 import DoughnutChart from "~/components/doughnut.vue";
 import Carte from "~/components/carte.vue";
 import stat from "~/lib/mixins/stat";
+import eventManagement from "~/components/eventManagement.vue";
 
 export default {
   mixins: [stat],
@@ -448,7 +533,8 @@ export default {
     struct,
     BarChart,
     DoughnutChart,
-    Carte
+    Carte,
+    eventManagement
   },
   data() {
     return {
@@ -566,7 +652,66 @@ export default {
         { text: "Bloqué", value: "Actif" },
         { text: "Tous", value: "Tous" }
       ],
-      nbAttestations: 0
+      nbAttestations: 0,
+      headersEvenements: [
+        { path: "eve_titre", title: "Titre", type: "text", sortable: true },
+        {
+          path: "eve_date_debut",
+          title: "Date début",
+          type: "date",
+          sortable: true
+        },
+        {
+          path: "eve_date_fin",
+          title: "Date de fin",
+          type: "Date",
+          sortable: true
+        },
+        {
+          path: "statut",
+          title: "Statut",
+          type: "text",
+          sortable: true
+        },        
+        {
+          path: "eve_toutes_structures",
+          title: "Toutes structures",
+          type: "text",
+          maxlenght: 10,
+          sortable: true
+        },
+        {
+          path: "eve_bloc1",
+          title: "Bloc 1",
+          type: "text",
+          sortable: true
+        },
+        {
+          path: "eve_bloc2",
+          title: "Bloc 2",
+          type: "text",
+          sortable: true
+        },
+        {
+          path: "eve_bloc3",
+          title: "Bloc 3",
+          type: "text",
+          sortable: true
+        },
+                {
+          path: "cai_libelle",
+          title: "Cadre d'intervention",
+          type: "text",
+          sortable: true
+        },
+        {
+          path: "__slot:actions",
+          title: "Actions",
+          type: "__slot:actions",
+          sortable: false
+        }
+      ],
+      suiviEvenements: [],
     };
   },
 
@@ -600,6 +745,37 @@ export default {
           });
       }
     },
+    editEvenement: function(id) {
+      //console.log("Ouverture Evenement")
+      if (id === null) {
+        this.$store.commit("clean_evenementSelectionnee");
+        this.$modal.show("editEvenement");
+      } else {
+        return this.$store.dispatch("get_evenement", id)
+          .then(() => {
+            this.$modal.show("editEvenement");
+          })
+          .catch(error => {
+            console.error(
+              "Une erreur est survenue lors de la récupération du détail de l\'événement",
+              error
+            );
+          });
+      }
+    },
+    indicateursEvenements(){
+      const url = process.env.API_URL + "/evenements/indicateurs";
+      return this.$axios.$get(url)
+      .then(({suiviEvenements }) => {
+          //console.log('suiviEvenements -Done')
+          //console.log("suiviEvenements",suiviEvenements)
+          return this.suiviEvenements = suiviEvenements;
+      })
+      .catch(error => {
+          //console.log('suiviEvenements -Error', error)
+          return this.$toast.error("Une erreur est survenue lors de la récupération des indicateurs des événements")
+      })
+    },
     exportUsersCsv() {
       this.$axios({
         url: process.env.API_URL + "/user/csv", // + this.utilisateurCourant.id,
@@ -619,10 +795,10 @@ export default {
           // Télécharge le fichier
           link.click();
           link.remove();
-          console.log("Done - Download", { fileName });
+          //console.log("Done - Download", { fileName });
         })
         .catch(err => {
-          console.log(JSON.stringify(err));
+          //console.log(JSON.stringify(err));
           this.$toasted.error("Erreur lors du téléchargement: " + err.message);
         });
     },
@@ -1007,7 +1183,7 @@ export default {
   //  CHARGEMENT ASYNCHRONE DES USERS, STRUCTURES ET INTERVENTIONS
   //
   computed: {
-    ...mapState(["utilisateurCourant","interventions", "users", "structures", "statStructure"]),
+    ...mapState(["utilisateurCourant","interventions", "users", "structures", "statStructure","evenements"]),
     filteredInterventions: function() {
       return this.interventions.filter(intervention => {
         // Suppression des interventions sans commentaire
@@ -1073,6 +1249,8 @@ export default {
           error
         );
       }),
+      this.$store.dispatch('get_evenements'),
+
       this.$store.dispatch("get_interventions"),
     ]);
     // Calcul du nombre d'interventions
@@ -1082,7 +1260,7 @@ export default {
     .then(response => {
       if (response) 
       {
-        console.log("nbAttestations",response.nbattestations )
+        //console.log("nbAttestations",response.nbattestations )
         this.nbAttestations= response.nbattestations;
       }
     }).catch(err => {
@@ -1101,6 +1279,9 @@ export default {
     this.viewHisto(this.structure2, this.structure3);
     this.viewDoughnut(this.structure2);
     this.data4 = this.statStructure["nationale"].data4;
+    if (this.utilisateurCourant.profilId==1) {
+      this.indicateursEvenements();
+    }
     this.loading = false;
   }
 };

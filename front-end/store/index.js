@@ -13,6 +13,8 @@ export const state = () => ({
   structures            : [],
   structureSelectionnee : [],
   documents             : [],
+  evenements            : [],
+  evenementSelectionnee : [],
   statStructure         : [],
   parametreSelectionne : [],
   utilisateurStructures : []
@@ -131,6 +133,23 @@ export const mutations = {
     log.i(`mutations::set_documents`)
     state.documents = documents
   },
+  set_evenements(state, evenements){
+    log.i(`mutations::set_evenements`)
+    state.evenements = evenements
+  },  
+  clean_evenementSelectionnee(state) {
+    log.i(`mutations::clean_evenementSelectionnee`)
+    state.evenementSelectionnee = null;
+  },
+  set_evenementSelectionnee(state, evenement) {
+    log.i(`mutations::set_evenementSelectionne`)
+    state.evenementSelectionnee = evenement;
+  },
+  put_evenement(state, {evenement, index}){
+    log.i(`mutations::put_evenement`)
+    Vue.set(state.evenements, index, evenement)
+  },
+
   set_parametreSelectionne(state, parametre) {
     log.i(`mutations::set_parametreSelectionne`)
     state.parametreSelectionne = parametre;
@@ -308,7 +327,7 @@ export const actions = {
         return this.$axios
           .$get(url)
           .then(response => {
-            commit("put_user", {structure: response.structure, index: structureIndex});
+            commit("put_structure", {structure: response.structure, index: structureIndex});
             log.i("actions::put_structure - done");
           })
       })
@@ -374,6 +393,64 @@ export const actions = {
   },
 
   /* FIN DE LA PARTIE STRUCTURES DE L'UTILISATEUR */
+
+  /* GESTION DES EVEMENTS */ 
+  async get_evenements({commit}) {
+    const url = process.env.API_URL + '/evenements'
+    log.i("actions::get_evenements - In", { url });
+    return this.$axios.get(url).then(response => {
+      log.i("actions::get_evenements - done");
+      commit("set_evenements", response.data);
+    }).catch(err => {
+      log.w("actions::get_evenements - error", { err });
+    })
+  },
+  async get_evenement({ commit,state }, idEvenement) {
+    log.i("actions::get_evenement - In", { idEvenement });
+    const url = process.env.API_URL + "/evenements/" + idEvenement;
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        commit("set_evenementSelectionnee", response.evenements);
+        log.i("actions::get_evenement - done");
+      })
+      .catch(error => {
+        log.w("actions::get_evenement - erreur", { error });
+      });
+  },  
+  async put_evenement({ commit, state }, evenementSelectionnee) {
+    log.i("actions::put_evenement - In", { evenementSelectionnee });
+    const url = process.env.API_URL + "/evenements/" + evenementSelectionnee.eve_id;
+    var evenementIndex = state.evenements.findIndex(evenement=> {
+      return evenement.id == evenementSelectionnee.id
+    })
+    return await this.$axios
+      .$put(url, { evenementSelectionnee })
+      .then(async res => {
+        const url = process.env.API_URL + "/evenements/" + res.evenements.str_id;
+        return this.$axios
+          .$get(url)
+          .then(response => {
+            commit("put_evenement", {evenement: response.evenement, index: evenementIndex});
+            log.i("actions::put_evenement - done");
+          })
+      })
+      .catch(error => {
+        log.w("actions::put_evenement - error", { error });
+      });
+  },
+  async post_evenement({ commit, state }, evenement) {
+    const url  = process.env.API_URL + "/evenements";
+    log.i("actions::post_evenement - In", { url });
+    return await this.$axios.$post(url, { evenement }).then(({ evenement }) => {
+      commit('add_evenement', evenement)
+      log.i("actions::post_evenement - done");
+      return evenement
+    });
+  },
+
+  
+  /* FIN DE LA GESTION DES EVENEMENTS*/
 
   async get_documents({commit}) {
     const url = process.env.API_URL + '/documents'
