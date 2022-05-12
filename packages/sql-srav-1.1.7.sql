@@ -17,14 +17,17 @@ CREATE TABLE IF NOT EXISTS suivi_version(
 );
 
 
-CREATE OR REPLACE PROCEDURE SRAV_CreerVersion(NumeroVersion VARCHAR) AS
+CREATE OR REPLACE FUNCTION SRAV_CreerVersion(NumeroVersion VARCHAR) RETURNS BOOLEAN  AS
 $$
 	DECLARE nbversion integer;
 BEGIN
    -- 
 	SELECT count(*) FROM suivi_version INTO nbversion where sve_version = NumeroVersion;
    IF (nbversion = 0) THEN
-      INSERT INTO suivi_version (sve_version,sve_date) VALUES (NumeroVersion,now());
+      	INSERT INTO suivi_version (sve_version,sve_date) VALUES (NumeroVersion,now());
+	  	RETURN true;
+	ELSE 
+		RETURN false;
    END IF;
 END;
 $$
@@ -47,8 +50,8 @@ BEGIN
 
     CASE 
 		WHEN Etape='schema' THEN SELECT count(*) INTO nbversion FROM suivi_version where sve_version = NumeroVersion and sve_schema_effectue = false;
-   	WHEN Etape='data' THEN SELECT count(*) INTO nbversion FROM suivi_version where sve_version = NumeroVersion and sve_schema_effectue = true and sve_data_effectue = false;
-   	WHEN Etape='droit' THEN SELECT count(*) INTO nbversion FROM suivi_version  where sve_version = NumeroVersion and sve_schema_effectue = true and sve_droit_effectue = false;
+   		WHEN Etape='data' THEN SELECT count(*) INTO nbversion FROM suivi_version where sve_version = NumeroVersion and sve_schema_effectue = true and sve_data_effectue = false;
+   		WHEN Etape='droit' THEN SELECT count(*) INTO nbversion FROM suivi_version  where sve_version = NumeroVersion and sve_schema_effectue = true and sve_droit_effectue = false;
 		ELSE nbversion = 0;
 	END CASE;
 
@@ -67,14 +70,15 @@ language plpgsql;
 /* Fonction : SRAV_DeployeSRAV_VersionDeployeerVersion            */
 /* Procédure permettant de taguer lorsque les scripts sont déployés*/
 /*==============================================================*/
-CREATE OR REPLACE PROCEDURE SRAV_VersionDeployee(NumeroVersion VARCHAR,Etape VARCHAR) AS
+CREATE OR REPLACE FUNCTION SRAV_VersionDeployee(NumeroVersion VARCHAR,Etape VARCHAR) RETURNS BOOLEAN AS
 $$
 BEGIN
     CASE 
 		WHEN Etape='schema' THEN UPDATE suivi_version SET sve_schema_effectue = true where sve_version = NumeroVersion;
-   	WHEN Etape='data' THEN UPDATE suivi_version SET sve_data_effectue = true where sve_version = NumeroVersion;
-   	WHEN Etape='droit' THEN UPDATE suivi_version SET sve_droit_effectue = true where sve_version = NumeroVersion;
+   		WHEN Etape='data' THEN UPDATE suivi_version SET sve_data_effectue = true where sve_version = NumeroVersion;
+   		WHEN Etape='droit' THEN UPDATE suivi_version SET sve_droit_effectue = true where sve_version = NumeroVersion;
 	END CASE;
+	RETURN true;
 END;
 $$
 language plpgsql;
@@ -84,7 +88,7 @@ language plpgsql;
 /* Procedure : SRAV_CreerVersion(NumeroVersion)                  */
 /* Ajout des droits sur les objets                              */
 /*==============================================================*/
-CREATE OR REPLACE PROCEDURE SRAV_AjouteDroitsObjets() AS
+CREATE OR REPLACE FUNCTION SRAV_AjouteDroitsObjets() RETURNS BOOLEAN AS
 $$
 	DECLARE maj_version integer;
 	DECLARE f record;
@@ -120,6 +124,9 @@ BEGIN
 
 		-- Mise à jour des droits pour l'ensemble des versions (pas de version ciblée)
 		UPDATE suivi_version SET sve_droit_effectue = true;
+		RETURN true;
+	ELSE 
+		RETURN false;		
 	END IF;
 END;
 $$
@@ -130,8 +137,11 @@ language plpgsql;
 -- Début de la procédure de déploiement automatisé : 
 -- Création de la version
 DO $$
+DECLARE 
+	CreationVersion BOOLEAN;
 BEGIN 
-   call SRAV_CreerVersion('1.1.7');
+   SELECT SRAV_CreerVersion('1.1.7') INTO CreationVersion;
+   raise notice 'CreationVersion %', CreationVersion;
 END
 $$ language plpgsql;
 
@@ -139,6 +149,7 @@ $$ language plpgsql;
 DO $$
 DECLARE
 	FaireMAJSchema BOOLEAN;
+	VersionDeployee BOOLEAN;
 BEGIN 
 	SELECT SRAV_DeployerVersion('1.1.7','schema') INTO FaireMAJSchema;
 	IF FaireMAJSchema THEN
@@ -214,19 +225,19 @@ BEGIN
 		);	
       	
 		-- Déploiement du Schéma effectué
-    	call SRAV_VersionDeployee('1.1.7','schema');
-		raise notice '%','Mise à jour du schéma effectué';
+    	SELECT SRAV_VersionDeployee('1.1.7','schema')  INTO VersionDeployee;
+		raise notice 'Mise à jour du schéma effectué : %',VersionDeployee;
 	ELSE
 		raise notice '%','Pas de mise à jour schéma à faire';
 	END IF;
 END
 $$ language plpgsql;
 
-
 -- Mise à jour des données
 DO $$
 DECLARE
 	FaireMAJData BOOLEAN;
+	VersionDeployee BOOLEAN;
 BEGIN 
 	SELECT SRAV_DeployerVersion('1.1.7','data') INTO FaireMAJData;
 	IF FaireMAJData THEN
@@ -35581,8 +35592,8 @@ BEGIN
 
 
       	-- Déploiement du Schéma effectué
-      	call SRAV_VersionDeployee('1.1.7','data');
-	   	raise notice '%','Mise à jour des datas effectué';
+      	SELECT SRAV_VersionDeployee('1.1.7','data') INTO VersionDeployee;
+	   	raise notice 'Mise à jour des datas effectué : %', VersionDeployee;
 	ELSE
 		raise notice '%','Pas de mise à jour de datas à faire';
 	END IF;
@@ -35592,11 +35603,12 @@ $$ language plpgsql;
 DO $$
 DECLARE
 	FaireMAJDroit BOOLEAN;
+	AjouteDroitsObjets BOOLEAN;
 BEGIN 
 	SELECT SRAV_DeployerVersion('1.1.7','droit') INTO FaireMAJDroit;
 	IF FaireMAJDroit THEN
-      CALL SRAV_AjouteDroitsObjets();
-		raise notice '%','Mise à jour des droits';
+      	SELECT SRAV_AjouteDroitsObjets() INTO AjouteDroitsObjets;
+		raise notice 'Mise à jour des droits : %',AjouteDroitsObjets;
 	ELSE
 		raise notice '%','Pas de mise à jour des droits à faire';
 	END IF;
