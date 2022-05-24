@@ -24,7 +24,7 @@ function generate(id,nbenfants,dateintervention, ustid,strcorealisatrice) {
         else 
         {
             pgPool.query(
-                `SELECT str_libelle  
+                `SELECT str_libellecourt  
                         FROM structure 
                         WHERE str_id = $1`, [strcorealisatrice],
             function (err, resultsstr) 
@@ -84,7 +84,7 @@ function generate(id,nbenfants,dateintervention, ustid,strcorealisatrice) {
                         }
                         // Co-Réalisation 
                         if (resultsstr.rows.length != 0) {
-                            doc.text("Co-réalisation avec le partenaire «"+resultsstr.rows[0].str_libelle+"»",350,517,{align:'right', width:430});
+                            doc.text("Co-réalisé avec le partenaire «"+resultsstr.rows[0].str_libellecourt+"»",350,517,{align:'right', width:430});
                         }
 
                         // dernière page ? pour ne pas ajouter de page vide
