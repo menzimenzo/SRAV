@@ -545,7 +545,7 @@ router.post('/', function (req, res) {
             log.i('::post - Done', { rows: result.rows })
             // generation du pdf (synchrone)
             if (blocId == 3) {
-              myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants,dateIntervention);
+              myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants,dateIntervention,result.rows.map(formatIntervention)[0].ustid,result.rows.map(formatIntervention)[0].strcorealisatrice);
             }
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
         }
