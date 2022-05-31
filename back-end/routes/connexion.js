@@ -346,7 +346,6 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
     const user = req.body.profil
     const id = req.params.id
     log.i('::edit-mon-compte - In', { id })
-    log.d("Structure locale : " + user.structureLocale)
     if(!id) {
         return res.status(400).json('Aucun ID fournit pour  identifier l\'utilisateur.');
     }
@@ -355,15 +354,14 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
         SET uti_mail = lower($1),
         uti_nom = $2, 
         uti_prenom = $3, 
-        uti_structurelocale = $4,
-        uti_siteweb = $5,
-        uti_adresse = $6,
-        uti_complementadresse = $7,
-        uti_com_codeinsee = $8,
-        uti_com_codepostal = $9,
-        uti_mailcontact = $10,
-        uti_telephone = $11,
-        uti_autorisepublicarte = $12
+        uti_siteweb = $4,
+        uti_adresse = $5,
+        uti_complementadresse = $6,
+        uti_com_codeinsee = $7,
+        uti_com_codepostal = $8,
+        uti_mailcontact = $9,
+        uti_telephone = $10,
+        uti_autorisepublicarte = $11
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
@@ -371,7 +369,6 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
         [user.mail,
         user.nom,  
         user.prenom, 
-        user.structureLocale,
         user.siteweb,
         user.adresse,
         user.compladresse,
