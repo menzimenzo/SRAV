@@ -159,7 +159,7 @@
             key="structurelocale"
           >
             <b-form-input
-              v-validate="{ required: true }"
+              v-validate="{ required: true , max:100}"
               name="structLoc"
               :state="validateState('structLoc')"
               aria-describedby="structLocFeedback"
@@ -169,7 +169,7 @@
               placeholder="Nom de la structure locale"
             />
             <b-form-invalid-feedback id="structLocFeedback"
-              >La structure locale est obligatoire.</b-form-invalid-feedback
+              >La structure locale est obligatoire et ne peut dépasser 100 caractères.</b-form-invalid-feedback
             >
           </b-form-group>
         </div>
@@ -308,213 +308,12 @@
                 Aucun EPCI correspondant</b-form-group
             >
             <div>
-              <!--
-              <b-form-group
-                v-if="boolEpci"
-                id="ECPI"
-                label="EPCI :"
-                required
-                label-for="epciInput"
-              >
-                <b-form-select
-                  id="epciSelect"
-                  v-model="mastructure.dco_insee"
-                  v-validate="{ required: true }"
-                  name="epcis"
-                  :state="validateState('toto')"
-                  aria-describedby="epciFeedback"
-                >
-                  <option
-                    v-for="epci in listepci"
-                    :key="epci.com_codeinsee"
-                    :value="epci.com_codeinsee"
-                  >
-                    {{ epci.epci_libelle }}+ {{epci.com_codeinsee}}
-                  </option>
-                </b-form-select>
-                <b-form-invalid-feedback id="epciFeedback"
-                  >L'EPCI est obligatoire.</b-form-invalid-feedback
-                ></b-form-group
-              >
-              <b-form-group v-if="boolEpci == false">
-                Aucun EPCI correspondant</b-form-group
-              >
-              -->
             </div>
           </div>
 
           </b-form-group>    
         </div>    
-        <!--
-        <div v-if="user.structureId == 99999">
-          <b-form-group
-            required
-            id="typeCollectivite"
-            label="Type de collectivité territoriale :"
-            label-for="typeCollectiviteSelect"
-          >
-            <b-form-select
-              id="typeCollectiviteSelect"
-              v-model="user.typeCollectivite"
-              v-validate="{ required: true }"
-              name="typeCol"
-              :state="validateState('typeCol')"
-              aria-describedby="typeColFeedback"
-              :disabled="!checkLegal"
-              @change="emitUser"
-            >
-              <option
-                v-for="type in listtypecol"
-                :key="type.value"
-                :value="type.value"
-              >
-                {{ type.text }}
-              </option>
-            </b-form-select>
-            <b-form-invalid-feedback id="typeColFeedback"
-              >Il est nécessaire de choisir un type de
-              collectivité.</b-form-invalid-feedback
-            >
-          </b-form-group>
-
-        -->
-          <!-- DEPARTEMENT -->
-        <!--
-          <div v-if="user.typeCollectivite == 2">
-            <b-form-group
-              id="Departement"
-              label="Département :"
-              required
-              label-for="departementSelect"
-            >
-              <b-form-select
-                :disabled="!checkLegal"
-                id="departementSelect"
-                v-model="user.libelleCollectivite"
-                v-validate="{ required: true }"
-                name="departement"
-                  :state="validateState('departement')"
-                aria-describedby="departementFeedback"
-              >
-                <option
-                  v-for="departement in listdepartement"
-                  :key="departement.dep_num"
-                  :value="departement.dep_libelle"
-                >
-                  {{ departement.dep_libelle }}
-                </option>
-              </b-form-select>
-              <b-form-invalid-feedback id="communeFeedback"
-                >Le département est obligatoire.</b-form-invalid-feedback
-              >
-            </b-form-group>
-          </div>
-        -->
-          <!-- FIN DEPARTEMENT -->
-          <!-- COMMUNE -->
-        <!--
-          <div v-if="user.typeCollectivite == 1">
-            <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
-              <b-form-input
-                v-model="cp"
-                name="cp"
-                key="cp"
-                :state="validateState('cp')"
-                aria-describedby="cpFeedback"
-                id="cp"
-                type="number"
-                placeholder="CP de la commune"
-              />
-            </b-form-group>
-            <b-form-group
-              id="Commune"
-              label="Commune :"
-              required
-              label-for="communeInput"
-            >
-              <b-form-select
-                :disabled="!checkLegal"
-                v-validate="{ required: true }"
-                name="commune"
-                key="commune"
-                :state="validateState('commune')"
-                aria-describedby="communeFeedback"
-                type="text"
-                v-model="user.libelleCollectivite"
-                id="communeSelect"
-              >
-                <option :value="null">-- Choix de la commune --</option>
-                <option
-                  v-for="commune in listecommune"
-                  :key="commune.cpi_codeinsee"
-                  :value="commune.com_libellemaj"
-                >
-                  {{ commune.com_libellemaj }}
-                </option>
-              </b-form-select>
-              <b-form-invalid-feedback id="communeFeedback"
-                >La commune est obligatoire.</b-form-invalid-feedback
-              >
-            </b-form-group>
-          </div>
-        -->
-          <!-- FIN COMMUNE -->
-          <!-- EPCI -->
-        <!--
-          <div v-if="user.typeCollectivite == 3">
-            <b-form-group
-              id="CodePostalEpci"
-              label="Code Postal EPCI:"
-              label-for="cpEpci"
-            >
-              <b-form-input
-                v-model="cpEpci"
-                name="cpEpci"
-                key="cpEpci"
-                :state="validateState('cpEpci')"
-                aria-describedby="cpEpciFeedback"
-                id="cpEpci"
-                type="number"
-                placeholder="CP d'une des communes de l'EPCI"
-              />
-            </b-form-group>
-            <div v-if="cpEpci">
-              <b-form-group
-                v-if="boolEpci"
-                id="ECPI"
-                label="EPCI :"
-                required
-                label-for="epciInput"
-              >
-                <b-form-select
-                  :disabled="!checkLegal"
-                  id="epciSelect"
-                  v-model="user.libelleCollectivite"
-                  v-validate="{ required: true }"
-                  name="epcis"
-                  :state="validateState('toto')"
-                  aria-describedby="epciFeedback"
-                >
-                  <option
-                    v-for="epci in listepci"
-                    :key="epci.epci_libelle"
-                    :value="epci.epci_libelle"
-                  >
-                    {{ epci.epci_libelle }}
-                  </option>
-                </b-form-select>
-                <b-form-invalid-feedback id="epciFeedback"
-                  >L'EPCI est obligatoire.</b-form-invalid-feedback
-                ></b-form-group
-              >
-              <b-form-group v-if="boolEpci == false">
-                Aucun EPCI correspondant</b-form-group
-              >
-            </div>
-          </div>
-        </div>
-        -->
-          <!-- FIN EPCI-->
+        <!-- FIN EPCI-->
         <!-- FIN Cas d'une collectivite territoriale-->
       </b-form>
     </b-card>
@@ -526,11 +325,13 @@
                 name="siteweb"
                 key="siteweb"
                 :state="validateState('siteweb')"
+                v-validate="{url}"
                 aria-describedby="sitewebFeedback"
                 id="siteweb"
                 type="text"
                 placeholder="http:// ou https://"
               />
+              <b-form-invalid-feedback id="sitewebFeedback">L'url saisie n'a pas le bon format.</b-form-invalid-feedback>
           </b-form-group>
         <b-form-group>
         </b-form-group>        
@@ -561,10 +362,25 @@
 
         </b-form-group>
           <b-form-group label="Adresse :">
-            <b-form-input type="text" v-model="user.adresse" />
+            <b-form-input               
+              type="text" 
+              name="adresse"
+              area-describedBy="adresseFeedback"
+              v-model="user.adresse" 
+              :state="validateState('adresse')"
+              v-validate="{ min:0, max:100}"
+            />
+            <b-form-invalid-feedback id="adresseFeedback">L'adresse ne peut dépasser 100 caractères.</b-form-invalid-feedback>
           </b-form-group>          
           <b-form-group label="Complément d'adresse :">
-            <b-form-input type="text" v-model="user.compladresse" />
+            <b-form-input               
+              type="text" 
+              name="compladresse"
+              area-describedBy="compladresseFeedback"
+              :state="validateState('compladresse')"
+              v-validate="{ min:0, max:100}"
+              v-model="user.compladresse" />
+              <b-form-invalid-feedback id="compladresseFeedback">Le complément d'adresse ne peut dépasser 100 caractères.</b-form-invalid-feedback> 
           </b-form-group>     
           <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
               <b-form-input
@@ -603,7 +419,14 @@
               <b-form-invalid-feedback id="lstcommuneFeedback">Une commune doit être sélectionnée avec un code postal valide.</b-form-invalid-feedback>
               </b-form-group>
               <b-form-group label="Téléphone :">
-            <b-form-input type="number" v-model="user.telephone" />
+            <b-form-input 
+                name="telephone"
+                type="number" 
+                v-model="user.telephone" 
+                aria-describedby="telephoneFeedback"
+                :state="validateState('telephone')"
+                v-validate="{numeric, min:0, max:10}" />
+                <b-form-invalid-feedback id="telephoneFeedback">Le téléphone ne peut comporter plus de 10 chiffres.</b-form-invalid-feedback>
           </b-form-group>  
         </div>      
       <b-form>
@@ -655,11 +478,12 @@
             @click="submit"
             variant="success"
             :disabled="
-              errors.any() || (isLegalChecked == 'false' && !user.validated)
+              (isLegalChecked === 'false') 
             "
             >{{ submitTxt }}</b-button
           >
         </div>
+        <div v-if="(errors.any() && (errors.items.length > 0))"><p style="color:red;">Il existe {{errors.items.length}} erreur(s) sur le formulaire.<br>Corrigez puis revalidez<br>{{errors.items.msg}}</p></div>
     </b-card>
   </div>
 </template>
