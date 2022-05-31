@@ -46,6 +46,9 @@ psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/13-SQL_V1.1.
 # hors version intégration des COM
 psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/13-SQL_v1.1.7_ComplCOM.sql
 
+# Version 1.1.8
+psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/14-SQL_V1.1.8.sql
+
 # Hors Version : Intégration de données aléatoires pour avoir un peu de matière
 #psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/99-CreationListeNomPrenom.sql
 #psql -d srv_dev -U u_srv_dev -f /docker-entrypoint-initdb.d/scripts/99-PeuplementInterventions.sql
