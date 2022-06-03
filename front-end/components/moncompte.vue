@@ -39,11 +39,13 @@
                 name="siteweb"
                 key="siteweb"
                 :state="validateState('siteweb')"
+                v-validate="{url}"
                 aria-describedby="sitewebFeedback"
                 id="siteweb"
                 type="text"
                 placeholder="http:// ou https://"
               />
+              <b-form-invalid-feedback id="sitewebFeedback">L'url saisie n'a pas le bon format.</b-form-invalid-feedback>
           </b-form-group>
         <b-form-group>
         </b-form-group>        
@@ -74,10 +76,25 @@
 
         </b-form-group>
           <b-form-group label="Adresse :">
-            <b-form-input type="text" v-model="user.adresse" />
+            <b-form-input 
+              type="text" 
+              name="adresse"
+              area-describedBy="adresseFeedback"
+              v-model="user.adresse" 
+              :state="validateState('adresse')"
+              v-validate="{ min:0, max:100}"
+            />
+            <b-form-invalid-feedback id="adresseFeedback">L'adresse ne peut dépasser 100 caractères.</b-form-invalid-feedback>
           </b-form-group>          
           <b-form-group label="Complément d'adresse :">
-            <b-form-input type="text" v-model="user.compladresse" />
+            <b-form-input 
+              type="text" 
+              name="compladresse"
+              area-describedBy="compladresseFeedback"
+              :state="validateState('compladresse')"
+              v-validate="{ min:0, max:100}"
+              v-model="user.compladresse" />
+              <b-form-invalid-feedback id="compladresseFeedback">Le complément d'adresse ne peut dépasser 100 caractères.</b-form-invalid-feedback>
           </b-form-group>     
           <b-form-group id="CodePostal" label="Code Postal :" label-for="cp">
               <b-form-input
@@ -118,7 +135,15 @@
               <b-form-invalid-feedback id="lstcommuneFeedback">Une commune doit être sélectionnée avec un code postal valide.</b-form-invalid-feedback>
               </b-form-group>
               <b-form-group label="Téléphone :">
-            <b-form-input type="number" v-model="user.telephone" />
+            <b-form-input 
+                name="telephone"
+                type="number" 
+                v-model="user.telephone" 
+                aria-describedby="telephoneFeedback"
+                :state="validateState('telephone')"
+                v-validate="{ min:0, max:10}"
+            />
+            <b-form-invalid-feedback id="telephoneFeedback">Le téléphone ne peut comporter plus de 10 chiffres.</b-form-invalid-feedback>
           </b-form-group>  
         </div>      
       <b-form>
@@ -129,7 +154,6 @@
           >
             <b-form-checkbox >
               Je souhaite que ces données soient publiées sur le site "Savoir rouler à vélo" et qu'elles apparaissent sur la cartographie             
-
             </b-form-checkbox> 
           </b-form-checkbox-group>
         </b-form-group>

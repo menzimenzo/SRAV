@@ -132,7 +132,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     }
 
     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
-    const requete =`SELECT *,co.str_libelle as str_lib_co_realise,eve.eve_titre as evenement_associe from intervention 
+    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,eve.eve_titre as evenement_associe from intervention 
     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
     INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
@@ -161,6 +161,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
             */
             var interventions = result.rows;
             interventions = interventions.map(intervention => {
+
                 var newIntervention = formatIntervention(intervention)
                 delete newIntervention.commune
                 delete newIntervention.cai;
@@ -171,9 +172,14 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 newIntervention.codeinsee = intervention.int_com_codeinsee
                 //newIntervention.dep_num = intervention.int_dep_num
                 //newIntervention.reg_num = intervention.int_reg_num
-                newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
-                newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
-                newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                // Correction LSC 
+                //newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
+                newIntervention.dateIntervention = intervention.dateint,
+                //newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
+                newIntervention.dateCreation = intervention.datec,
+                //newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                newIntervention.dateMaj = intervention.datem
+                // Fin correction LSC
                 delete newIntervention.dateMaj;
                 delete newIntervention.structureCode;
                 delete newIntervention.structureLibelle;
