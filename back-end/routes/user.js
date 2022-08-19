@@ -111,7 +111,7 @@ router.get('/csv', async function (req, res) {
         dco.tco_id str_typeCollectivite
         from utilisateur  uti
         join uti_str ust on ust.uti_id = uti.uti_id
-        join uti_str ustpar on ustpar.str_id = uti.str_id and ustpar.uti_id = ${utilisateurCourant.uti_id}
+        join uti_str ustpar on ustpar.str_id = ust.str_id and ustpar.uti_id = ${utilisateurCourant.uti_id}
         left join detail_collectivite dco on dco.dco_id = ust.dco_id
         join structure str on str.str_id= ust.str_id 
         join profil pro on pro.pro_id = uti.pro_id and pro.pro_id <> 1
