@@ -204,6 +204,33 @@ export const actions = {
         this.$store.commit("clean_interventions");
       });
   },
+  async get_interventions_filtre({ commit, state },{filtreDateInterventionDebut, filtreDateInterventionFin,filtreIdStructureUtilisateur,filtreIdStructure}) {
+
+
+    log.i("actions::get_interventions - In");
+    log.d("actions::filtreDateInterventionDebut",filtreDateInterventionDebut);
+    log.d("actions::filtreDateInterventionFin",filtreDateInterventionFin);
+    log.d("actions::filtreIdStructureUtilisateur",filtreIdStructureUtilisateur);
+    log.d("actions::filtreIdStructure",filtreIdStructure);
+    const url = process.env.API_URL + "/interventions/liste?dateDebut=" + filtreDateInterventionDebut + "&dateFin=" +  filtreDateInterventionFin +"&idStructureUtilisateur=" + filtreIdStructureUtilisateur+"&idStructure=" + filtreIdStructure;
+    return await this.$axios
+      .$get(url)
+      .then(response => {
+        response.interventions.forEach(intervention => {
+          intervention.dateCreation     = new Date(intervention.dateCreation)
+          intervention.dateIntervention = new Date(intervention.dateIntervention)
+        })
+        commit("set_interventionCourrantes", response.interventions);
+        log.i("actions::get_interventions - Done", {
+          interventions: this.interventions
+        });
+        // this.interventions = response.interventions
+      })
+      .catch(error => {
+        log.w("actions::Une erreur est survenue lors de la récupération des interventions", error);
+        this.$store.commit("clean_interventions");
+      });
+  },
   async get_intervention({ commit, state }, idIntervention) {
     log.i("actions::get_intervention - In");
     const url = process.env.API_URL + "/interventions/" + idIntervention;

@@ -424,7 +424,7 @@ export default {
       optionsDoughnut: null,
       loading: true,
       headers: [
-        { path: "id", title: "N° d'utilisateur", type: "text", sortable: true },
+        { path: "idformate", title: "N° d'utilisateur", type: "text", sortable: true },
         { path: "proLibelle", title: "Rôle", type: "date", sortable: true },
         { path: "nom", title: "Nom", type: "date", sortable: true },
         { path: "prenom", title: "Prénom", type: "text", sortable: true },
