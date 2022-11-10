@@ -96,6 +96,168 @@ router.get('/delete/:id', async function (req, res) {
     })
 })
 
+router.get('/csv/filtre', async function (req, res) {
+
+    const  utilisateurId = req.query.id
+    const  idStructureUtilisateur = req.query.idStructureUtilisateur
+    const  dateDebut = req.query.dateDebut
+    const  dateFin = req.query.dateFin
+    const  idStructure = req.query.idStructure
+
+    var whereClause = ""
+    // Modification de la récupération de l'utilisateur courant 
+     if(!req.session.user){
+         return res.sendStatus(403)
+     }
+     const id = req.params.id
+     const user = req.session.user
+     //const utilisateurId = user.uti_id
+     //const stru = user.uti_id
+     const stru = req.query.id
+ 
+     log.i('::csv filtre - In', { utilisateurId, stru })
+     if(user.pro_id == 4){
+        // Toutes structures
+        // Exclusion des EN et Sécurité routière
+        whereClause += ` where structure.str_id not in (9,11)`
+    }
+    // Intervenant
+    if(user.pro_id == 3){
+        // Utilisateur est intervenant => ses interventions
+        // Multistructure
+        whereClause += `where ust.uti_id=${utilisateurId} `
+    } 
+    // Admin
+    if(user.pro_id == 1){
+        // Admin : Astuce pour avoir un where
+        whereClause += `where 1 = 1 `
+    } 
+    // Filtres en provenant du front
+    // Profil partenaire
+    if(user.pro_id == 2){
+        if(idStructure || idStructure != 'null')
+        {
+            // Toutes structures
+            if(idStructure == 99)
+            {
+                if (user.str_id == 9)
+                    // Exclusion structure 11
+                    whereClause += ` where structure.str_id not in (11) `
+                else if (user.str_id == 11)
+                    // Exclusion structure 9
+                    whereClause += ` where structure.str_id not in (9) `
+                else
+                    // Exclusion structure 9 et 11 
+                    whereClause += ` where structure.str_id not in (9,11) `
+            }
+            else
+                // Structure ciblée
+                whereClause += ` where ust.str_id = ${idStructure} `
+        }
+    }
+    // Filtre sur la structure locale pour l'intervenant
+    if(user.pro_id == 3){
+        if(idStructureUtilisateur || idStructureUtilisateur != 'null')
+        {
+            whereClause += ` and ust.ust_id = ${idStructureUtilisateur} `
+        }
+    }
+    // Filtre sur date début
+    if(dateDebut && dateDebut != 'null' && dateDebut != '')
+    {
+        whereClause += ` and int_dateintervention >= '${dateDebut}' `
+    }
+    // Filtre sur date fin
+    if(dateFin && dateFin != 'null')
+    {
+        whereClause += ` and int_dateintervention <= '${dateFin}' `
+    }
+     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
+     const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,eve.eve_titre as evenement_associe from intervention 
+     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
+     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
+     INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
+     LEFT JOIN qpv ON intervention.int_qpv_code = qpv.qpv_code
+     LEFT JOIN zrr_insee zin on intervention.int_com_codeinsee = zin.zin_insee
+     LEFT JOIN zrr_statut zst on zin.zst_id = zst.zst_id
+     LEFT JOIN structure co on co.str_id = intervention.str_id_co_realise
+     LEFT JOIN evenement eve on eve.eve_id = intervention.eve_id
+     INNER JOIN uti_str ust ON intervention.ust_id = ust.ust_id
+     INNER JOIN structure ON structure.str_id = ust.str_id 
+     ${whereClause} 
+     order by int_id asc`;
+     log.d('::csv - requet', { requete })
+ 
+     pgPool.query(requete, (err, result) => {
+         if (err) {
+             log.w('::csv - erreur lors de la requête.',err.stack);
+             return res.status(400).json('erreur lors de la récupération de l\'intervention');
+         }
+         else {
+             /*
+             0087034
+             Suppression des colonnes 
+             cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
+             */
+             var interventions = result.rows;
+             interventions = interventions.map(intervention => {
+ 
+                 var newIntervention = formatIntervention(intervention)
+                 delete newIntervention.commune
+                 delete newIntervention.cai;
+                 delete newIntervention.eveid;
+                 delete newIntervention.sinId;
+                 delete newIntervention.structureId;
+                 newIntervention.commune = intervention.int_com_libelle
+                 newIntervention.codeinsee = intervention.int_com_codeinsee
+                 //newIntervention.dep_num = intervention.int_dep_num
+                 //newIntervention.reg_num = intervention.int_reg_num
+                 // Correction LSC 
+                 //newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
+                 newIntervention.dateIntervention = intervention.dateint,
+                 //newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
+                 newIntervention.dateCreation = intervention.datec,
+                 //newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                 newIntervention.dateMaj = intervention.datem
+                 // Fin correction LSC
+                 delete newIntervention.dateMaj;
+                 delete newIntervention.structureCode;
+                 delete newIntervention.structureLibelle;
+                 delete newIntervention.StructureLocaleUtilisateur;
+                 //newIntervention.structureCode = intervention.str_libellecourt;
+                 //newIntervention.structureLibelle = intervention.str_libelle;
+                 newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
+                 newIntervention.qpv = intervention.qpv_libelle;
+                 newIntervention.evenement_associe = intervention.evenement_associe;
+                 // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
+                 if(user.pro_id == 4){
+                     delete newIntervention.siteintervention;
+                 }
+                 delete newIntervention.commentaire                
+ 
+                 return newIntervention
+             })
+             if (!interventions || !interventions.length) {
+                 log.w('::csv - Intervention inexistante.');
+                 return res.status(400).json({ message: 'Interventions inexistante' });
+             }
+             stringify(interventions, {
+                 quoted: '"',
+                 header: true
+             }, (err, csvContent) => {
+                 if(err){
+                     log.w('::csv - Erreur lors callback après stringify.',err.stack);
+                     return res.status(500)
+                 } else {
+                     log.i('::csv - Done')
+                     return res.send(csvContent)
+                 }
+             })
+         }
+     })
+ });
+
+ /*
 router.get('/csv/:utilisateurId', async function (req, res) {
 
    // Modification de la récupération de l'utilisateur courant 
@@ -109,23 +271,23 @@ router.get('/csv/:utilisateurId', async function (req, res) {
 
     log.i('::csv - In', { utilisateurId, stru })
 
-    /* Pour un profil Admin, on exporte toutes les interventions */
+    -- Pour un profil Admin, on exporte toutes les interventions 
     var whereClause = ""
     var whereClauseReferent = ""
-    /* Pour un profil Intervenant on exporte que ses interventions */
+    -- Pour un profil Intervenant on exporte que ses interventions 
     if(user.pro_id == 3){
         // Multistructure
         //whereClause += ` and utilisateur.uti_id=${utilisateurId} `
         whereClause += ` and uti_str.sus_id = 1 and uti_str.uti_id=${utilisateurId} `
     }
-    /* Pour un profil Partenaire, on exporte les interventions de sa structure*/
+    -- Pour un profil Partenaire, on exporte les interventions de sa structure
     if(user.pro_id == 2){
         // Multistructure
         //whereClause += ` and utilisateur.str_id=${user.str_id} `
         whereClause += ` and uti_str.str_id=${user.str_id} `
     }
     
-    /* Pour un profil référent, on exporte les interventions de toutes les structures sauf EN*/
+    -- Pour un profil référent, on exporte les interventions de toutes les structures sauf EN
     if(user.pro_id == 4){
         //whereClauseReferent += ` and utilisateur.str_id<>9 `
         whereClauseReferent += ` and uti_str.str_id<>9 `
@@ -154,11 +316,11 @@ router.get('/csv/:utilisateurId', async function (req, res) {
             return res.status(400).json('erreur lors de la récupération de l\'intervention');
         }
         else {
-            /*
-            0087034
-            Suppression des colonnes 
-            cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
-            */
+            
+            --0087034
+            --Suppression des colonnes 
+            --cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
+            
             var interventions = result.rows;
             interventions = interventions.map(intervention => {
 
@@ -193,8 +355,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
                 if(user.pro_id == 4){
                     delete newIntervention.siteintervention;
                 }
-                delete newIntervention.commentaire                
-
+                delete newIntervention.commentaire                 
                 return newIntervention
             })
             if (!interventions || !interventions.length) {
@@ -217,7 +378,7 @@ router.get('/csv/:utilisateurId', async function (req, res) {
     })
 });
 
-
+*/ 
 
 // ################# Nombre d'attestation par structure #################
 // Pour str_id = 0 on remonte toutes les données 
@@ -320,6 +481,102 @@ router.get('/nbattestations', async function (req, res) {
     })
 });*/
 
+
+router.get('/liste', async function (req, res) {
+    log.i('::get - liste filtree')
+    
+    const  idStructureUtilisateur = req.query.idStructureUtilisateur
+    const  idStructure = req.query.idStructure
+    const  dateDebut = req.query.dateDebut
+    const  dateFin = req.query.dateFin
+
+    if(!req.session.user){ 
+        log.w('::list - User manquant.')
+        return res.sendStatus(403) 
+    }
+
+    const user = req.session.user
+    const utilisateurId = user.uti_id
+
+    var whereClause = ""
+    whereClause += `INNER JOIN uti_str ust ON ust.ust_id = intervention.ust_id 
+        left join detail_collectivite dco on dco.dco_id = ust.dco_id
+        left join type_collectivite tco on tco.tco_id = dco.tco_id
+        INNER JOIN structure ON structure.str_id = ust.str_id `
+    // Référent
+    if(user.pro_id == 4){
+        // Toutes structures
+        // Exclusion des EN et Sécurité routière
+        whereClause += ` where structure.str_id not in (9,11)`
+    }
+    // Intervenant
+    if(user.pro_id == 3){
+        // Utilisateur est intervenant => ses interventions
+        // Multistructure
+        whereClause += `where ust.uti_id=${utilisateurId} `
+    } 
+    // Admin
+    if(user.pro_id == 1){
+        // Admin : Astuce pour avoir un where
+        whereClause += `where 1 = 1 `
+    } 
+    // Filtres en provenant du front
+    // Profil partenaire
+    if(user.pro_id == 2){
+        if(idStructure || idStructure != 'null')
+        {
+            // Toutes structures
+            if(idStructure == 99)
+            {
+                if (user.str_id == 9)
+                    // Exclusion structure 11
+                    whereClause += ` where structure.str_id not in (11) `
+                else if (user.str_id == 11)
+                    // Exclusion structure 9
+                    whereClause += ` where structure.str_id not in (9) `
+                else
+                    // Exclusion structure 9 et 11 
+                    whereClause += ` where structure.str_id not in (9,11) `
+            }
+            else
+                // Structure ciblée
+                whereClause += ` where ust.str_id = ${idStructure} `
+        }
+    }
+    // Filtre sur la structure locale pour l'intervenant
+    if(user.pro_id == 3){
+        if(idStructureUtilisateur || idStructureUtilisateur != 'null')
+        {
+            whereClause += ` and ust.ust_id = ${idStructureUtilisateur} `
+        }
+    }
+    // Filtre sur date début
+    if(dateDebut && dateDebut != 'null' && dateDebut != '')
+    {
+        whereClause += ` and int_dateintervention >= '${dateDebut}' `
+    }
+    // Filtre sur date fin
+    if(dateFin && dateFin != 'null')
+    {
+        whereClause += ` and int_dateintervention <= '${dateFin}' `
+    }
+
+    const requete = `SELECT * from intervention ${whereClause} order by int_dateintervention desc`;
+    log.d('::list - récuperation via la requête.',{ requete })
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            log.w('::list - Erreur survenue lors de la récupération.',err.stack);
+            return res.status(400).json('erreur lors de la récupération des interventions');
+        }
+        else {
+            log.i('::list - Done')
+            const interventions = result.rows.map(formatIntervention);
+            res.json({ interventions });
+        }
+    })
+});
+
 router.get('/:id', async function (req, res) {
     log.i('::get - In')
     if(!req.session.user){
@@ -355,6 +612,8 @@ router.get('/:id', async function (req, res) {
         }
     })
 });
+
+
 
 router.get('/', async function (req, res) {
     log.i('::list - In')

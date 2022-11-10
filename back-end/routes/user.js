@@ -11,6 +11,7 @@ const log = logger(module.filename)
 const formatUser = user => {
 
     return {
+        idformate: user.idformate,
         id: user.uti_id,
         profil: user.pro_id,
         structure: user.str_id,
@@ -226,7 +227,7 @@ router.get('/', async function (req, res) {
 
     if ( utilisateurCourant.pro_id && (utilisateurCourant.pro_id == 1 ||  utilisateurCourant.pro_id == 4)) {
         // si on est admin, on affiche tous les utilisateurs
-        requete = `SELECT uti.*,ust.*, dco.* ,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
+        requete = `SELECT to_char(uti.uti_id,'00000') as idformate, uti.*,ust.*, dco.* ,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, 
         uti.uti_siteweb as siteweb, 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
@@ -254,7 +255,7 @@ router.get('/', async function (req, res) {
     {
         // si on est partenaire, on affiche seulements les utilisateurs de la structure
         // Sauf les Admin créés sur structure
-        requete = `SELECT uti.*,ust.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
+        requete = `SELECT to_char(uti.uti_id,'00000') as idformate,uti.*,ust.*,replace(replace(uti.validated::text,'true','Validée'),'false','Non validée') as inscription,str.str_libellecourt,pro.pro_libelle, uti.uti_siteweb as siteweb, 
         uti.uti_adresse as adresse,
         uti_complementadresse as compladresse,
         uti_com_codeinsee as codeinsee,

@@ -59,30 +59,80 @@
               <b-container>
                 <b-row>
                   <b-col cols="12">
-                    <div v-if="interventions.length > 0">
-                      <b-btn @click="exportCsv()" class="mb-2" variant="primary">
+                      <b-row>
+                        <b-col cols="3" v-if="this.utilisateurCourant.profilId == 2">
+                            Structure d'intervention :
+                              <!-- STRUCTURE -->
+                              <b-form-select 
+                                class="liste-deroulante"
+                                v-model="filtreIdStructure"
+                                >
+                                <option :value="null">-- Choix de la structure--</option>
+                                <option
+                                  style="width: 25em"
+                                  v-for="structure in listestructuresnationale"
+                                  :key="structure.str_id"
+                                  :value="structure.str_id"
+                                >{{ structure.str_libellecourt}}</option>
+                              </b-form-select>
+                        </b-col>
+                        <b-col cols="3" v-if="this.utilisateurCourant.profilId == 3">
+                            Structure d'intervention :
+                              <!-- STRUCTURE -->
+                              <b-form-select 
+                                class="liste-deroulante"
+                                v-model="filtreIdStructureUtilisateur"
+                                >
+                                <option :value="null">-- Choix de la structure --</option>
+                                <option
+                                  style="width: 25em"
+                                  v-for="structure in listestructures"
+                                  :key="structure.ust_id"
+                                  :value="structure.ust_id"
+                                >{{ structure.str_libellecourt}} - {{ structure.uti_structurelocale}}{{ structure.tco_libelle}} - {{ structure.com_libelle}} {{ structure.dep_libelle}}{{ structure.eta_nom}}{{ structure.epci_libelle }}</option>
+                              </b-form-select>
+                        </b-col>
+                        <b-col cols="3">
+                          Date de début
+                          <b-form-input 
+                              maxlength="10" 
+                              v-model="filtreDateInterventionDebut" 
+                              type="date"
+                              class="text-date date-input-width">
+                            </b-form-input>
+                        </b-col>
+                        <b-col cols="3">
+                          Date de fin
+                          <b-form-input 
+                              maxlength="10" 
+                              v-model="filtreDateInterventionFin" 
+                              type="date"
+                              class="text-date date-input-width">
+                            </b-form-input>
+                        </b-col>
+                        <b-btn @click="razFiltres()" class="mb-2" variant="primary">
+                        <i class="material-icons" style="font-size: 18px; top: 4px;">filter_alt_off</i> Vider filtres
+                      </b-btn>
+                      </b-row>
+                      <br>
+                      <b-row>
+                        <b-col cols="2">
+                      <b-btn @click="rechercheInterventions()" class="mb-2" variant="primary">
+                        <i class="material-icons" style="font-size: 18px; top: 4px;">search</i> Rechercher
+                      </b-btn>
+                    </b-col>
+                        <b-col cols="2">
+                      <b-btn @click="exportCsv()" class="mb-2" variant="primary"  :disabled="interditCSV===true" >
                         <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
                       </b-btn>
-                    <div>
-                      Structure d'intervention :
-                        <!-- STRUCTURE -->
-                        <b-form-select 
-                          class="liste-deroulante"
-                          v-model="selectedStructure"
-                          v-if="this.utilisateurCourant.profilId == 3"
-                          >
-                          <option :value="null">-- Choix de la structure --</option>
-                          <option
-                            style="width: 25em"
-                            v-for="structure in listestructures"
-                            :key="structure.ust_id"
-                            :value="structure.ust_id"
-                          >{{ structure.str_libellecourt}} - {{ structure.uti_structurelocale}}{{ structure.tco_libelle}} - {{ structure.com_libelle}} {{ structure.dep_libelle}}{{ structure.eta_nom}}{{ structure.epci_libelle }}</option>
-                        </b-form-select>
-                    </div>                          
+                    </b-col>
+                      </b-row>
+                      
+                      <div v-if="afficheResultat === true">
+
                       <editable
                         :columns="headers"
-                        :data="interventionsToDisplay"
+                        :data="interventions"
                         :removable="false"
                         :creable="false"
                         :editable="false"
@@ -91,7 +141,7 @@
                         :loading="loading"
                         :defaultSortField="{ key: 'dateIntervention', order: 'desc' }"
                       >
-                        <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4">
+                        <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4 && (utilisateurCourant.profilId==2 && props.data.structureId == utilisateurCourant.structureId ) ">
                           <div style="min-width: 147px;">
                             <b-btn
                               v-if="!autoriseModifIntervention(props.data.dateIntervention)"
@@ -114,8 +164,8 @@
                               <i class="material-icons">edit</i>
                             </b-btn>
                             <b-btn
-                              @click="downloadPdf(props.data.id)"
                               v-if="props.data.blocId == '3'"
+                              @click="downloadPdf(props.data.id)"
                               size="sm"
                               class="ml-1"
                               variant="primary"
@@ -137,12 +187,10 @@
                         </template>
                       </editable>
                     </div>
- 
-                    
                     <h4
                       class="text-center"
-                      v-if="(interventions.length == 0) && (loading===false)"
-                    >Aucune intervention n'a été créée pour le moment.</h4>
+                      v-if="(afficheResultat === false)"
+                    >La recherche ne retourne aucun résultat.</h4>
                   </b-col>
                 </b-row>
               </b-container>
@@ -222,8 +270,9 @@ export default {
   data() {
     return {
       parametreNbJoursMaxModifInter: null,
+      parametrePartageDonnees: null,
       loading: true,
-      interventionsToDisplay: null,
+      //interventionsToDisplay: null,
       headers: [
         {
           path: "id",
@@ -273,17 +322,52 @@ export default {
         }
       ],
       listestructures: [],
-      selectedStructure: null
+      listestructuresnationale: [],
+      filtreIdStructureUtilisateur: null,
+      filtreIdStructure: null,
+      filtreDateInterventionDebut: null,
+      filtreDateInterventionFin: null,
+      afficheResultat: false,
+      interditCSV: true
     };
   },
   watch: {
     interventions: function() {
-      this.filtreInterventions();
+      //this.filtreInterventions();
     },
-    selectedStructure:function() {
-      console.log("this.selectedStructure",this.selectedStructure);
-      this.filtreInterventions();
+    /*
+    filtreIdStructureUtilisateur:function() {
+      this.interventions = null;
+
+      //this.filtreInterventions();
+    },
+    */
+    filtreDateInterventionDebut:function() {
+      console.log("this.filtreDateInterventionDebut",this.filtreDateInterventionDebut);
+      //this.afficheResultat = false
+      this.interditCSV = true
+    },
+    filtreIdStructure:function() {
+      console.log("this.filtreIdStructure",this.filtreIdStructure);
+      //this.filtreInterventions();
+      //this.afficheResultat = false
+      this.interditCSV = true
+
+    },
+    filtreIdStructureUtilisateur:function() {
+      console.log("this.filtreIdStructureUtilisateur",this.filtreIdStructureUtilisateur);
+      //this.filtreInterventions();
+      //this.afficheResultat = false
+      this.interditCSV = true
+
+    },
+    filtreDateInterventionFin:function() {
+      console.log("this.filtreDateInterventionFin",this.filtreDateInterventionFin);
+      //this.filtreInterventions();
+      //this.afficheResultat = false
+      this.interditCSV = true
     }
+    
   },
   computed: mapState([
     "interventions",
@@ -351,7 +435,8 @@ export default {
         return this.$axios
           .$get(url)
           .then(response => {
-            this.$store.dispatch("get_interventions");
+            rechercheInterventions()
+            //this.$store.dispatch("get_interventions");
             //this.resetform();
             this.clearIntervention();
             this.$toast.success(
@@ -423,11 +508,20 @@ export default {
       this.$store.commit("reset_interventions");
     },
     exportCsv() {
+
+      const params = {
+        filtreDateInterventionDebut: this.filtreDateInterventionDebut,
+        filtreDateInterventionFin: this.filtreDateInterventionFin,
+        filtreIdStructureUtilisateur: this.filtreIdStructureUtilisateur,
+        filtreIdStructure: this.filtreIdStructure
+          }
+
+      const url = "/interventions/csv/filtre?id=" + this.utilisateurCourant.id + "&dateDebut=" + this.filtreDateInterventionDebut + "&dateFin=" +  this.filtreDateInterventionFin +"&idStructureUtilisateur=" + this.filtreIdStructureUtilisateur + "&idStructure=" + this.filtreIdStructure
+      console.log(url)
       this.$axios({
         url:
-          process.env.API_URL +
-          "/interventions/csv/" +
-          this.utilisateurCourant.id,
+          process.env.API_URL + url,
+          //this.utilisateurCourant.id,
         // url: apiUrl + '/droits/' + 17,
         method: "GET",
         responseType: "blob"
@@ -451,23 +545,65 @@ export default {
           this.$toasted.error("Erreur lors du téléchargement: " + err.message);
         });
     },
+    chargeStructures(iduti) {
+      const url =  process.env.API_URL + "/structures/";
+      console.info(url);
+      return this.$axios.$get(url).then(response => {
+              this.listestructuresnationale = response;
+              // Si une seule structure, on la selectionne par défaut
+              if (this.listestructuresnationale.length != 0) {
+
+                var newListeStructure = []
+                var premierelement = null
+                this.listestructuresnationale.forEach(structureitem =>{
+                  // Exclusion des structures 9 et 11
+                    if (this.parametrePartageDonnees == 1) {
+                        if (structureitem.str_id != 9 && structureitem.str_id != 11 && this.utilisateurCourant.structureId != structureitem.str_id) {
+                        newListeStructure.push(structureitem)
+                      }
+                    }
+                    
+                    if (this.utilisateurCourant.structureId == structureitem.str_id) {
+                      premierelement = structureitem
+                    }
+                    
+                   //console.log(structureitem);
+                });
+                this.listestructuresnationale = newListeStructure
+                if (this.parametrePartageDonnees == 1) {
+                  // Ajout de la structure "toutes"
+                  this.listestructuresnationale.unshift({ str_id: 99, str_libellecourt: "Toutes structures", str_libelle: "Toutes les structures"});
+                }
+                this.listestructuresnationale.unshift(premierelement)
+                // On positionne la liste par défaut sur la structure de l'utilisateur
+                this.filtreIdStructure = this.utilisateurCourant.structureId // this.listestructuresnationale[0].str_id
+              }
+              this.loading = false;
+            })
+            .catch(error => {
+              console.error(
+                "Une erreur est survenue lors de la récupération des structures nationales",
+                error
+              );
+            });
+    },
     chargeUtiStructures(iduti) {
-    const url =  process.env.API_URL + "/structures/user/" + iduti;
-    console.info(url);
-    return this.$axios.$get(url).then(response => {
-            this.listestructures = response.structures;
-            // Si une seule structure, on la selectionne par défaut
-            if (this.listestructures.length == 1) {
-                this.selectedStructure = this.listestructures[0].ust_id
-            }
-            this.loading = false;
-          })
-          .catch(error => {
-            console.error(
-              "Une erreur est survenue lors de la récupération des communes",
-              error
-            );
-          });
+      const url =  process.env.API_URL + "/structures/user/" + iduti;
+      console.info(url);
+      return this.$axios.$get(url).then(response => {
+              this.listestructures = response.structures;
+              // Si une seule structure, on la selectionne par défaut
+              if (this.listestructures.length == 1) {
+                  this.filtreIdStructureUtilisateur = this.listestructures[0].ust_id
+              }
+              this.loading = false;
+            })
+            .catch(error => {
+              console.error(
+                "Une erreur est survenue lors de la récupération des structures de l'utilisateur",
+                error
+              );
+            });
     },
     filtreInterventions(){
       this.loading = true;
@@ -489,7 +625,7 @@ export default {
             var isMatch = true;
             isMatch =
               isMatch &&
-              (String(x.ustid) == this.selectedStructure &&
+              (String(x.ustid) == this.filtreIdStructureUtilisateur &&
                 String(x.utiId) == this.utilisateurCourant.id);
             return isMatch;
           });
@@ -503,6 +639,44 @@ export default {
       }
 
       this.loading = false;
+    },
+    rechercheInterventions(){
+      console.log("this.filtreDateInterventionDebut",this.filtreDateInterventionDebut)
+      console.log("this.filtreDateInterventionFin",this.filtreDateInterventionFin)
+      const params = {
+        filtreDateInterventionDebut: this.filtreDateInterventionDebut,
+        filtreDateInterventionFin: this.filtreDateInterventionFin,
+        filtreIdStructureUtilisateur: this.filtreIdStructureUtilisateur,
+        filtreIdStructure: this.filtreIdStructure
+          }
+
+        this.$store.dispatch("get_interventions_filtre",params)        
+        .then(() => {
+          console.log("this.interventions.length ",this.interventions.length )
+          if (this.interventions.length > 0) {
+            this.afficheResultat = true
+            this.interditCSV = false
+          }
+          else 
+          {
+            this.afficheResultat = false
+            this.interditCSV = true
+          }
+        })
+        .catch(error => {
+          console.error(
+            "Une erreur est survenue lors de la récupération de la liste des interventions filtrées",
+            error
+          );
+        }); 
+
+        
+    },
+    razFiltres(){
+      this.filtreDateInterventionDebut = null
+      this.filtreDateInterventionFin = null
+      this.filtreIdStructureUtilisateur = null
+      this.filtreIdStructure = null
     }
 
   },
@@ -510,13 +684,42 @@ export default {
   //  CHARGEMENT ASYNCHRONE DES INTERVENTIONS
   //
   async mounted() {
+
+/*
+          const params = {
+            id: this.id,
+            old: this.oldPwd,
+            password: this.password,
+            confirm: this.confirmation
+          }
+          return this.$store.dispatch('reset_password', params)
+*/
+/*
+    const params = {
+            dateDebutIntervention: this.dateDebutIntervention,
+            dateFinIntervention: this.dateFinIntervention,
+            idStructure: this.idStructure
+          }
+*/
     await Promise.all([
-      this.$store.dispatch("get_interventions"),
+      //this.$store.dispatch("get_interventions_filtre"),
       this.$store.dispatch("get_documents")
     ]);
 
             
-    this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
+    this.$store.dispatch("get_parametre", "PARTAGE_DONNEES")
+        .then(() => {
+          console.log(this.$store.state.parametreSelectionne.par_valeur)
+          this.parametrePartageDonnees = Number(this.$store.state.parametreSelectionne.par_valeur)
+        })
+        .catch(error => {
+          console.error(
+            "Une erreur est survenue lors de la récupération du paramètre PARTAGE_DONNEES",
+            error
+          );
+        }); 
+
+        this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
         .then(() => {
           console.log(this.$store.state.parametreSelectionne.par_valeur)
           this.parametreNbJoursMaxModifInter = Number(this.$store.state.parametreSelectionne.par_valeur)
@@ -527,7 +730,10 @@ export default {
             error
           );
         }); 
+
+
     this.chargeUtiStructures(this.utilisateurCourant.id);
+    this.chargeStructures(this.utilisateurCourant.id);
     //console.info("mounted", { interventions: this.interventions});
     // on supprime les interventions ne relevant pas de la structure si prod_id = 2 (partenaire)
     /*if (this.utilisateurCourant.profilId == 2) {
