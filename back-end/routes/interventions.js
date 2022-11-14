@@ -242,8 +242,10 @@ router.get('/csv/filtre', async function (req, res) {
                  return res.status(400).json({ message: 'Interventions inexistante' });
              }
              stringify(interventions, {
-                 quoted: '"',
-                 header: true
+                quote: '"',
+                quoted: true,
+                header: true,
+                delimiter: ';'
              }, (err, csvContent) => {
                  if(err){
                      log.w('::csv - Erreur lors callback après stringify.',err.stack);

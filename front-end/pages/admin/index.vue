@@ -540,6 +540,36 @@
             </b-card-body>
           </b-collapse>
         </b-card>
+        <!-- ACCORDEON -- PARAMETRAGE APPLI -->
+        <b-card no-body class="mb-3" v-if="utilisateurCourant.profilId==1">
+          <b-card-header header-tag="header" class="p-1" role="tab">
+            <b-form-row>
+              <b-col>
+                <!-- IMAGE RAYEE BANNER INTERVENTION -->
+                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)" />
+                <b-btn
+                  class="accordionBtn"
+                  block
+                  href="#"
+                  v-b-toggle.parametrage-appli
+                  variant="Dark link"
+                >
+                  <h4>
+                    <i class="material-icons accordion-chevron">chevron_right</i>
+                    <i class="material-icons ml-2 mr-2">settings</i>
+                    Paramétrage de l'application
+                  </h4>
+                </b-btn>
+              </b-col>
+            </b-form-row>
+          </b-card-header>
+          <b-collapse id="parametrage-appli" accordion="my-accordion" role="tabpanel">
+            <b-card-body>
+              <parametrage-appli />
+            </b-card-body>
+          </b-collapse>
+        </b-card>
+        
         <!--  ACCORDEON -- COMMENTAIRES -->
         <b-card no-body class="mb-3"  v-if="utilisateurCourant.profilId==1">
           <b-card-header header-tag="header" class="p-1" role="tab">
@@ -615,6 +645,7 @@ import { mapState } from "vuex";
 import Editable from "~/components/editable/index.vue";
 import user from "~/components/user.vue";
 import fileUpload from "~/components/fileUpload.vue";
+import parametrageAppli  from "~/components/parametrageAppli.vue";
 import struct from "~/components/struct.vue";
 import BarChart from "~/components/histogramme.vue";
 import DoughnutChart from "~/components/doughnut.vue";
@@ -628,6 +659,7 @@ export default {
     Editable,
     user,
     fileUpload,
+    parametrageAppli,
     struct,
     BarChart,
     DoughnutChart,
