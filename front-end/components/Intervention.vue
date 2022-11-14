@@ -269,6 +269,17 @@
                 :value="structureco.str_id"
               >{{ structureco.str_libellecourt}}</option>
             </b-form-select>
+            <div class="input-group-display">
+            <span>Si c'est une autre structure co-réalisatrice :</span>
+            <b-form-input 
+              :disabled="this.isVerrouille"
+              maxlength=50
+              v-model="formIntervention.strcorealisatriceautre" 
+              type="text"
+              class="text"></b-form-input>
+              <div v-if="formIntervention.strcorealisatriceautre">
+              {{formIntervention.strcorealisatriceautre.length}}/50</div>
+        </div>            
         </div>     
         <div class="mb-3 mt-3"  v-if="! formIntervention.dateMaj">
           <p class="text-info">
@@ -601,6 +612,7 @@ export default {
         qpvcode: this.formIntervention.qpvcode,
         ustid: this.formIntervention.ustid,
         strcorealisatrice: this.formIntervention.strcorealisatrice,
+        strcorealisatriceautre: this.formIntervention.strcorealisatriceautre,
         eveid: this.formIntervention.eveid
       };
       const action = intervention.id ? "put_intervention" : "post_intervention";
