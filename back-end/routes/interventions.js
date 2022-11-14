@@ -257,129 +257,6 @@ router.get('/csv/filtre', async function (req, res) {
      })
  });
 
- /*
-router.get('/csv/:utilisateurId', async function (req, res) {
-
-   // Modification de la récupération de l'utilisateur courant 
-    if(!req.session.user){
-        return res.sendStatus(403)
-    }
-    const id = req.params.id
-    const user = req.session.user
-    const utilisateurId = user.uti_id
-    const stru = user.uti_id
-
-    log.i('::csv - In', { utilisateurId, stru })
-
-    -- Pour un profil Admin, on exporte toutes les interventions 
-    var whereClause = ""
-    var whereClauseReferent = ""
-    -- Pour un profil Intervenant on exporte que ses interventions 
-    if(user.pro_id == 3){
-        // Multistructure
-        //whereClause += ` and utilisateur.uti_id=${utilisateurId} `
-        whereClause += ` and uti_str.sus_id = 1 and uti_str.uti_id=${utilisateurId} `
-    }
-    -- Pour un profil Partenaire, on exporte les interventions de sa structure
-    if(user.pro_id == 2){
-        // Multistructure
-        //whereClause += ` and utilisateur.str_id=${user.str_id} `
-        whereClause += ` and uti_str.str_id=${user.str_id} `
-    }
-    
-    -- Pour un profil référent, on exporte les interventions de toutes les structures sauf EN
-    if(user.pro_id == 4){
-        //whereClauseReferent += ` and utilisateur.str_id<>9 `
-        whereClauseReferent += ` and uti_str.str_id<>9 `
-    }
-
-    // Remplacement Clause Where en remplacant utilisateur par clause dynamique
-    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,eve.eve_titre as evenement_associe from intervention 
-    INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
-    INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
-    INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
-    LEFT JOIN qpv ON intervention.int_qpv_code = qpv.qpv_code
-    LEFT JOIN zrr_insee zin on intervention.int_com_codeinsee = zin.zin_insee
-    LEFT JOIN zrr_statut zst on zin.zst_id = zst.zst_id
-    LEFT JOIN structure co on co.str_id = intervention.str_id_co_realise
-    LEFT JOIN evenement eve on eve.eve_id = intervention.eve_id
-    INNER JOIN uti_str ON intervention.ust_id = uti_str.ust_id
-    ${whereClause} 
-    INNER JOIN structure ON structure.str_id = uti_str.str_id 
-    ${whereClauseReferent} 
-    order by int_id asc`;
-    log.d('::csv - requet', { requete })
-
-    pgPool.query(requete, (err, result) => {
-        if (err) {
-            log.w('::csv - erreur lors de la requête.',err.stack);
-            return res.status(400).json('erreur lors de la récupération de l\'intervention');
-        }
-        else {
-            
-            --0087034
-            --Suppression des colonnes 
-            --cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
-            
-            var interventions = result.rows;
-            interventions = interventions.map(intervention => {
-
-                var newIntervention = formatIntervention(intervention)
-                delete newIntervention.commune
-                delete newIntervention.cai;
-                delete newIntervention.eveid;
-                delete newIntervention.sinId;
-                delete newIntervention.structureId;
-                newIntervention.commune = intervention.int_com_libelle
-                newIntervention.codeinsee = intervention.int_com_codeinsee
-                //newIntervention.dep_num = intervention.int_dep_num
-                //newIntervention.reg_num = intervention.int_reg_num
-                // Correction LSC 
-                //newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
-                newIntervention.dateIntervention = intervention.dateint,
-                //newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
-                newIntervention.dateCreation = intervention.datec,
-                //newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
-                newIntervention.dateMaj = intervention.datem
-                // Fin correction LSC
-                delete newIntervention.dateMaj;
-                delete newIntervention.structureCode;
-                delete newIntervention.structureLibelle;
-                delete newIntervention.StructureLocaleUtilisateur;
-                //newIntervention.structureCode = intervention.str_libellecourt;
-                //newIntervention.structureLibelle = intervention.str_libelle;
-                newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
-                newIntervention.qpv = intervention.qpv_libelle;
-                newIntervention.evenement_associe = intervention.evenement_associe;
-                // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
-                if(user.pro_id == 4){
-                    delete newIntervention.siteintervention;
-                }
-                delete newIntervention.commentaire                 
-                return newIntervention
-            })
-            if (!interventions || !interventions.length) {
-                log.w('::csv - Intervention inexistante.',err.stack);
-                return res.status(400).json({ message: 'Interventions inexistante' });
-            }
-            stringify(interventions, {
-                quoted: '"',
-                header: true
-            }, (err, csvContent) => {
-                if(err){
-                    log.w('::csv - Erreur lors callback après stringify.',err.stack);
-                    return res.status(500)
-                } else {
-                    log.i('::csv - Done')
-                    return res.send(csvContent)
-                }
-            })
-        }
-    })
-});
-
-*/ 
-
 // ################# Nombre d'attestation par structure #################
 // Pour str_id = 0 on remonte toutes les données 
 //
@@ -440,47 +317,82 @@ router.get('/nbattestations', async function (req, res) {
     log.i('::nbattestations - Done')
 });
 
-
-/* Séparation de la partie de recherche commentaire qui interfère avec l'écran "Mes interventions" initialement pas prévu */
-/* On ajoute donc cette partie pour répondre à l'affichage des commentaires en Admin et Partenaire sans effet de bord sur l'écran d'intervention  */
-/* Correction MANTIS 68438  */
-/*router.get('/commentaires/', async function (req, res) {
-    if(!req.session.user){ 
-        return res.sendStatus(403) 
+router.get('/tdb/', async function (req, res) {
+    // Modification de la récupération de l'utilisateur courant 
+    if (!req.session.user) {
+        return res.sendStatus(403)
     }
-
     const user = req.session.user
-    const utilisateurId = user.uti_id
-
-    // Get subset of interventions depending on user profile
-    var whereClause = ""
-    // Utilisateur est partenaire => intervention de la structure
-    if(user.pro_id == 2){
-        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id where utilisateur.str_id=${user.str_id} and int_commentaire is not null and int_commentaire <> '' `
-    // Utilisateur Administrateur : Exclusion des interventions sans commentaires
-    } else if(user.pro_id == 1){
-        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id WHERE int_commentaire is not null and int_commentaire <> ''`
-    } else if(user.pro_id == 3){
-        // Cet url ne doit pas être appelée par ce type de profil
-        whereClause += `INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id INNER JOIN structure on structure.str_id = utilisateur.str_id `
+    var typetdb = req.query.typetdb
+    var csv = req.query.csv
+    var requete = null
+    log.d("req.query.typetdb",req.query.typetdb)
+    //typetdb = "dep"
+    log.i('::tdb - In - ',typetdb)
+    log.i('::tdb - In -  typetdb === dep ',typetdb === "dep")
+    log.i('::tdb - In -  typetdb == dep ',typetdb == "dep")
+    
+    if (typetdb === "dep") {
+        log.i('::tdb - Dep ')
+        requete = `select reg.reg_libelle as region, dep.dep_libelle as departement, dep.dep_num as codedepartement, 
+        (select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_dep_num = dep.dep_num and intb1.blo_id = 1), 
+        (select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_dep_num = dep.dep_num and intb2.blo_id = 2), 
+        (select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_dep_num = dep.dep_num and intb3.blo_id = 3),
+        (select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_dep_num = dep.dep_num)
+        from region reg
+        left join departement dep on reg.reg_num = dep.reg_num
+        group by 1,2,3
+        order by 1,2,3`;
+    } else
+    {
+        log.i('::tdb - Reg')
+        requete = `select reg.reg_libelle as region,reg.reg_num as coderegion,
+		(select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_reg_num = reg.reg_num and intb1.blo_id = 1), 
+		(select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_reg_num = reg.reg_num and intb2.blo_id = 2), 
+		(select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_reg_num = reg.reg_num and intb3.blo_id = 3),
+		(select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_reg_num = reg.reg_num)
+        from region reg
+        group by 1,2
+        order by 1,2`;
     }
 
-    const requete = `SELECT * from intervention  ${whereClause}  order by int_dateintervention desc`;
-    console.log(requete)
 
-    pgPool.query(requete, (err, result) => {
+    log.i('::tdb - requête', { requete })    
+    return pgPool.query(requete,(err, result) => {
         if (err) {
-            console.log(err.stack);
-            return res.status(400).json('erreur lors de la récupération des interventions');
+            log.w('::tdb - error', err)
+            return res.status(400).json({ message: 'erreur sur la requete de recherche du tableau de bord' });
         }
         else {
-            console.info(result.rows)
-            const interventions = result.rows.map(formatIntervention);
-            res.json({ interventions });
-        }
-    })
-});*/
 
+            // Retour de la requête normale
+            if (!csv) {
+                log.i('::tdb - Done')    
+                const tdb = result.rows;
+                return res.status(200).json({ tdb });
+            }
+            else
+            // Retour au format csv
+            {
+                stringify(result.rows, {
+                    quote: '"',
+                    quoted: true,
+                    header: true,
+                    delimiter: ';'
+                }, (err, csvContent) => {
+                    if(err){
+                        log.w('::csv - Erreur lors callback après stringify.',err.stack);
+                        return res.status(500)
+                    } else {
+                        log.i('::csv - Done')
+                        return res.send(csvContent)
+                    }
+                })
+            }
+        }
+    });
+
+});
 
 router.get('/liste', async function (req, res) {
     log.i('::get - liste filtree')
