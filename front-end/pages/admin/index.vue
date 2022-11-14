@@ -127,6 +127,104 @@
             </b-card-body>
           </b-collapse>
         </b-card>
+        <!--  ACCORDEON -- TDB  -->
+        <b-card no-body class="mb-3">
+          <b-card-header header-tag="header" class="p-1" role="tab">
+            <b-form-row>
+              <b-col>
+                <!-- IMAGE RAYEE BANNER INTERVENTION -->
+                <b-img :src="require('assets/banner_ray_red.png')" blank-color="rgba(0,0,0,1)" />
+                <b-btn
+                  class="accordionBtn"
+                  block
+                  href="#"
+                  v-b-toggle.accordiontdb
+                  variant="Dark link"
+                >
+                  <h4>
+                    <i class="material-icons accordion-chevron">chevron_right</i>
+                    <i class="material-icons ml-2 mr-2">leaderboard</i>
+                    Tableaux de bord
+                  </h4>
+                </b-btn>
+              </b-col>
+            </b-form-row>
+          </b-card-header>   
+        </b-card>
+     
+        <b-collapse id="accordiontdb" accordion="my-accordion" role="tabpanel">
+          <b-card-body v-if="!loading">
+              <h5>
+                <i class="material-icons ml-2 mr-1">attribution</i>Tableau de bord du nombre d'enfants par bloc par département<br>
+              </h5>
+              <b-btn @click="AfficheTdbDep=!AfficheTdbDep" class="mb-2" variant="primary">
+                <i class="material-icons" style="font-size: 18px; top: 4px;">view_list</i> Afficher/Masquer tableau
+              </b-btn>
+              <b-btn @click="tableauDeBordCSV('dep',true)" class="mb-2" variant="primary">
+                <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
+              </b-btn>
+
+              <table class="table table-striped" v-if="AfficheTdbDep">
+                <thead  >
+                  <tr >
+                    <th scope="col">Région</th>
+                    <th scope="col">Code<br> département</th>
+                    <th scope="col">Département</th>
+                    <th scope="col">Nombre <br>d'enfants<br>Bloc 1</th>
+                    <th scope="col">Nombre <br>d'enfants<br>Bloc 2</th>
+                    <th scope="col">Nombre <br>d'enfants<br>Bloc 3</th>
+                    <th scope="col">Nombre <br>d'enfants<br>département</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr  v-for="tab in tdbdep" :key="tab.codedepartement">
+                    <td><b>{{tab.region}}</b></td>
+                    <td><b>{{tab.codedepartement}}</b></td>
+                    <td><b>{{tab.departement}}</b></td>
+                    <td><b>{{tab.nbenfantsbloc1}}</b></td>
+                    <td><b>{{tab.nbenfantsbloc2}}</b></td>
+                    <td><b>{{tab.nbenfantsbloc3}}</b></td>
+                    <td><b>{{tab.nbenfantstotal}}</b></td>
+                    
+                  </tr>
+                </tbody>
+              </table>
+
+              <h5>
+                <i class="material-icons ml-2 mr-1">attribution</i>Tableau de bord du nombre d'enfants par bloc par région<br>
+              </h5>
+              <b-btn @click="AfficheTdbReg=!AfficheTdbReg" class="mb-2" variant="primary">
+                <i class="material-icons" style="font-size: 18px; top: 4px;">view_list</i> Afficher/Masquer tableau
+              </b-btn>
+              <b-btn @click="tableauDeBordCSV('reg',true)" class="mb-2" variant="primary">
+                <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
+              </b-btn>
+
+              <table class="table table-striped" v-if="AfficheTdbReg">
+                <thead  >
+                  <tr >
+                    <th scope="col">Code région</th>
+                    <th scope="col">Région</th>
+                    <th scope="col">Nombre <br>d'enfants<br>Bloc 1</th>
+                    <th scope="col">Nombre <br>d'enfants<br>Bloc 2</th>
+                    <th scope="col">Nombre <br>d'enfants<br>Bloc 3</th>
+                    <th scope="col">Nombre <br>d'enfants<br>région</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr  v-for="tab in tdbreg" :key="tab.coderegion">
+                    <td><b>{{tab.coderegion}}</b></td>
+                    <td><b>{{tab.region}}</b></td>
+                    <td><b>{{tab.nbenfantsbloc1}}</b></td>
+                    <td><b>{{tab.nbenfantsbloc2}}</b></td>
+                    <td><b>{{tab.nbenfantsbloc3}}</b></td>
+                    <td><b>{{tab.nbenfantstotal}}</b></td>
+                    
+                  </tr>
+                </tbody>
+              </table>              
+          </b-card-body>
+        </b-collapse>             
         <!-- ACCORDEON -- EVENEMENTS -->
         <b-card no-body class="mb-3" v-if="utilisateurCourant.profilId==1">
           <b-card-header header-tag="header" class="p-1" role="tab">
@@ -547,6 +645,10 @@ export default {
       data2: null,
       data3: null,
       data4: null,
+      tdbdep: null,
+      tdbreg: null,
+      AfficheTdbDep: false,
+      AfficheTdbReg: false,
       optionsHisto: null,
       optionsDoughnut: null,
       loading: true,
@@ -774,6 +876,46 @@ export default {
       .catch(error => {
           //console.log('suiviEvenements -Error', error)
           return this.$toast.error("Une erreur est survenue lors de la récupération des indicateurs des événements")
+      })
+    },
+    tableauDeBordCSV(typetdb,csv){
+    this.$axios({
+        url: process.env.API_URL + "/interventions/tdb?typetdb="+ typetdb + "&csv=" + csv,
+        method: "GET",
+        responseType: "blob"
+      })
+        .then(response => {
+          // Crée un objet blob avec le contenue du CSV et un lien associé
+          const url = window.URL.createObjectURL(new Blob([response.data]));
+          // Crée un lien caché pour télécharger le fichier
+          const link = document.createElement("a");
+          link.href = url;
+          var fileName
+          if (typetdb == "dep")
+            fileName = "Savoir Rouler - TableauDeBordDepartement.csv";
+          else
+            fileName = "Savoir Rouler - TableauDeBordRegion.csv";
+          link.setAttribute("download", fileName);
+          // Télécharge le fichier
+          link.click();
+          link.remove();
+        })
+        .catch(err => {
+          this.$toasted.error("Erreur lors du téléchargement: " + err.message);
+        });
+    },
+    tableauDeBord(typetdb,csv){
+      const url = process.env.API_URL + "/interventions/tdb?typetdb="+ typetdb
+      return this.$axios.$get(url)
+      .then(({tdb}) => {
+        if (typetdb == "dep")  
+          return this.tdbdep = tdb;
+        else
+          return this.tdbreg = tdb;
+
+      })
+      .catch(error => {
+          return this.$toast.error("Une erreur est survenue lors de la récupération du tableau de bord")
       })
     },
     exportUsersCsv() {
@@ -1267,6 +1409,8 @@ export default {
       console.log(err)
     })
 
+    this.tableauDeBord("dep")
+    this.tableauDeBord("reg")
 
     // Calcul des stats définies dans le mixins stat.js
     this.statCal(this.interventions, this.structures)
