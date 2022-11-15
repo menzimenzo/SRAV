@@ -47,7 +47,9 @@ const formatIntervention = intervention => {
         tcocode: intervention.tco_code,
         strcorealisatrice: intervention.str_id_co_realise,
         strlibcorealisatrice: intervention.str_lib_co_realise,
-        eveid: intervention.eve_id
+        strcorealisatriceautre: intervention.int_corealiseautre,
+        eveid: intervention.eve_id,
+        structureId: intervention.str_id
     }
 
     if(intervention.uti_nom){
@@ -172,91 +174,92 @@ router.get('/csv/filtre', async function (req, res) {
     {
         whereClause += ` and int_dateintervention <= '${dateFin}' `
     }
-     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
-     const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,eve.eve_titre as evenement_associe from intervention 
-     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
-     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
-     INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
-     LEFT JOIN qpv ON intervention.int_qpv_code = qpv.qpv_code
-     LEFT JOIN zrr_insee zin on intervention.int_com_codeinsee = zin.zin_insee
-     LEFT JOIN zrr_statut zst on zin.zst_id = zst.zst_id
-     LEFT JOIN structure co on co.str_id = intervention.str_id_co_realise
-     LEFT JOIN evenement eve on eve.eve_id = intervention.eve_id
-     INNER JOIN uti_str ust ON intervention.ust_id = ust.ust_id
-     INNER JOIN structure ON structure.str_id = ust.str_id 
-     ${whereClause} 
-     order by int_id asc`;
-     log.d('::csv - requet', { requete })
- 
-     pgPool.query(requete, (err, result) => {
-         if (err) {
-             log.w('::csv - erreur lors de la requête.',err.stack);
-             return res.status(400).json('erreur lors de la récupération de l\'intervention');
-         }
-         else {
-             /*
-             0087034
-             Suppression des colonnes 
-             cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
-             */
-             var interventions = result.rows;
-             interventions = interventions.map(intervention => {
- 
-                 var newIntervention = formatIntervention(intervention)
-                 delete newIntervention.commune
-                 delete newIntervention.cai;
-                 delete newIntervention.eveid;
-                 delete newIntervention.sinId;
-                 delete newIntervention.structureId;
-                 newIntervention.commune = intervention.int_com_libelle
-                 newIntervention.codeinsee = intervention.int_com_codeinsee
-                 //newIntervention.dep_num = intervention.int_dep_num
-                 //newIntervention.reg_num = intervention.int_reg_num
-                 // Correction LSC 
-                 //newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
-                 newIntervention.dateIntervention = intervention.dateint,
-                 //newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
-                 newIntervention.dateCreation = intervention.datec,
-                 //newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
-                 newIntervention.dateMaj = intervention.datem
-                 // Fin correction LSC
-                 delete newIntervention.dateMaj;
-                 delete newIntervention.structureCode;
-                 delete newIntervention.structureLibelle;
-                 delete newIntervention.StructureLocaleUtilisateur;
-                 //newIntervention.structureCode = intervention.str_libellecourt;
-                 //newIntervention.structureLibelle = intervention.str_libelle;
-                 newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
-                 newIntervention.qpv = intervention.qpv_libelle;
-                 newIntervention.evenement_associe = intervention.evenement_associe;
-                 // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
-                 if(user.pro_id == 4){
-                     delete newIntervention.siteintervention;
-                 }
-                 delete newIntervention.commentaire                
- 
-                 return newIntervention
-             })
-             if (!interventions || !interventions.length) {
-                 log.w('::csv - Intervention inexistante.');
-                 return res.status(400).json({ message: 'Interventions inexistante' });
-             }
-             stringify(interventions, {
-                quote: '"',
-                quoted: true,
-                header: true,
-                delimiter: ';'
-             }, (err, csvContent) => {
-                 if(err){
-                     log.w('::csv - Erreur lors callback après stringify.',err.stack);
-                     return res.status(500)
-                 } else {
-                     log.i('::csv - Done')
-                     return res.send(csvContent)
-                 }
-             })
-         }
-     })
+    // Remplacement Clause Where en remplacant utilisateur par clause dynamique
+    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,int_corealiseautre as lib_co_realiseautre ,eve.eve_titre as evenement_associe
+    from intervention 
+    INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
+    INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
+    INNER JOIN utilisateur ON intervention.uti_id = utilisateur.uti_id 
+    LEFT JOIN qpv ON intervention.int_qpv_code = qpv.qpv_code
+    LEFT JOIN zrr_insee zin on intervention.int_com_codeinsee = zin.zin_insee
+    LEFT JOIN zrr_statut zst on zin.zst_id = zst.zst_id
+    LEFT JOIN structure co on co.str_id = intervention.str_id_co_realise
+    LEFT JOIN evenement eve on eve.eve_id = intervention.eve_id
+    INNER JOIN uti_str ust ON intervention.ust_id = ust.ust_id
+    INNER JOIN structure ON structure.str_id = ust.str_id 
+    ${whereClause} 
+    order by int_id asc`;
+    log.d('::csv - requet', { requete })
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            log.w('::csv - erreur lors de la requête.',err.stack);
+            return res.status(400).json('erreur lors de la récupération de l\'intervention');
+        }
+        else {
+            /*
+            0087034
+            Suppression des colonnes 
+            cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
+            */
+            var interventions = result.rows;
+            interventions = interventions.map(intervention => {
+
+                var newIntervention = formatIntervention(intervention)
+                delete newIntervention.commune
+                delete newIntervention.cai;
+                delete newIntervention.eveid;
+                delete newIntervention.sinId;
+                delete newIntervention.structureId;
+                newIntervention.commune = intervention.int_com_libelle
+                newIntervention.codeinsee = intervention.int_com_codeinsee
+                //newIntervention.dep_num = intervention.int_dep_num
+                //newIntervention.reg_num = intervention.int_reg_num
+                // Correction LSC 
+                //newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
+                newIntervention.dateIntervention = intervention.dateint,
+                //newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
+                newIntervention.dateCreation = intervention.datec,
+                //newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                newIntervention.dateMaj = intervention.datem
+                // Fin correction LSC
+                delete newIntervention.dateMaj;
+                delete newIntervention.structureCode;
+                delete newIntervention.structureLibelle;
+                delete newIntervention.StructureLocaleUtilisateur;
+                //newIntervention.structureCode = intervention.str_libellecourt;
+                //newIntervention.structureLibelle = intervention.str_libelle;
+                newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
+                newIntervention.qpv = intervention.qpv_libelle;
+                newIntervention.evenement_associe = intervention.evenement_associe;
+                // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
+                if(user.pro_id == 4){
+                    delete newIntervention.siteintervention;
+                }
+                delete newIntervention.commentaire                
+
+                return newIntervention
+            })
+            if (!interventions || !interventions.length) {
+                log.w('::csv - Intervention inexistante.');
+                return res.status(400).json({ message: 'Interventions inexistante' });
+            }
+            stringify(interventions, {
+            quote: '"',
+            quoted: true,
+            header: true,
+            delimiter: ';'
+            }, (err, csvContent) => {
+                if(err){
+                    log.w('::csv - Erreur lors callback après stringify.',err.stack);
+                    return res.status(500)
+                } else {
+                    log.i('::csv - Done')
+                    return res.send(csvContent)
+                }
+            })
+        }
+    })
  });
 
 // ################# Nombre d'attestation par structure #################
@@ -504,10 +507,12 @@ router.get('/:id', async function (req, res) {
     // Where condition is here for security reasons.
     var whereClause = ""
     if(user.pro_id == 3){
-        whereClause += ` and uti_id=${utilisateurId} `
+        whereClause += ` and intervention.uti_id=${utilisateurId} `
     }
 
-    const requete =`SELECT * from intervention where int_id=${id} ${whereClause} order by int_id asc`;
+    const requete =`SELECT intervention.*, ust.str_id from intervention 
+        INNER JOIN uti_str ust ON ust.ust_id = intervention.ust_id 
+    where int_id=${id} ${whereClause} order by int_id asc`;
     log.d('::get - récuperation via la requête.',{ requete })
 
     pgPool.query(requete, (err, result) => {
@@ -595,7 +600,7 @@ router.put('/:id', async function (req, res) {
 
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
         commentaire, cp, utilisateurId,siteintervention,
-        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,eveid } = intervention
+        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,strcorealisatriceautre,eveid } = intervention
         
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -632,7 +637,8 @@ router.put('/:id', async function (req, res) {
         int_qpv_code = $21,
         ust_id = $22,
         str_id_co_realise = $23,
-        eve_id = $24
+        int_corealiseautre = $24,
+        eve_id = $25
         WHERE int_id = ${id}
         RETURNING *
         ;`    
@@ -661,6 +667,7 @@ router.put('/:id', async function (req, res) {
         qpvcode,
         ustid,
         strcorealisatrice,
+        strcorealisatriceautre,
         eveid], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de la récupération', { requete, erreur: err.stack})
@@ -670,7 +677,7 @@ router.put('/:id', async function (req, res) {
             log.i('::update - Done')
             // generation du pdf (synchrone)
             if (blocId == 3 ) {
-                myPdf.generate(id,nbEnfants, dateIntervention,ustid,strcorealisatrice)  
+                myPdf.generate(id,nbEnfants, dateIntervention,ustid,strcorealisatrice,strcorealisatriceautre)  
             }
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
 
@@ -685,7 +692,7 @@ router.post('/', function (req, res) {
     let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
          commentaire, cp, utilisateurId, siteintervention,
          nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,
-         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,eveid } = intervention
+         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,strcorealisatriceautre,eveid } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -707,15 +714,16 @@ router.post('/', function (req, res) {
                         int_qpv_code, 
                         ust_id,
                         str_id_co_realise,
+                        int_corealiseautre,
                         eve_id
                         ) 
-                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27 ) RETURNING *`;
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28 ) RETURNING *`;
     
     log.d('::post - requete',{ requete });
     pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
     nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
     commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix, 
-    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,eveid],(err, result) => {
+    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,strcorealisatriceautre,eveid],(err, result) => {
         if (err) {
             log.w('::post - Erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
@@ -724,7 +732,7 @@ router.post('/', function (req, res) {
             log.i('::post - Done', { rows: result.rows })
             // generation du pdf (synchrone)
             if (blocId == 3) {
-              myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants,dateIntervention,result.rows.map(formatIntervention)[0].ustid,result.rows.map(formatIntervention)[0].strcorealisatrice);
+              myPdf.generate(result.rows.map(formatIntervention)[0].id,nbEnfants,dateIntervention,result.rows.map(formatIntervention)[0].ustid,result.rows.map(formatIntervention)[0].strcorealisatrice,result.rows.map(formatIntervention)[0].strcorealisatriceautre);
             }
             return res.status(200).json({ intervention: result.rows.map(formatIntervention)[0] });
         }

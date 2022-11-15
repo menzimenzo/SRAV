@@ -45,10 +45,8 @@ router.get('/list', (req, res) => {
 
     log.i('::list parametres - In')
 
-    console.log("tEsT "+JSON.stringify(req.session.user))
-
     if(req.session==null || req.session.user==null || req.session.user.pro_id!="1"){ 
-        log.w('::nbattestations - Paramètres str_id manquant.')
+        log.w('::list parametres - Profil non autorisé ou manquant.')
         return res.sendStatus(403) 
     } else {
 

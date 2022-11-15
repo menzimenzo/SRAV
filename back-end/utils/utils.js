@@ -48,7 +48,8 @@ module.exports = {
             codepostal:utilisateur.uti_com_codepostal,
             mailcontact:utilisateur.uti_mailcontact,
             telephone:utilisateur.uti_telephone,
-            autorisepublicarte:utilisateur.uti_autorisepublicarte
+            autorisepublicarte:utilisateur.uti_autorisepublicarte,
+            ustid:utilisateur.ust_id,
       }
     } else { 
       return {
@@ -72,7 +73,8 @@ module.exports = {
             uti_com_codepostal: utilisateur.codepostal,
             uti_mailcontact: utilisateur.mailcontact  && utilisateur.mailcontact.toLowerCase() ,
             uti_telephone: utilisateur.telephone,
-            uti_autorisepublicarte: utilisateur.autorisepublicarte
+            uti_autorisepublicarte: utilisateur.autorisepublicarte,
+            ust_id: utilisateur.ust_id,
         }
     }
   }

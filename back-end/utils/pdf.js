@@ -7,7 +7,7 @@ const { lineGap } = require('pdfkit');
 const log = logger(module.filename)
 const pgPool = require('../pgpool').getPool();
 
-function generate(id,nbenfants,dateintervention, ustid,strcorealisatrice) {
+function generate(id,nbenfants,dateintervention, ustid,strcorealisatrice,strcorealisatriceautre) {
    var nbzero;
    var idformate = "";
     // Récupération du logo s'il y en a un 
@@ -83,9 +83,11 @@ function generate(id,nbenfants,dateintervention, ustid,strcorealisatrice) {
                             });        
                         }
                         // Co-Réalisation 
-                        if (resultsstr.rows.length != 0) {
+                        if (resultsstr.rows.length != 0) 
                             doc.text("Co-réalisé avec le partenaire «"+resultsstr.rows[0].str_libellecourt+"»",350,517,{align:'right', width:430});
-                        }
+                        else
+                        if (strcorealisatriceautre)
+                            doc.text("Co-réalisé avec «"+strcorealisatriceautre+"»",350,517,{align:'right', width:430});
 
                         // dernière page ? pour ne pas ajouter de page vide
                         if (indexpage <= nbenfants-1) {

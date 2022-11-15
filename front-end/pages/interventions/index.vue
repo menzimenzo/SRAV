@@ -141,7 +141,7 @@
                         :loading="loading"
                         :defaultSortField="{ key: 'dateIntervention', order: 'desc' }"
                       >
-                        <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4 && (utilisateurCourant.profilId==2 && props.data.structureId == utilisateurCourant.structureId ) ">
+                        <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4 && ((utilisateurCourant.profilId ==1 || (utilisateurCourant.profilId==2 && props.data.structureId == utilisateurCourant.structureId)  || (utilisateurCourant.profilId==3 && props.data.ustid == utilisateurCourant.ustid) )  ) ">
                           <div style="min-width: 147px;">
                             <b-btn
                               v-if="!autoriseModifIntervention(props.data.dateIntervention)"
