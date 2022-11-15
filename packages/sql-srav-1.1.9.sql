@@ -19,7 +19,7 @@ BEGIN
 	SELECT SRAV_DeployerVersion('1.1.9','schema') INTO FaireMAJSchema;
 	IF FaireMAJSchema THEN
 		-- Ajout corealisation autre
-		alter table intervention add column int_corealiseautre varchar(150)
+		alter table intervention add column int_corealiseautre varchar(150);
 		-- Déploiement du Schéma effectué
     	SELECT SRAV_VersionDeployee('1.1.9','schema')  INTO VersionDeployee;
 		raise notice 'Mise à jour du schéma effectué : %',VersionDeployee;
