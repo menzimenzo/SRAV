@@ -58,7 +58,7 @@ module.exports = async (req, res, next) => {
 
     var utilisateur, url,nom
 //    await pgPool.query('SELECT * from utilisateur where uti_tockenfranceconnect = $1', [$1 = userInfo.sub],
-    await pgPool.query('SELECT uti.*, str.* from utilisateur uti \
+    await pgPool.query('SELECT uti.*, str.*, ust.ust_id from utilisateur uti \
                         left join uti_str ust on ust.uti_id = uti.uti_id \
                         left join structure str on str.str_id = ust.str_id \
                         where uti.uti_tockenfranceconnect = $1 limit 1', [$1 = userInfo.sub],
