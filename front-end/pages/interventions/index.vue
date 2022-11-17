@@ -141,7 +141,7 @@
                         :loading="loading"
                         :defaultSortField="{ key: 'dateIntervention', order: 'desc' }"
                       >
-                        <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4 && ((utilisateurCourant.profilId ==1 || (utilisateurCourant.profilId==2 && props.data.structureId == utilisateurCourant.structureId)  || (utilisateurCourant.profilId==3 && props.data.ustid == utilisateurCourant.ustid) )  ) ">
+                        <template slot-scope="props" slot="actions"  v-if="utilisateurCourant.profilId!=4 && ((utilisateurCourant.profilId ==1 || (utilisateurCourant.profilId==2 && props.data.structureId ||utilisateurCourant.profilId==3) && structuresUtilisateur.indexOf(props.data.structureId)!=-1) )  ">
                           <div style="min-width: 147px;">
                             <b-btn
                               v-if="!autoriseModifIntervention(props.data.dateIntervention)"
@@ -327,6 +327,7 @@ export default {
       filtreIdStructure: null,
       filtreDateInterventionDebut: null,
       filtreDateInterventionFin: null,
+      structuresUtilisateur: [],
       afficheResultat: false,
       interditCSV: true
     };
@@ -596,6 +597,15 @@ export default {
               if (this.listestructures.length == 1) {
                   this.filtreIdStructureUtilisateur = this.listestructures[0].ust_id
               }
+              
+              this.listestructures.forEach(element => {
+                console.debug("Ajout de la structure : ",element.str_id)
+                
+                this.structuresUtilisateur.push(element.str_id)  
+              });
+              var listunique = this.structuresUtilisateur.filter((x, i) => this.structuresUtilisateur.indexOf(x) === i);
+              this.structuresUtilisateur = listunique 
+              
               this.loading = false;
             })
             .catch(error => {
