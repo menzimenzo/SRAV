@@ -110,10 +110,16 @@
                               class="text-date date-input-width">
                             </b-form-input>
                         </b-col>
+                            
                         <b-btn @click="razFiltres()" class="mb-2" variant="primary">
                         <i class="material-icons" style="font-size: 18px; top: 4px;">filter_alt_off</i> Vider filtres
                       </b-btn>
+                      
                       </b-row>
+                      Les interventions sont comptabilisées à partir du 17/04/2019
+                      <b-row>
+                      </b-row>
+
                       <br>
                       <b-row>
                         <b-col cols="2">
