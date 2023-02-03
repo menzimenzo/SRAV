@@ -28,6 +28,13 @@ BEGIN
 
 		/*==============================================================*/
 		/* Table : trace                                        		*/
+		/* Stockage des traces connexion                         		*/
+		/*==============================================================*/
+		alter table utilisateur add uti_date_creation timestamp;
+		alter table utilisateur add uti_date_connexion timestamp;
+
+		/*==============================================================*/
+		/* Table : trace                                        		*/
 		/* Stockage des traces utilisateurs                       		*/
 		/*==============================================================*/
 		create table trace (

@@ -88,7 +88,7 @@ module.exports = async (req, res, next) => {
             
             const { rows } = await pgPool.query(
               'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, uti_nom, uti_prenom,\
-                uti_tockenfranceconnect) VALUES($1, $2, $3, upper($4), $5, $6) RETURNING *'
+                uti_tockenfranceconnect, uti_date_creation) VALUES($1, $2, $3, upper($4), $5, $6, now()) RETURNING *'
               , [3, 1, userInfo.email, nom, userInfo.given_name, userInfo.sub]
             ).catch(err => {
               console.log(err)
@@ -102,7 +102,7 @@ module.exports = async (req, res, next) => {
             utilisateur = result.rows[0]
             // Mantis 68472 - sauvegarde systématique du nom
             const { rows } = await pgPool.query(
-              'UPDATE utilisateur SET uti_nom = $1 where uti_id = $2 RETURNING *'
+              'UPDATE utilisateur SET uti_nom = $1, uti_date_connexion = now() where uti_id = $2 RETURNING *'
               , [nom,utilisateur.uti_id]
             ).catch(err => {
               console.log('erreur lors de la sauvegarde du nom:'+err)

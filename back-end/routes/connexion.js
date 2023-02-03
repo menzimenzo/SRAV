@@ -331,8 +331,8 @@ router.post('/create-account-pwd', async (req, res) => {
         log.d('::create-account-pwd - Nouveau user, authentifié via password, à ajouter en base')
         confirmInscription = true    
         bddRes = await pgPool.query(
-            'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, validated, uti_pwd)\
-            VALUES($1, $2, $3, $4, $5) RETURNING *'
+            'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, validated, uti_pwd,uti_date_creation)\
+            VALUES($1, $2, $3, $4, $5,now()) RETURNING *'
             , [3, 1, formatedMail, false, crypted ]
             /*
           ).then((result)=> {

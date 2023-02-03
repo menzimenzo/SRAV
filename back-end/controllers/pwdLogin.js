@@ -63,6 +63,15 @@ module.exports = async function(req, res) {
                     }
                 postTrace(params)
 */
+                const requeteConnexion = `UPDATE utilisateur set uti_date_connexion = now()
+                                WHERE uti_mail='${mail}'`;
+
+                pgPool.query(requeteConnexion, (err, result) => {
+                    if (err) { 
+                        log.w(err.stack);
+                        return res.status(400).json('erreur lors mise à jour de la date de connexion de l\'utilisateur');
+                    }
+                })
                 log.i('Done', { user })            
                 return res.json({ user: formatUtilisateur(user) });
             } else {
