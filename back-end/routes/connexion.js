@@ -12,6 +12,8 @@ const {getAuthorizationUrl, getLogoutUrl, formatUtilisateur} = require('../utils
 const bodyParser = require('body-parser');
 var moment = require('moment');
 const { oauthCallback, pwdLogin, generateForgotPasswordEncryption } = require('../controllers/index')
+const {postTrace} = require('../controllers');
+
 moment().format();
 
 router.get('/login', (req, res) => {
@@ -227,6 +229,18 @@ router.post('/verify', async (req,res) => {
             throw err
         })
     }
+/*
+    const params = {
+        tra_uti_id: user.id,
+        tra_action : 'U',
+        tta_id: 12,
+        tra_objet: 'UTILISATEUR',
+        tra_objet_id: user.id,
+        tra_contenu: user
+        }
+
+    postTrace(params)
+*/
 
     log.i('::verify - Done')
     return res.send({user, isPwdConfirmed })
@@ -320,6 +334,21 @@ router.post('/create-account-pwd', async (req, res) => {
             'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, validated, uti_pwd)\
             VALUES($1, $2, $3, $4, $5) RETURNING *'
             , [3, 1, formatedMail, false, crypted ]
+            /*
+          ).then((result)=> {
+            log.d(result.rows[0])
+            const params = {
+                tra_uti_id: result.rows[0].uti_id,
+                tra_action : 'C',
+                tta_id: 4,
+                tra_objet: 'UTILISATEUR',
+                tra_objet_id: result.rows[0].uti_id,
+                tra_contenu: result.rows[0]
+                }
+        
+            Promise.all(postTrace(params))
+            }
+            */
           ).catch(err => {
             log.w(err)
             throw err

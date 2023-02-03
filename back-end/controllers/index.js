@@ -1,5 +1,6 @@
 module.exports = {
     oauthCallback: require('./oauthCallback'),
     pwdLogin: require('./pwdLogin'),
-    generateForgotPasswordEncryption: require('./generateForgotPasswordEncryption')
+    generateForgotPasswordEncryption: require('./generateForgotPasswordEncryption'),
+    postTrace: require('./postTrace')
 }

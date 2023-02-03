@@ -4,6 +4,7 @@ const {formatUtilisateur} = require('../utils/utils')
 
 const logger = require('../utils/logger')
 const log = logger(module.filename)
+const {postTrace} = require('../controllers');
 
 module.exports = async function(req, res) {
     const { mail, password } = req.body
@@ -51,6 +52,17 @@ module.exports = async function(req, res) {
                 req.session.user = user
                 req.accessToken = crypted;
                 req.session.accessToken = crypted;
+
+/*
+                const params = {
+                    tra_action : 'U',
+                    tta_type_id: 1,
+                    tra_objet: 'UTILISATEUR',
+                    tra_objet_id: user.id,
+                    tra_contenu: user
+                    }
+                postTrace(params)
+*/
                 log.i('Done', { user })            
                 return res.json({ user: formatUtilisateur(user) });
             } else {

@@ -5,6 +5,7 @@ const stringify                                        = require('csv-stringify'
 const myPdf = require('../utils/pdf')
 var moment = require('moment');
 moment().format();
+const {postTrace} = require('../controllers');
 
 const logger = require('../utils/logger')
 const log = logger(module.filename)
@@ -288,6 +289,18 @@ router.get('/csv/filtre', async function (req, res) {
                             return res.status(500)
                         } else {
                             log.i('::csv - Done')
+                            /*
+                            const params = {
+                                tra_uti_id: req.session.user.uti_id,
+                                tra_action : 'R',
+                                tta_id: 53,
+                                tra_objet: 'INTERVENTION',
+                                tra_objet_id: 1,
+                                tra_contenu: req.query
+                                }
+
+                            postTrace(params)
+                            */
                             return res.send(csvContent)
                         }
                     })

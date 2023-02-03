@@ -3,6 +3,7 @@ const router = express.Router();
 const stringify = require('csv-stringify')
 const pgPool = require('../pgpool').getPool();
 var moment = require('moment');
+const {postTrace} = require('../controllers');
 moment().format();
 
 const logger = require('../utils/logger')
@@ -376,6 +377,16 @@ router.put('/:id', async function (req, res) {
         }
         else {
             log.i('::update - Done')
+            /*
+            const params = {
+                tra_action : 'C',
+                tta_type_id: 1,
+                tra_objet: 'UTILISATEUR',
+                tra_objet_id: user.id,
+                tra_contenu: user
+                }
+            postTrace(params)
+            */
             return res.status(200).json({ user: formatUser(result.rows[0])});
         }
     })
