@@ -333,13 +333,14 @@
           tableMaxHeight="none"
           :loading="loading">
 
-          <template slot-scope="props" slot="actions" v-if="props.data.sus_id==0">
+          <template slot-scope="props" slot="actions" >
             <b-btn
               @click="activeStruct(props.data.str_id, props.data.dco_id, props.data.uti_structurelocale, props.data.str_libelle)"
               size="sm"
               class="mr-1"
-              variant="danger"
+              variant="success"
               id="boutonActive"
+              v-if="props.data.sus_id==0"
             >
               <i class="material-icons">add</i>
             </b-btn>
@@ -347,8 +348,20 @@
               J'interviens de<br> nouveau sur cette<br/>structure<br/>Je l'active
             </b-tooltip>
 
-          </template>
+            <b-btn
+              size="sm"
+              class="mr-1"
+              variant="danger"
+              id="boutonBloque"
+              v-if="props.data.sus_id==2"
+            >
+              <i class="material-icons">lock</i>
+            </b-btn>
+            <b-tooltip target="boutonBloque" triggers="hover">
+              Votre compte a été bloqué par votre structure
+            </b-tooltip>
 
+          </template>
         </editable>
       </b-card>
     </div>
@@ -428,8 +441,6 @@ export default {
       this.AjouterStructure = true;
     },
     deleteStruct: function (strid, dcoid, strlocale, strlibelle) {
-      console.log("Id structure selectionnée : ", strid)
-      console.log("Id structure selectionnée : ", dcoid)
       this.mastructure.str_id = strid
       this.mastructure.dco_id = dcoid
       this.mastructure.uti_structurelocale = strlocale
@@ -439,7 +450,6 @@ export default {
       } else {
         return this.$store.dispatch('post_del_user_structure', this.mastructure)
           .then(message => {
-            console.info("Retour supression structure", message)
             this.AjouterStructure = false
             this.$toast.success(`Désaffiliation à la structure ${this.mastructure.str_libelle} réalisée`, [])
             //this.$store.dispatch("get_user_structures",this.$store.state.utilisateurCourant.id)
@@ -451,7 +461,18 @@ export default {
       }
     },
     saveStruct: function () {
-      console.log("Sauvegarde des structures")
+
+      var autoriseCreation = true 
+      this.listestructures.forEach(struti => {
+        if (this.mastructure.str_id == struti.str_id && struti.sus_id == 2)
+        {
+          this.$toast.error("Votre compte a été bloqué par cette structure, vous ne pouvez vous réaffecter sur celle-ci<br><br>Contactez l'administrateur national de la structure concernée" )
+          autoriseCreation = false
+          this.AjouterStructure = false
+        }
+        
+      });
+      if (autoriseCreation == true) {
       return this.$store.dispatch('post_user_structures', this.mastructure)
         .then(message => {
           console.info(message)
@@ -459,7 +480,6 @@ export default {
           this.$toast.success(`Affiliation à la structure #${this.mastructure.str_libelle} réalisée`, [])
           //this.$store.dispatch("get_user_structures",this.$store.state.utilisateurCourant.id)
           this.chargeUtiStructures(this.$store.state.utilisateurCourant.id);
-          console.log("Structure rechargées : ", this.mastructure)
           //this.$store.dispatch('get_structures')
           //this.$modal.hide('editStruct')
 
@@ -467,6 +487,7 @@ export default {
         .catch(error => {
           console.error('Une erreur est survenue lors de la création de la structure', error)
         })
+      }
     },
     editStruct: function (id) {
       if (id === null) {
@@ -505,11 +526,9 @@ export default {
     recherchecommune: function () {
       if (this.cp.length === 5) {
         // Le code postal fait bien 5 caractères
-        console.info("Recherche de la commune");
         this.mastructure.dco_codepostal = this.cp
         const url =
           process.env.API_URL + "/listecommune?codepostal=" + this.cp;
-        console.info(url);
         return this.$axios
           .$get(url)
           .then((response) => {
@@ -531,9 +550,7 @@ export default {
       }
     },
     getDepartements: function () {
-      console.info("recupération de la liste des départements");
       const url = process.env.API_URL + "/listedepartement";
-      console.info(url);
       return this.$axios
         .$get(url)
         .then((response) => {
@@ -550,9 +567,7 @@ export default {
       if (this.cpEpci.length === 5) {
         // Le code postal fait bien 5 caractères
         this.mastructure.dco_codepostal = this.cpEpci
-        console.info("Recherche de l'EPCI'");
         const url = process.env.API_URL + "/listepci?codepostal=" + this.cpEpci;
-        console.info(url);
         return this.$axios
           .$get(url)
           .then((response) => {
@@ -617,8 +632,6 @@ export default {
       return null;
     },
     activeStruct: function (strid, dcoid, strlocale, strlibelle) {
-      console.log("Id structure selectionnée : ", strid)
-      console.log("Id structure selectionnée : ", dcoid)
       this.mastructure.str_id = strid
       this.mastructure.dco_id = dcoid
       this.mastructure.uti_structurelocale = strlocale
@@ -628,7 +641,6 @@ export default {
       } else {
         return this.$store.dispatch('post_add_user_structure', this.mastructure)
           .then(message => {
-            console.info("Retour supression structure", message)
             //this.AjouterStructure = false
             this.$toast.success(`Affiliation à la structure ${this.mastructure.str_libelle} réalisée`, [])
             //this.$store.dispatch("get_user_structures",this.$store.state.utilisateurCourant.id)
@@ -641,10 +653,8 @@ export default {
     },
     chargeUtiStructures(iduti) {
       const url = process.env.API_URL + "/structures/user/" + iduti + "/ALL";
-      console.info(url);
       return this.$axios.$get(url).then(response => {
         this.listestructures = response.structures;
-        console.log(this.listestructures)
         this.loading = false;
       })
         .catch(error => {
@@ -671,9 +681,6 @@ export default {
   async mounted() {
     this.loading = true;
     const iduti = this.$store.state.utilisateurCourant.id
-    console.log("UtilisateurCourant : ", iduti)
-
-    console.log("Appel procédure get_user_structures")
     await Promise.all([
       this.$store.dispatch("get_user_structures", iduti).catch(error => {
         console.error(
@@ -699,9 +706,12 @@ export default {
     this.getDepartements().then((res) => {
     });
 
+    // Chargement des structures affectées à l'utilisateur
+    this.chargeUtiStructures(iduti)
 
-// formatUtilisateurSructure
-    this.chargeUtiStructures(iduti);
+
+;
+    
 
   },
   computed: {
