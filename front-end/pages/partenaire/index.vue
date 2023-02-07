@@ -109,7 +109,7 @@
                   <h4>
                     <i class="material-icons accordion-chevron">chevron_right</i>
                     <i class="material-icons ml-2 mr-2">leaderboard</i>
-                    Tableaux de bord
+                    Tableaux de bord national (Toutes structures)
                   </h4>
                 </b-btn>
               </b-col>

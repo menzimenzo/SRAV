@@ -32,6 +32,7 @@ BEGIN
 		/*==============================================================*/
 		alter table utilisateur add uti_date_creation timestamp;
 		alter table utilisateur add uti_date_connexion timestamp;
+		alter table utilisateur add uti_form_gene_velo boolean;
 
 		/*==============================================================*/
 		/* Table : trace                                        		*/

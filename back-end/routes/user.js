@@ -203,7 +203,7 @@ router.get('/:ustid', async function (req, res) {
         ust.uti_structurelocale structurelocale
         from utilisateur uti 
         join uti_str ust on ust.uti_id = uti.uti_id and ust.ust_id=${ustid}
-        join uti_str ustpar on ust.str_id = ustpar.str_id and ustpar.ust_id=${utilisateurCourant.uti_id}
+        join uti_str ustpar on ust.str_id = ustpar.str_id and ustpar.uti_id=${utilisateurCourant.uti_id}
         left join detail_collectivite dco on dco.dco_id = ust.dco_id
         join structure str on str.str_id= ust.str_id 
         left join commune com on com.cpi_codeinsee = uti.uti_com_codeinsee
