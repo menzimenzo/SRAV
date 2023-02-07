@@ -12,6 +12,8 @@ const {getAuthorizationUrl, getLogoutUrl, formatUtilisateur} = require('../utils
 const bodyParser = require('body-parser');
 var moment = require('moment');
 const { oauthCallback, pwdLogin, generateForgotPasswordEncryption } = require('../controllers/index')
+const {postTrace} = require('../controllers');
+
 moment().format();
 
 router.get('/login', (req, res) => {
@@ -35,44 +37,7 @@ router.post('/verify', async (req,res) => {
     var wasValidated = req.body.validated
     const tokenFc = req.body.tokenFc
     var user = formatUtilisateur(req.body, false)
-    /*
-    if (user.str_id == 99999) {
-        // La structure spécifiée n'existe peut être pas encore
-        const selectRes = await pgPool.query("SELECT str_id from structure where str_typecollectivite is not null and str_libelle = $1",
-            [user.libelleCollectivite]).catch(err => {
-                log.w(err)
-                throw err
-            })
 
-        var libelleCourt = ''
-        if (!selectRes.rows[0]) {
-            // Si la structure n'existe pas on la créé
-            log.d('::verify - structure a créer')
-            if (user.typeCollectivite == 1) {
-                libelleCourt = 'COM'
-            }
-            if (user.typeCollectivite == 2) {
-                libelleCourt = 'DEP'
-            }
-            if (user.typeCollectivite == 3) {
-                libelleCourt = 'EPCI'
-            }
-            const insertRes = await pgPool.query("INSERT INTO structure (str_libellecourt,str_libelle,str_actif,str_federation,str_typecollectivite) \
-         VALUES ($1,$2,'true','false',$3) RETURNING *",
-                [libelleCourt,user.libelleCollectivite, user.typeCollectivite]).catch(err => {
-                    log.w(err)
-                    throw err
-                })
-                user.str_id = insertRes.rows[0].str_id
-            log.d('::verify - structure créée. Str_id : '+user.str_id );
-        }
-        else {
-            user.str_id = selectRes.rows[0].str_id
-            log.d('::verify - structure déjà existante. Str_id : '+user.str_id );
-        }
-        user.uti_structurelocale = user.libelleCollectivite
-    }
-*/
     // Vérifier si l'email est déjà utilisé en base.
     const mailExistenceQuery = await pgPool.query(`SELECT uti_mail,uti_pwd, uti_tockenfranceconnect FROM utilisateur WHERE uti_mail='${user.uti_mail}'`).catch(err => {
         log.w(err)
@@ -85,11 +50,6 @@ router.post('/verify', async (req,res) => {
     } 
 
     log.d('::verify - Mise à jour de l\'utilisateur existant')    
-
-/*
-        uti_structurelocale = $2, \
-        user.uti_structurelocale, 
-*/
     const bddRes = await pgPool.query
     ("UPDATE utilisateur \
         SET uti_mail = lower($1), \
@@ -103,8 +63,9 @@ router.post('/verify', async (req,res) => {
         uti_com_codepostal = $8, \
         uti_mailcontact = $9, \
         uti_telephone = $10, \
-        uti_autorisepublicarte = $11 \
-    WHERE uti_id = $12 RETURNING *", 
+        uti_autorisepublicarte = $11, \
+        uti_form_gene_velo = $12 \
+    WHERE uti_id = $13 RETURNING *", 
         [user.uti_mail, 
         user.uti_nom, 
         user.uti_prenom, 
@@ -116,81 +77,13 @@ router.post('/verify', async (req,res) => {
         user.uti_mailcontact,
         user.uti_telephone,
         Boolean(user.uti_autorisepublicarte),
+        Boolean(user.uti_form_gene_velo),
         user.uti_id
     ]
     ).catch(err => {
         log.w(err)
         throw err
         })
-        /*
-    ("UPDATE utilisateur \
-        SET str_id = $1, \
-        uti_mail = lower($2), \
-        uti_structurelocale = $3, \
-        uti_nom = $4, \
-        uti_prenom = $5, \
-        validated = true, \
-        uti_siteweb = $7, \
-        uti_adresse = $8, \
-        uti_complementadresse = $9, \
-        uti_com_codeinsee = $10, \
-        uti_com_codepostal = $11, \
-        uti_mailcontact = $12, \
-        uti_telephone = $13, \
-        uti_autorisepublicarte = $14 \
-    WHERE uti_id = $6 RETURNING *", 
-        [user.str_id, 
-        user.uti_mail, 
-        user.uti_structurelocale, 
-        user.uti_nom, 
-        user.uti_prenom, 
-        user.uti_id,
-        user.uti_siteweb,
-        user.uti_adresse,
-        user.uti_complementadresse,
-        user.uti_com_codeinsee,
-        user.uti_com_codepostal,
-        user.uti_mailcontact,
-        user.uti_telephone,
-        Boolean(user.uti_autorisepublicarte)]
-    ).catch(err => {
-        log.w(err)
-        throw err
-        })
-
-*/
-    /*
-     const requete = `UPDATE utilisateur 
-        SET uti_mail = lower($1),
-        uti_nom = $2, 
-        uti_prenom = $3, 
-        uti_structurelocale = $4,
-        uti_siteweb = $5,
-        uti_adresse = $6,
-        uti_complementadresse = $7,
-        uti_com_codeinsee = $8,
-        uti_com_codepostal = $9,
-        uti_mailcontact = $10,
-        uti_telephone = $11,
-        uti_autorisepublicarte = $12
-        WHERE uti_id = ${id}
-        RETURNING *
-        ;`    
-    pgPool.query(requete,
-        [user.mail,
-        user.nom,  
-        user.prenom, 
-        user.structureLocale,
-        user.siteweb,
-        user.adresse,
-        user.compladresse,
-        user.codeinsee,
-        user.codepostal,
-        user.mailcontact,
-        user.telephone,
-        Boolean(user.autorisepublicarte)
-        ],
-    */
     
     // Envoie de l'email de confirmation
     if(!wasValidated){
@@ -227,6 +120,18 @@ router.post('/verify', async (req,res) => {
             throw err
         })
     }
+/*
+    const params = {
+        tra_uti_id: user.id,
+        tra_action : 'U',
+        tta_id: 12,
+        tra_objet: 'UTILISATEUR',
+        tra_objet_id: user.id,
+        tra_contenu: user
+        }
+
+    postTrace(params)
+*/
 
     log.i('::verify - Done')
     return res.send({user, isPwdConfirmed })
@@ -317,9 +222,24 @@ router.post('/create-account-pwd', async (req, res) => {
         log.d('::create-account-pwd - Nouveau user, authentifié via password, à ajouter en base')
         confirmInscription = true    
         bddRes = await pgPool.query(
-            'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, validated, uti_pwd)\
-            VALUES($1, $2, $3, $4, $5) RETURNING *'
+            'INSERT INTO utilisateur(pro_id, stu_id, uti_mail, validated, uti_pwd,uti_date_creation)\
+            VALUES($1, $2, $3, $4, $5,now()) RETURNING *'
             , [3, 1, formatedMail, false, crypted ]
+            /*
+          ).then((result)=> {
+            log.d(result.rows[0])
+            const params = {
+                tra_uti_id: result.rows[0].uti_id,
+                tra_action : 'C',
+                tta_id: 4,
+                tra_objet: 'UTILISATEUR',
+                tra_objet_id: result.rows[0].uti_id,
+                tra_contenu: result.rows[0]
+                }
+        
+            Promise.all(postTrace(params))
+            }
+            */
           ).catch(err => {
             log.w(err)
             throw err
@@ -349,7 +269,7 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
     if(!id) {
         return res.status(400).json('Aucun ID fournit pour  identifier l\'utilisateur.');
     }
-    //insert dans la table intervention
+
     const requete = `UPDATE utilisateur 
         SET uti_mail = lower($1),
         uti_nom = $2, 
@@ -361,7 +281,8 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
         uti_com_codepostal = $8,
         uti_mailcontact = $9,
         uti_telephone = $10,
-        uti_autorisepublicarte = $11
+        uti_autorisepublicarte = $11,
+        uti_form_gene_velo = $12
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
@@ -376,13 +297,15 @@ router.put('/edit-mon-compte/:id', async function (req, res) {
         user.codepostal,
         user.mailcontact,
         user.telephone,
-        Boolean(user.autorisepublicarte)
+        Boolean(user.autorisepublicarte),
+        Boolean(user.formgenevelo)
         ], (err, result) => {
         if (err) {
             log.w('::edit-mon-compte - erreur lors de l\'update', {requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');
         }
         else {
+            log.d("::edit-mon-compte - ",requete)
             log.i('::edit-mon-compte - Done')
             req.session.user = result.rows[0]
             return res.status(200).json({ user: formatUtilisateur(result.rows[0])});

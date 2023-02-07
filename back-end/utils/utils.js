@@ -49,6 +49,7 @@ module.exports = {
             mailcontact:utilisateur.uti_mailcontact,
             telephone:utilisateur.uti_telephone,
             autorisepublicarte:utilisateur.uti_autorisepublicarte,
+            formgenevelo: utilisateur.uti_form_gene_velo,
             ustid:utilisateur.ust_id,
       }
     } else { 
@@ -74,6 +75,7 @@ module.exports = {
             uti_mailcontact: utilisateur.mailcontact  && utilisateur.mailcontact.toLowerCase() ,
             uti_telephone: utilisateur.telephone,
             uti_autorisepublicarte: utilisateur.autorisepublicarte,
+            uti_form_gene_velo: utilisateur.formgenevelo,
             ust_id: utilisateur.ust_id,
         }
     }

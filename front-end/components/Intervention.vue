@@ -241,9 +241,24 @@
               :value="eve.eve_id"
             >{{ eve.eve_titre }} du {{ eve.eve_date_debut }} au {{ eve.eve_date_fin }}</option>
           </b-form-select>
-        </div>        
-
-
+        </div>  
+        <span>Financement(s) * :</span>
+        <div >
+          <b-row>
+            <b-col cols="2">
+              <input type="checkbox"  :disabled="this.isVerrouille" v-model="formIntervention.intfinans" > ANS
+            </b-col >
+            <b-col cols="4">
+              <input type="checkbox" :disabled="this.isVerrouille" v-model="formIntervention.intfingenevelo" > Génération vélo<br>
+            </b-col>
+            <b-col cols="2">
+              <input type="checkbox" :disabled="this.isVerrouille" v-model="formIntervention.intfinautre" > Autre
+            </b-col >
+            <b-col cols="3">
+              <input type="checkbox" :disabled="this.isVerrouille" v-model="formIntervention.intfinaucun" > Aucun
+            </b-col >
+          </b-row>
+        </div>
         <div class="mb-3 mt-3">
           <span>Commentaires libres :</span>
           <b-form-textarea
@@ -355,7 +370,11 @@ var loadFormIntervention = function(intervention) {
           cai: null,
           commentaire: "",
           siteintervention: "",
-          eveid: null
+          eveid: null,
+          intfinans: null,
+          intfingenevelo: null,
+          intfinautre:null,
+          intfinaucun: null
         },
         intervention
       )
@@ -493,6 +512,14 @@ export default {
         this.erreurformulaire.push("Le nombre d'enfants évalués");
         formOK = false;
       }
+      if (!(this.formIntervention.intfinans || this.formIntervention.intfingenevelo || this.formIntervention.intfinautre || this.formIntervention.intfinaucun) ) {
+        this.erreurformulaire.push("Le ou les financements");
+        formOK = false;
+      }
+      if ((this.formIntervention.intfinans || this.formIntervention.intfingenevelo || this.formIntervention.intfinautre) && this.formIntervention.intfinaucun ) {
+        this.erreurformulaire.push("Vous avez choisi 'Aucun financement', ce choix est exclusif, ajustez votre choix");
+        formOK = false;
+      }      
       if (!this.formIntervention.dateIntervention) {
         this.erreurformulaire.push("La date d'intervention");
         formOK = false;
@@ -613,7 +640,11 @@ export default {
         ustid: this.formIntervention.ustid,
         strcorealisatrice: this.formIntervention.strcorealisatrice,
         strcorealisatriceautre: this.formIntervention.strcorealisatriceautre,
-        eveid: this.formIntervention.eveid
+        eveid: this.formIntervention.eveid,
+        intfinans: this.formIntervention.intfinans,
+        intfingenevelo: this.formIntervention.intfingenevelo,
+        intfinautre: this.formIntervention.intfinautre,
+        intfinaucun: this.formIntervention.intfinaucun
       };
       const action = intervention.id ? "put_intervention" : "post_intervention";
       console.info({ intervention, action });
@@ -700,7 +731,7 @@ export default {
         return Promise.resolve(null);
       }
     },
-  chargeUtiStructures(iduti) {
+    chargeUtiStructures(iduti) {
     const url =  process.env.API_URL + "/structures/user/" + iduti;
     console.info(url);
     return this.$axios.$get(url).then(response => {
@@ -988,7 +1019,7 @@ var date1 = this.formIntervention.dateIntervention;
             this.formIntervention.qpvcode = this.formIntervention.qpv.qpv_code;
           }
       });
-    this.recherchecommune().then(res => {
+      this.recherchecommune().then(res => {
       if (this.formIntervention && this.formIntervention.commune) {
         this.selectedCommune = this.formIntervention.commune.cpi_codeinsee;
       }

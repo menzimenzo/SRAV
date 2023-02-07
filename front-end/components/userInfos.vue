@@ -315,6 +315,21 @@
         </div>    
         <!-- FIN EPCI-->
         <!-- FIN Cas d'une collectivite territoriale-->
+        <b-form-group 
+          >
+            Avez-vous suivi la formation "Génération Vélo" ?<span style="color: red">*</span>
+            <b-form-radio-group  
+              v-model="formgenevelo"
+              v-validate="{ required: true }"
+              aria-describedby="geneveloFeedback">
+              <b-form-radio value="true">Oui</b-form-radio>
+              <b-form-radio value="false">Non</b-form-radio>
+            </b-form-radio-group>
+            <b-form-invalid-feedback id="geneveloFeedback"
+            >Le nom est obligatoire.</b-form-invalid-feedback
+          >
+                </b-form-group>
+
       </b-form>
     </b-card>
     <b-card class="mb-3" header="Vos coordonnées :" v-if="mastructure.str_id !=9">
@@ -559,6 +574,10 @@ export default {
       // COLLECTIVITE type Commune
       maCommune: null,
       CommuneExiste: false,
+      formgenevelo: {
+          type: Boolean,
+          default: null
+        }
     };
   },
   props: ["submitTxt", "user", "checkLegal"],
@@ -848,6 +867,19 @@ export default {
       // On recherche la liste des communes lors de la modification du Code postal
       this.rechercheetablissementcp();
     },
+    "formgenevelo"() {
+      if (this.formgenevelo == false || this.formgenevelo =='false')
+      {
+        this.user.formgenevelo = false;
+      }
+      else 
+      if (this.formgenevelo == true || this.formgenevelo =='true')
+      {
+        this.user.formgenevelo = true;
+      }
+      else
+        this.user.formgenevelo = null
+    },
   },
   async mounted() {
     // Mantis 68055
@@ -876,6 +908,7 @@ export default {
     
     // CHargement de la structure de l'utilisateur
     this.chargeUtiStructures(this.user.id);
+    this.formgenevelo = this.user.formgenevelo;
    
   },
   computed: {

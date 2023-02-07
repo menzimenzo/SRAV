@@ -5,6 +5,7 @@ const stringify                                        = require('csv-stringify'
 const myPdf = require('../utils/pdf')
 var moment = require('moment');
 moment().format();
+const {postTrace} = require('../controllers');
 
 const logger = require('../utils/logger')
 const log = logger(module.filename)
@@ -49,7 +50,11 @@ const formatIntervention = intervention => {
         strlibcorealisatrice: intervention.str_lib_co_realise,
         strcorealisatriceautre: intervention.int_corealiseautre,
         eveid: intervention.eve_id,
-        structureId: intervention.str_id
+        structureId: intervention.str_id,
+        intfinans:intervention.int_fin_ans,
+        intfingenevelo:intervention.int_fin_gene_velo,
+        intfinautre:intervention.int_fin_autre,
+        intfinaucun:intervention.int_fin_aucun
     }
 
     if(intervention.uti_nom){
@@ -175,7 +180,7 @@ router.get('/csv/filtre', async function (req, res) {
         whereClause += ` and int_dateintervention <= '${dateFin}' `
     }
     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
-    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,int_corealiseautre as lib_co_realiseautre ,eve.eve_titre as evenement_associe
+    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,int_corealiseautre as lib_co_realiseautre ,eve.eve_titre as evenement_associe, replace(replace(int_fin_ans::text,'true','Oui')::text, 'false','Non') as financement_ans , replace(replace(int_fin_gene_velo::text,'true','Oui')::text, 'false','Non') as financement_generation_velo, replace(replace(int_fin_autre::text,'true','Oui')::text, 'false','Non') as financement_autre,replace(replace(int_fin_aucun::text,'true','Oui')::text, 'false','Non') as financement_aucun 
     from intervention 
     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
@@ -191,7 +196,10 @@ router.get('/csv/filtre', async function (req, res) {
     order by int_id asc`;
     log.d('::csv - requet', { requete })
 
-    pgPool.query(requete, (err, result) => {
+    const requeteP = `SELECT par_valeur 
+            from parametres
+            where par_code = 'CSV_FINANC'`
+    await pgPool.query(requeteP, (err, result) => {
         if (err) {
             log.w('::csv - erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la récupération de l\'intervention');
@@ -202,64 +210,107 @@ router.get('/csv/filtre', async function (req, res) {
             Suppression des colonnes 
             cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
             */
-            var interventions = result.rows;
-            interventions = interventions.map(intervention => {
-
-                var newIntervention = formatIntervention(intervention)
-                delete newIntervention.commune
-                delete newIntervention.cai;
-                delete newIntervention.eveid;
-                delete newIntervention.sinId;
-                delete newIntervention.structureId;
-                newIntervention.commune = intervention.int_com_libelle
-                newIntervention.codeinsee = intervention.int_com_codeinsee
-                //newIntervention.dep_num = intervention.int_dep_num
-                //newIntervention.reg_num = intervention.int_reg_num
-                // Correction LSC 
-                //newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
-                newIntervention.dateIntervention = intervention.dateint,
-                //newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
-                newIntervention.dateCreation = intervention.datec,
-                //newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
-                newIntervention.dateMaj = intervention.datem
-                // Fin correction LSC
-                delete newIntervention.dateMaj;
-                delete newIntervention.structureCode;
-                delete newIntervention.structureLibelle;
-                delete newIntervention.StructureLocaleUtilisateur;
-                //newIntervention.structureCode = intervention.str_libellecourt;
-                //newIntervention.structureLibelle = intervention.str_libelle;
-                newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
-                newIntervention.qpv = intervention.qpv_libelle;
-                newIntervention.evenement_associe = intervention.evenement_associe;
-                // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
-                if(user.pro_id == 4){
-                    delete newIntervention.siteintervention;
+            var param = result.rows;
+            log.d('::csv - param.',param);
+            pgPool.query(requete, (err, result) => {
+                if (err) {
+                    log.w('::csv - erreur lors de la requête.',err.stack);
+                    return res.status(400).json('erreur lors de la récupération de l\'intervention');
                 }
-                delete newIntervention.commentaire                
+                else {
+                    /*
+                    0087034
+                    Suppression des colonnes 
+                    cai; sinId; dateMaj; structureId; dep_num; reg_num; structureCode; structureLibelle
+                    */
+                    var interventions = result.rows;
+                    interventions = interventions.map(intervention => {
+        
+                        var newIntervention = formatIntervention(intervention)
+                        delete newIntervention.commune
+                        delete newIntervention.cai;
+                        delete newIntervention.eveid;
+                        delete newIntervention.sinId;
+                        delete newIntervention.structureId;
+                        newIntervention.commune = intervention.int_com_libelle
+                        newIntervention.codeinsee = intervention.int_com_codeinsee
+                        //newIntervention.dep_num = intervention.int_dep_num
+                        //newIntervention.reg_num = intervention.int_reg_num
+                        // Correction LSC 
+                        //newIntervention.dateIntervention = newIntervention.dateIntervention.toLocaleDateString(),
+                        newIntervention.dateIntervention = intervention.dateint,
+                        //newIntervention.dateCreation = newIntervention.dateCreation.toISOString(),
+                        newIntervention.dateCreation = intervention.datec,
+                        //newIntervention.dateMaj = newIntervention.dateMaj.toISOString()
+                        newIntervention.dateMaj = intervention.datem
+                        // Fin correction LSC
+                        delete newIntervention.dateMaj;
+                        delete newIntervention.structureCode;
+                        delete newIntervention.structureLibelle;
+                        delete newIntervention.StructureLocaleUtilisateur;
+                        //newIntervention.structureCode = intervention.str_libellecourt;
+                        //newIntervention.structureLibelle = intervention.str_libelle;
+                        newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
+                        newIntervention.qpv = intervention.qpv_libelle;
+                        newIntervention.evenement_associe = intervention.evenement_associe;
+                          
+                        // On verifie les autorisation dans le paramètre CSV_FINANC
+                        if (param[0].par_valeur.includes(user.pro_id)) {
+                            log.d ("Utilisateur autorisé",user.pro_id)
+                            newIntervention.financement_ans = intervention.financement_ans;
+                            newIntervention.financement_generation_velo = intervention.financement_generation_velo;
+                            newIntervention.financement_autre = intervention.financement_autre;
+                            newIntervention.financement_aucun = intervention.financement_aucun;
+                        }
+                        else {
+                            log.d ("Utilisateur non autorisé",user.pro_id)
+                        }
+       
+                        // Pour un profil référent, on supprime le site d'intervention pour éviter les infos sur les écoles
+                        if(user.pro_id == 4){
+                            delete newIntervention.siteintervention;
+                        }
+                        delete newIntervention.commentaire                
+                        log.d('::csv - return newIntervention.')
+                        return newIntervention
+                    })
+                    if (!interventions || !interventions.length) {
+                        log.w('::csv - Intervention inexistante.');
+                        return res.status(400).json({ message: 'Interventions inexistante' });
+                    }
+                    stringify(interventions, {
+                    quote: '"',
+                    quoted: true,
+                    header: true,
+                    delimiter: ';'
+                    }, (err, csvContent) => {
+                        if(err){
+                            log.w('::csv - Erreur lors callback après stringify.',err.stack);
+                            return res.status(500)
+                        } else {
+                            log.i('::csv - Done')
+                            /*
+                            const params = {
+                                tra_uti_id: req.session.user.uti_id,
+                                tra_action : 'R',
+                                tta_id: 53,
+                                tra_objet: 'INTERVENTION',
+                                tra_objet_id: 1,
+                                tra_contenu: req.query
+                                }
 
-                return newIntervention
-            })
-            if (!interventions || !interventions.length) {
-                log.w('::csv - Intervention inexistante.');
-                return res.status(400).json({ message: 'Interventions inexistante' });
-            }
-            stringify(interventions, {
-            quote: '"',
-            quoted: true,
-            header: true,
-            delimiter: ';'
-            }, (err, csvContent) => {
-                if(err){
-                    log.w('::csv - Erreur lors callback après stringify.',err.stack);
-                    return res.status(500)
-                } else {
-                    log.i('::csv - Done')
-                    return res.send(csvContent)
+                            postTrace(params)
+                            */
+                            return res.send(csvContent)
+                        }
+                    })
                 }
-            })
+            })            
         }
     })
+
+
+
  });
 
 // ################# Nombre d'attestation par structure #################
@@ -600,7 +651,7 @@ router.put('/:id', async function (req, res) {
 
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
         commentaire, cp, utilisateurId,siteintervention,
-        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,strcorealisatriceautre,eveid } = intervention
+        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun } = intervention
         
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -638,7 +689,11 @@ router.put('/:id', async function (req, res) {
         ust_id = $22,
         str_id_co_realise = $23,
         int_corealiseautre = $24,
-        eve_id = $25
+        eve_id = $25,
+        int_fin_ans = $26,
+        int_fin_gene_velo = $27,
+        int_fin_autre = $28,
+        int_fin_aucun = $29
         WHERE int_id = ${id}
         RETURNING *
         ;`    
@@ -668,7 +723,11 @@ router.put('/:id', async function (req, res) {
         ustid,
         strcorealisatrice,
         strcorealisatriceautre,
-        eveid], (err, result) => {
+        eveid,
+        Boolean(intfinans), 
+        Boolean(intfingenevelo),
+        Boolean(intfinautre),
+        Boolean(intfinaucun)], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de la récupération', { requete, erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
@@ -692,7 +751,7 @@ router.post('/', function (req, res) {
     let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
          commentaire, cp, utilisateurId, siteintervention,
          nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,
-         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,strcorealisatriceautre,eveid } = intervention
+         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -715,15 +774,19 @@ router.post('/', function (req, res) {
                         ust_id,
                         str_id_co_realise,
                         int_corealiseautre,
-                        eve_id
+                        eve_id,
+                        int_fin_ans, 
+                        int_fin_gene_velo,
+                        int_fin_autre,
+                        int_fin_aucun
                         ) 
-                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28 ) RETURNING *`;
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32 ) RETURNING *`;
     
     log.d('::post - requete',{ requete });
     pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
     nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
     commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix, 
-    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,strcorealisatriceautre,eveid],(err, result) => {
+    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,strcorealisatriceautre,eveid,Boolean(intfinans), Boolean(intfingenevelo),Boolean(intfinautre),Boolean(intfinaucun)],(err, result) => {
         if (err) {
             log.w('::post - Erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
