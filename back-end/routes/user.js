@@ -35,6 +35,7 @@ const formatUser = user => {
         mailcontact: user.uti_mailcontact,
         telephone: user.uti_telephone,
         autorisepublicarte: user.uti_autorisepublicarte,
+        formgenevelo: user.uti_form_gene_velo,
         ustid: user.ust_id,
         tcoid: user.tco_id,
         dcoid: user.dco_id,
@@ -64,7 +65,8 @@ const formatUserCSV = user => {
         codepostal: user.uti_com_codepostal,
         mailcontact: user.uti_mailcontact,
         telephone: user.uti_telephone,
-        autorisepublicarte: user.uti_autorisepublicarte
+        autorisepublicarte: user.uti_autorisepublicarte,
+        formgenevelo: user.uti_form_gene_velo
     }
 }
 
@@ -88,7 +90,10 @@ router.get('/csv', async function (req, res) {
         com_libelle as commune,
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
-        uti_autorisepublicarte as autorisepublicarte
+        uti_autorisepublicarte as autorisepublicarte,
+        replace(replace(uti_form_gene_velo::text,'true','Oui'),'false','Non') as formgenevelo,
+        TO_CHAR(uti_date_creation, 'DD/MM/YYYY') as datecreationcompte,
+        TO_CHAR(uti_date_connexion, 'DD/MM/YYYY') as datederniereconnexion
         from utilisateur  uti
         join uti_str ust on ust.uti_id = uti.uti_id
         join structure str on str.str_id= ust.str_id 
@@ -110,6 +115,7 @@ router.get('/csv', async function (req, res) {
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
+        uti_form_gene_velo as formgenevelo,
         dco.tco_id str_typeCollectivite
         from utilisateur  uti
         join uti_str ust on ust.uti_id = uti.uti_id
@@ -169,6 +175,7 @@ router.get('/:ustid', async function (req, res) {
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
+        uti_form_gene_velo as formgenevelo,
         dco.tco_id str_typeCollectivite,
         ust.uti_structurelocale structurelocale
         from utilisateur uti 
@@ -191,6 +198,7 @@ router.get('/:ustid', async function (req, res) {
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
+        uti_form_gene_velo as formgenevelo,
         dco.tco_id str_typeCollectivite,
         ust.uti_structurelocale structurelocale
         from utilisateur uti 
@@ -240,6 +248,7 @@ router.get('/', async function (req, res) {
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
+        uti_form_gene_velo as formgenevelo,
         dco.tco_id str_typeCollectivite,
         ust.uti_structurelocale as structurelocale
         from utilisateur uti 
@@ -267,6 +276,7 @@ router.get('/', async function (req, res) {
         uti_mailcontact as mailcontact,
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
+        uti_form_gene_velo as formgenevelo,
         dco.tco_id str_typeCollectivite
         from utilisateur uti 
         join uti_str ust on ust.uti_id = uti.uti_id
@@ -297,7 +307,7 @@ router.put('/:id', async function (req, res) {
     log.i('::update - In', { id })
     console.log(user)
     log.d('::update - ', { user })
-    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut, siteweb, adresse, compladresse, codeinsee, codepostal, mailcontact, telephone, autorisepublicarte, ustid ,dcoid, dcocodepostal,dcoinsee,dcoepcicode,dcodep,susid} = user
+    let { nom, prenom, mail, profil, validated,structure, structureLocale, statut, siteweb, adresse, compladresse, codeinsee, codepostal, mailcontact, telephone, autorisepublicarte, ustid ,dcoid, dcocodepostal,dcoinsee,dcoepcicode,dcodep,susid,formgenevelo} = user
 
     if (ustid) {
         const requeteUst = `UPDATE uti_str
@@ -336,9 +346,6 @@ router.put('/:id', async function (req, res) {
     }
 
 
-
-
-    //insert dans la table intervention
     const requete = `UPDATE utilisateur 
         SET uti_nom = $1,
         uti_prenom = $2,
@@ -353,7 +360,8 @@ router.put('/:id', async function (req, res) {
         uti_com_codepostal = $11,
         uti_mailcontact = $12,
         uti_telephone = $13,
-        uti_autorisepublicarte = $14
+        uti_autorisepublicarte = $14,
+        uti_form_gene_velo = $15
         WHERE uti_id = ${id}
         RETURNING *
         ;`    
@@ -370,7 +378,8 @@ router.put('/:id', async function (req, res) {
             codepostal,
             mailcontact,
             telephone,
-            Boolean(autorisepublicarte)], (err, result) => {
+            Boolean(autorisepublicarte),
+            Boolean(formgenevelo)], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de l\'update', {requete, erreur: err.stack});
             return res.status(400).json('erreur lors de la sauvegarde de l\'utilisateur');

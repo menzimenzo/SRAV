@@ -109,6 +109,24 @@ BEGIN
 		insert into type_trace_action (tta_id,tta_code,tta_categorie, tta_description) values (52,'INT_SUPPRESSION','INTERVENTION','Suppression d''une intervention');
 		insert into type_trace_action (tta_id,tta_code,tta_categorie, tta_description) values (53,'INT_CSV','INTERVENTION','Export CSV des interventions');
 
+		-- Reprise de l'antériorité : On affecte la date de création de la première intervention de l'utilisateur
+		update utilisateur set uti_date_creation = sq.dateintermin
+		from (select min(int_datecreation) dateintermin, uti.uti_id userid
+				from intervention int
+				inner join uti_str ust on int.ust_id = ust.ust_id
+				inner join utilisateur uti on uti.uti_id = ust.uti_id
+			group by userid
+			)  as sq
+		where uti_date_creation is null and uti_id = sq.userid;
+
+		-- Reprise de l'antériorité : On affecte la date de création de l'utilisateur suivant qui s'est créé
+		update utilisateur set uti_date_creation = sq.datecre
+		from (select uti_id as userid,uti_date_creation datecre
+				from utilisateur uti
+			where uti_date_creation is not null
+			order by uti_id
+			)  as sq
+		where uti_id < sq.userid and uti_date_creation is null;
 
       	-- Déploiement du Schéma effectué
       	SELECT SRAV_VersionDeployee('1.1.10','data') INTO VersionDeployee;

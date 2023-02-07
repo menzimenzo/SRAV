@@ -14,7 +14,8 @@
           label-for="emailInput" 
           required
         >
-          <b-form-input
+
+        <b-form-input
           id="emailInput"
           type="email"
           v-model="user.mail"
@@ -26,9 +27,28 @@
           placeholder="Courriel"
           :state="validateState('mail')"
           :disabled="!isUserRegisteredViaPwd"
-          />
+        />
         <b-form-invalid-feedback id="emailFeedback">Le courriel est obligatoire et doit être valide.</b-form-invalid-feedback>
+
+      </b-form-group>
+    
+      <b-form-group >
+            Avez-vous bénéficié de la formation "Génération Vélo" ?<span style="color: red">*</span>
+            <b-form-radio-group  
+              v-model="formgenevelo"
+              
+              :state="state" 
+              name="radio-validation">
+            
+              <b-form-radio value="true">Oui</b-form-radio>
+              <b-form-radio value="false">Non</b-form-radio>
+              
+            </b-form-radio-group>
+            
+            <b-form-invalid-feedback :state="state">Veuillez renseigner votre choix</b-form-invalid-feedback>
+            
         </b-form-group>
+        <b-form-invalid-feedback id="geneveloFeedback">Le nom est obligatoire.</b-form-invalid-feedback>
       </b-form>
     </b-card>
     <b-card class="mb-3" header="Vos coordonnées :" v-if="user.structureId!=9">
@@ -185,20 +205,30 @@ import { mapState } from "vuex";
 export default {
   data() {
     return {
+      value: null,
+        options: [
+          { text: 'First radio', value: 'first' },
+          { text: 'Second radio', value: 'second' },
+          { text: 'Third radio', value: 'third' }
+        ],
         //isLegalChecked: "false",
         siteweb: null,
         cp: null,
         commune: null,
         emailidentique: "false",
         listecommune: [
-        {
-          text: "Veuillez saisir un code postal",
-          value: null,
-          insee: null,
-          cp: null,
-          codedep: null,
+          {
+            text: "Veuillez saisir un code postal",
+            value: null,
+            insee: null,
+            cp: null,
+            codedep: null,
+          },
+        ],
+        formgenevelo: {
+          type: Boolean,
+          default: null
         },
-      ],
     };
   },
   props: ["user", "submitTxt", "cancelTxt","checkLegal"],
@@ -209,6 +239,9 @@ export default {
   
     submit: function () {
       this.$validator.validateAll().then((isValid) => {
+        if (this.formgenevelo == null) {
+          isValid = false
+        }
         if (isValid) {
           this.$emit("submit");
         }
@@ -278,6 +311,19 @@ export default {
       // On recherche la liste des communes lors de la modification du Code postal
       this.recherchecommune2();
     },
+    "formgenevelo"() {
+      if (this.formgenevelo == false || this.formgenevelo =='false')
+      {
+        this.user.formgenevelo = false;
+      }
+      else 
+      if (this.formgenevelo == true || this.formgenevelo =='true')
+      {
+        this.user.formgenevelo = true;
+      }
+      else
+        this.user.formgenevelo = null
+    },
 
   },
   async mounted() {
@@ -292,11 +338,26 @@ export default {
       // Sélection de la commune correspondant à celle de l'utilisateur dans la liste
       //this.selectedCommune = this.user.cpi_codeinsee;
     }
+    
+    console.log("this.user.formgenevelo : ",this.user.formgenevelo)
+    this.formgenevelo  = this.user.formgenevelo
+/*
+    if (this.user.formgenevelo == true) { 
+        this.formgenevelo = 'true'
+      }
+      else if (this.user.formgenevelo == false) { 
+        this.formgenevelo = 'false'
+      }
+      else this.formgenevelo = null
+      */
   },
   computed: {
     isUserRegisteredViaPwd() {
       return Boolean(this.user && this.user.tokenFc);
     },
+    state() {
+        return !Boolean(this.formgenevelo == null)
+      }
     
   },
 };
