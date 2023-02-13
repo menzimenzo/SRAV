@@ -90,7 +90,7 @@ DECLARE
 BEGIN 
 	SELECT SRAV_DeployerVersion('1.1.10','data') INTO FaireMAJData;
 	IF FaireMAJData THEN
-		insert into parametres (par_id,par_code,par_description,par_valeur) values (5,'CSV_FINANC', 'Profils autorisés à avoir le financement dans le CSV (1:Admin;2;Partenaire;3:Intervenant;4:Référent)','1;2');
+		insert into parametres (par_id,par_code,par_description,par_valeur) values (5,'CSV_FINANC', 'Profils autorisés à voir le financement CSV (1:Admin;2;Partenaire;3:Intervenant;4:Référent)','1;2');
 
 		insert into type_trace_action (tta_id,tta_code,tta_categorie, tta_description) values (1,'UTI_CONNEXION','UTILISATEUR','Connexion d''un utilisateur');
 		insert into type_trace_action (tta_id,tta_code,tta_categorie, tta_description) values (2,'UTI_DECONNEXION','UTILISATEUR','Déconnesion d''un utilisateur');
