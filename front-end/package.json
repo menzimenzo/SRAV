@@ -20,7 +20,7 @@
     "chart.js": "^2.8.0",
     "fstream": "^1.0.12",
     "glyphicons-only-bootstrap": "^1.0.1",
-    "handlebars": "^4.1.2",
+    "handlebars": "^4.7.7",
     "lodash": "^4.17.14",
     "lodash.template": "^4.5.0",
     "mem": "^5.1.1",
