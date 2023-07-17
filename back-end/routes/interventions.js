@@ -38,6 +38,9 @@ const formatIntervention = intervention => {
         commentaire: intervention.int_commentaire,
         siteintervention: intervention.int_siteintervention,
         departement:intervention.int_dep_num,
+        departement_libelle:intervention.dep_libelle,
+        region:intervention.reg_num,
+        region_libelle:intervention.reg_libelle,        
         isenfantshandicapes: intervention.int_isenfantshandicapes,
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
@@ -180,7 +183,14 @@ router.get('/csv/filtre', async function (req, res) {
         whereClause += ` and int_dateintervention <= '${dateFin}' `
     }
     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
-    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,int_corealiseautre as lib_co_realiseautre ,eve.eve_titre as evenement_associe, replace(replace(int_fin_ans::text,'true','Oui')::text, 'false','Non') as financement_ans , replace(replace(int_fin_gene_velo::text,'true','Oui')::text, 'false','Non') as financement_generation_velo, replace(replace(int_fin_autre::text,'true','Oui')::text, 'false','Non') as financement_autre,replace(replace(int_fin_aucun::text,'true','Oui')::text, 'false','Non') as financement_aucun 
+    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,
+        TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,int_corealiseautre as lib_co_realiseautre ,
+        eve.eve_titre as evenement_associe, replace(replace(int_fin_ans::text,'true','Oui')::text, 'false','Non') as financement_ans , 
+        replace(replace(int_fin_gene_velo::text,'true','Oui')::text, 'false','Non') as financement_generation_velo, 
+        replace(replace(int_fin_autre::text,'true','Oui')::text, 'false','Non') as financement_autre,
+        replace(replace(int_fin_aucun::text,'true','Oui')::text, 'false','Non') as financement_aucun, 
+        dep.dep_libelle,
+        reg.reg_libelle
     from intervention 
     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
@@ -192,6 +202,8 @@ router.get('/csv/filtre', async function (req, res) {
     LEFT JOIN evenement eve on eve.eve_id = intervention.eve_id
     INNER JOIN uti_str ust ON intervention.ust_id = ust.ust_id
     INNER JOIN structure ON structure.str_id = ust.str_id 
+    INNER JOIN departement dep ON dep.dep_num = int_dep_num
+    INNER JOIN region reg ON reg.reg_num = int_reg_num
     ${whereClause} 
     order by int_id asc`;
     log.d('::csv - requet', { requete })
