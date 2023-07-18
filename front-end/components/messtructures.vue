@@ -666,6 +666,9 @@ export default {
     }
   },
   watch: {
+    "mastructure.str_id"() {
+      this.mastructure.uti_structurelocale = ""
+    },
     cp() {
       this.recherchecommune();
     },
