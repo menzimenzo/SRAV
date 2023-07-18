@@ -175,6 +175,10 @@ router.get('/', function (req, res) {
     if(user && user.pro_id == 4){
         requete += ` where str_id <> 9`
     }
+    // Pour les intervenants on n'affiche pas les structures désactivées dans les listes
+    if(user && user.pro_id == 3){
+        requete += ` where str_actif = true`
+    }    
     requete += ` order by str_libellecourt`
     log.d(requete)
     pgPool.query(
