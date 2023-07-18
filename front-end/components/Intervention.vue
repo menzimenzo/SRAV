@@ -184,6 +184,18 @@
               >{{ qpv.qpv_libelle }}</option>
             </b-form-select>
         </li>            
+        <div class="mb-3 mt-3">
+         <b-form-group >
+            Cités éducatives *
+            <b-form-radio-group 
+              :disabled="this.isVerrouille"
+              v-model="isciteseducatives" 
+              >
+              <b-form-radio value="true">Oui</b-form-radio>
+              <b-form-radio value="false">Non</b-form-radio>
+            </b-form-radio-group>
+          </b-form-group>
+        </div >
       </b-col>
 
       <!-- SECONDE BLOC DE SAISIE INTERVENTION -->
@@ -272,8 +284,6 @@
           </b-col>
           </b-row>
         </div>
-
-        
 
         <div class="mb-3 mt-3">
           <span>Commentaires libres :</span>
@@ -431,6 +441,10 @@ export default {
         type: Boolean,
         default: null
       },
+      isciteseducatives: {
+        type: Boolean,
+        default: null
+      },
       isVerrouille: true,
       parametreNbMoisMaxAnticip: null,
       parametreNbJoursMaxRetroSaisie: null,
@@ -506,6 +520,7 @@ export default {
       const action = "reset_interventions";
       console.info({ action });
       this.isQpv = null
+      this.isciteseducatives = null
       this.isHandicap = null
       this.evenements = null
       return this.$store.commit(action);
@@ -628,6 +643,12 @@ export default {
         }
       }
 
+      if (this.isciteseducatives == null) 
+      {
+        formOK = false;
+        this.erreurformulaire.push("Cités éducatives");
+      }
+      
       if (!this.formIntervention.cai) {
         this.erreurformulaire.push("Le cadre d'intervention");
         formOK = false;
@@ -662,6 +683,7 @@ export default {
         isenfantshandicapes: this.formIntervention.isenfantshandicapes,
         nbenfantshandicapes: this.formIntervention.nbenfantshandicapes,
         isqpv: this.formIntervention.isqpv,
+        isciteseducatives: this.formIntervention.isciteseducatives,
         qpvcode: this.formIntervention.qpvcode,
         ustid: this.formIntervention.ustid,
         strcorealisatrice: this.formIntervention.strcorealisatrice,
@@ -933,6 +955,9 @@ var date1 = this.formIntervention.dateIntervention;
         this.formIntervention.qpvcode = null;
       }
     },
+    "isciteseducatives"() {
+        this.formIntervention.isciteseducatives = this.isciteseducatives
+    },
     "isHandicap"() {
       this.formIntervention.isenfantshandicapes = this.isHandicap
       if (this.isHandicap == false || this.isHandicap =='false')
@@ -993,6 +1018,7 @@ var date1 = this.formIntervention.dateIntervention;
         });    
 
       this.isQpv = this.formIntervention.isqpv;
+      this.isciteseducatives = this.formIntervention.isciteseducatives;
       this.isHandicap  = this.formIntervention.isenfantshandicapes;
       this.$store.dispatch("get_parametre", "MAX_MODIF_INTER")
         .then(() => {

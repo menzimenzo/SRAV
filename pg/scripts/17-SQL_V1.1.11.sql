@@ -30,7 +30,7 @@ BEGIN
 		);
 */
 		alter table intervention add int_type_ans INTEGER;
-
+		alter table intervention add int_isciteseducatives BOOLEAN;
 
     	SELECT SRAV_VersionDeployee('1.1.11','schema')  INTO VersionDeployee;
 		raise notice 'Mise à jour du schéma effectué : %',VersionDeployee;

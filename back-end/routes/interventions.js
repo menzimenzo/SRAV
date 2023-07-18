@@ -42,8 +42,12 @@ const formatIntervention = intervention => {
         region:intervention.reg_num,
         region_libelle:intervention.reg_libelle,        
         isenfantshandicapes: intervention.int_isenfantshandicapes,
+        enfantshandicapes: intervention.enfantshandicapes,
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
+        qpv:intervention.qpv,
+        isciteseducatives: intervention.int_isciteseducatives,
+        citeseducatives:intervention.citeseducatives,
         qpvcode: intervention.int_qpv_code,
         zrrstatut: intervention.zst_libelle,
         ustid: intervention.ust_id,
@@ -195,7 +199,10 @@ router.get('/csv/filtre', async function (req, res) {
         replace(replace(int_fin_autre::text,'true','Oui')::text, 'false','Non') as financement_autre,
         replace(replace(int_fin_aucun::text,'true','Oui')::text, 'false','Non') as financement_aucun, 
         dep.dep_libelle,
-        reg.reg_libelle
+        reg.reg_libelle,
+        replace(replace(int_isenfantshandicapes::text,'true','Oui')::text, 'false','Non') as enfantshandicapes, 
+        replace(replace(int_isqpv::text,'true','Oui')::text, 'false','Non') as qpv, 
+        replace(replace(int_isciteseducatives::text,'true','Oui')::text, 'false','Non') as citeseducatives
     from intervention 
     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
@@ -272,10 +279,14 @@ router.get('/csv/filtre', async function (req, res) {
                         delete newIntervention.intfinaucun;
                         delete newIntervention.inttypeans;
 
+                        delete newIntervention.isenfantshandicapes;
+                        delete newIntervention.isqpv;
+                        delete newIntervention.isciteseducatives;
+
                         //newIntervention.structureCode = intervention.str_libellecourt;
                         //newIntervention.structureLibelle = intervention.str_libelle;
                         newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
-                        newIntervention.qpv = intervention.qpv_libelle;
+                        newIntervention.qpvlib = intervention.qpv_libelle;
                         newIntervention.evenement_associe = intervention.evenement_associe;
                           
                         // On verifie les autorisation dans le paramètre CSV_FINANC
@@ -675,7 +686,7 @@ router.put('/:id', async function (req, res) {
 
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
         commentaire, cp, utilisateurId,siteintervention,
-        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun,inttypeans } = intervention
+        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun,inttypeans,isciteseducatives } = intervention
         
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -718,7 +729,8 @@ router.put('/:id', async function (req, res) {
         int_fin_gene_velo = $27,
         int_fin_autre = $28,
         int_fin_aucun = $29,
-        int_type_ans = $30
+        int_type_ans = $30,
+        int_isciteseducatives = $31
         WHERE int_id = ${id}
         RETURNING *
         ;`    
@@ -753,7 +765,8 @@ router.put('/:id', async function (req, res) {
         Boolean(intfingenevelo),
         Boolean(intfinautre),
         Boolean(intfinaucun),
-        inttypeans], (err, result) => {
+        inttypeans,
+        isciteseducatives], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de la récupération', { requete, erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
@@ -777,7 +790,7 @@ router.post('/', function (req, res) {
     let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
          commentaire, cp, utilisateurId, siteintervention,
          nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,
-         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun, inttypeans } = intervention
+         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun, inttypeans,isciteseducatives } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -805,15 +818,16 @@ router.post('/', function (req, res) {
                         int_fin_gene_velo,
                         int_fin_autre,
                         int_fin_aucun,
-                        int_type_ans
+                        int_type_ans,
+                        int_isciteseducatives
                         ) 
-                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33 ) RETURNING *`;
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34 ) RETURNING *`;
     
     log.d('::post - requete',{ requete });
     pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
     nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
     commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix, 
-    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,strcorealisatriceautre,eveid,Boolean(intfinans), Boolean(intfingenevelo),Boolean(intfinautre),Boolean(intfinaucun),inttypeans],(err, result) => {
+    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,strcorealisatriceautre,eveid,Boolean(intfinans), Boolean(intfingenevelo),Boolean(intfinautre),Boolean(intfinaucun),inttypeans, isciteseducatives],(err, result) => {
         if (err) {
             log.w('::post - Erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
