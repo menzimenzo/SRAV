@@ -258,7 +258,23 @@
               <input type="checkbox" :disabled="this.isVerrouille" v-model="formIntervention.intfinaucun" > Aucun
             </b-col >
           </b-row>
+          <b-row v-if="formIntervention.intfinans">
+            <b-col cols="12">
+              <br>
+              Type financement ANS * :
+              <b-form-radio-group
+                :disabled="this.isVerrouille"
+                required
+                
+                v-model="formIntervention.inttypeans"
+                :options="listetypeans"
+              />
+          </b-col>
+          </b-row>
         </div>
+
+        
+
         <div class="mb-3 mt-3">
           <span>Commentaires libres :</span>
           <b-form-textarea
@@ -433,6 +449,11 @@ export default {
       formIntervention: loadFormIntervention(this.intervention),
       //<aria-label="texte de l'infobulle">
       // v-b-popover.hover="'I am popover content!'"
+      listetypeans: [
+        { text: `PST`, value: "1" },
+        { text: `PSF`, value: "2" },
+        { text: `CIV`, value: "3" }
+      ],
       listecadreintervention: [
         { text: `Scolaire`, value: "3" },
         { text: `Péri-scolaire`, value: "1" },
@@ -514,6 +535,11 @@ export default {
       }
       if (!(this.formIntervention.intfinans || this.formIntervention.intfingenevelo || this.formIntervention.intfinautre || this.formIntervention.intfinaucun) ) {
         this.erreurformulaire.push("Le ou les financements");
+        formOK = false;
+      }
+      if (this.formIntervention.intfinans && !this.formIntervention.inttypeans)
+      {
+        this.erreurformulaire.push("Pour un financement ANS, précisez : PST/PSF/CIV");
         formOK = false;
       }
       if ((this.formIntervention.intfinans || this.formIntervention.intfingenevelo || this.formIntervention.intfinautre) && this.formIntervention.intfinaucun ) {
@@ -642,9 +668,11 @@ export default {
         strcorealisatriceautre: this.formIntervention.strcorealisatriceautre,
         eveid: this.formIntervention.eveid,
         intfinans: this.formIntervention.intfinans,
+        inttypeans: this.formIntervention.inttypeans,
         intfingenevelo: this.formIntervention.intfingenevelo,
         intfinautre: this.formIntervention.intfinautre,
-        intfinaucun: this.formIntervention.intfinaucun
+        intfinaucun: this.formIntervention.intfinaucun,
+        inttypeans: this.formIntervention.inttypeans
       };
       const action = intervention.id ? "put_intervention" : "post_intervention";
       console.info({ intervention, action });
@@ -921,6 +949,10 @@ var date1 = this.formIntervention.dateIntervention;
       // Chargement des blocs autorisé pour cette structure
       this.ChargeBlocsStructure(this.formIntervention.ustid)
       this.ChargeEvenements()
+    },
+    "formIntervention.intfinans"() {
+      // RAZ du type de financement ANS
+      this.formIntervention.inttypeans = null
     },
     "formIntervention.blocId"(){
       this.ChargeEvenements()
