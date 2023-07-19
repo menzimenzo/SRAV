@@ -117,7 +117,8 @@ module.exports = {
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
         qpvcode: intervention.int_qpv_code,
-        eveid: intervention.eve_id
+        eveid: intervention.eve_id,
+        isciteseducatives: intervention.int_isciteseducatives,
     }
 
     if(intervention.uti_nom){

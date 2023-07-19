@@ -38,9 +38,16 @@ const formatIntervention = intervention => {
         commentaire: intervention.int_commentaire,
         siteintervention: intervention.int_siteintervention,
         departement:intervention.int_dep_num,
+        departement_libelle:intervention.dep_libelle,
+        region:intervention.reg_num,
+        region_libelle:intervention.reg_libelle,        
         isenfantshandicapes: intervention.int_isenfantshandicapes,
+        enfantshandicapes: intervention.enfantshandicapes,
         nbenfantshandicapes: intervention.int_nbenfantshandicapes,
         isqpv: intervention.int_isqpv,
+        qpv:intervention.qpv,
+        isciteseducatives: intervention.int_isciteseducatives,
+        citeseducatives:intervention.citeseducatives,
         qpvcode: intervention.int_qpv_code,
         zrrstatut: intervention.zst_libelle,
         ustid: intervention.ust_id,
@@ -54,7 +61,13 @@ const formatIntervention = intervention => {
         intfinans:intervention.int_fin_ans,
         intfingenevelo:intervention.int_fin_gene_velo,
         intfinautre:intervention.int_fin_autre,
-        intfinaucun:intervention.int_fin_aucun
+        intfinaucun:intervention.int_fin_aucun,
+        inttypeans:intervention.int_type_ans,
+        financement_ans:intervention.financement_ans,
+        type_financement_ans:intervention.type_financement_ans,
+        financement_generation_velo:intervention.financement_generation_velo,
+        financement_autre:intervention.financement_autre,
+        financement_aucun:intervention.financement_aucun
     }
 
     if(intervention.uti_nom){
@@ -76,8 +89,6 @@ const formatIntervention = intervention => {
 
     return result
 }
-
-
 router.get('/delete/:id', async function (req, res) {
     const intervention = req.body.intervention;
     const id = req.params.id;
@@ -180,7 +191,18 @@ router.get('/csv/filtre', async function (req, res) {
         whereClause += ` and int_dateintervention <= '${dateFin}' `
     }
     // Remplacement Clause Where en remplacant utilisateur par clause dynamique
-    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,int_corealiseautre as lib_co_realiseautre ,eve.eve_titre as evenement_associe, replace(replace(int_fin_ans::text,'true','Oui')::text, 'false','Non') as financement_ans , replace(replace(int_fin_gene_velo::text,'true','Oui')::text, 'false','Non') as financement_generation_velo, replace(replace(int_fin_autre::text,'true','Oui')::text, 'false','Non') as financement_autre,replace(replace(int_fin_aucun::text,'true','Oui')::text, 'false','Non') as financement_aucun 
+    const requete =`SELECT *,TO_CHAR(int_dateintervention, 'DD/MM/YYYY') AS dateint,TO_CHAR(int_datecreation, 'DD/MM/YYYY HH24:MI:SS') AS datec,
+        TO_CHAR(int_datemaj, 'DD/MM/YYYY HH24:MI:SS') AS datem,co.str_libelle as str_lib_co_realise,int_corealiseautre as lib_co_realiseautre ,
+        eve.eve_titre as evenement_associe, replace(replace(int_fin_ans::text,'true','Oui')::text, 'false','Non') as financement_ans , 
+        replace(replace(replace(int_type_ans::text,'1','PST')::text, '2','PSF')::text, '3','CIV') as type_financement_ans, 
+        replace(replace(int_fin_gene_velo::text,'true','Oui')::text, 'false','Non') as financement_generation_velo, 
+        replace(replace(int_fin_autre::text,'true','Oui')::text, 'false','Non') as financement_autre,
+        replace(replace(int_fin_aucun::text,'true','Oui')::text, 'false','Non') as financement_aucun, 
+        dep.dep_libelle,
+        reg.reg_libelle,
+        replace(replace(int_isenfantshandicapes::text,'true','Oui')::text, 'false','Non') as enfantshandicapes, 
+        replace(replace(int_isqpv::text,'true','Oui')::text, 'false','Non') as qpv, 
+        replace(replace(int_isciteseducatives::text,'true','Oui')::text, 'false','Non') as citeseducatives
     from intervention 
     INNER JOIN bloc ON bloc.blo_id = intervention.blo_id 
     INNER JOIN cadreintervention ON cadreintervention.cai_id = intervention.cai_id 
@@ -192,6 +214,8 @@ router.get('/csv/filtre', async function (req, res) {
     LEFT JOIN evenement eve on eve.eve_id = intervention.eve_id
     INNER JOIN uti_str ust ON intervention.ust_id = ust.ust_id
     INNER JOIN structure ON structure.str_id = ust.str_id 
+    INNER JOIN departement dep ON dep.dep_num = int_dep_num
+    INNER JOIN region reg ON reg.reg_num = int_reg_num
     ${whereClause} 
     order by int_id asc`;
     log.d('::csv - requet', { requete })
@@ -248,10 +272,21 @@ router.get('/csv/filtre', async function (req, res) {
                         delete newIntervention.structureCode;
                         delete newIntervention.structureLibelle;
                         delete newIntervention.StructureLocaleUtilisateur;
+
+                        delete newIntervention.intfinans;
+                        delete newIntervention.intfingenevelo;
+                        delete newIntervention.intfinautre;
+                        delete newIntervention.intfinaucun;
+                        delete newIntervention.inttypeans;
+
+                        delete newIntervention.isenfantshandicapes;
+                        delete newIntervention.isqpv;
+                        delete newIntervention.isciteseducatives;
+
                         //newIntervention.structureCode = intervention.str_libellecourt;
                         //newIntervention.structureLibelle = intervention.str_libelle;
                         newIntervention.StructureLocaleUtilisateur = intervention.uti_structurelocale;
-                        newIntervention.qpv = intervention.qpv_libelle;
+                        newIntervention.qpvlib = intervention.qpv_libelle;
                         newIntervention.evenement_associe = intervention.evenement_associe;
                           
                         // On verifie les autorisation dans le paramètre CSV_FINANC
@@ -373,12 +408,63 @@ router.get('/nbattestations', async function (req, res) {
     log.i('::nbattestations - Done')
 });
 
+
+// ################# Nombre d'attestation par structure #################
+// Pour str_id = 0 on remonte toutes les données 
+//
+router.get('/annees', async function (req, res) {
+    log.i('::annees - In')
+    const user = req.session.user
+
+    const requete = `SELECT to_char(int_dateintervention,'YYYY') annees
+                from intervention 
+                group by annees
+                order by annees`;
+
+    log.d('::annees - récuperation via la requête.',{ requete })
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            log.w('::annees - Erreur lors de la requête.', { requete, erreur: err.stack});
+            //logTrace('aaq-csvods',1,startTime);
+            return res.status(400).json('erreur lors de la récupération des années d\'intervention');
+        }
+        else {
+            const resultat = result.rows;
+            log.d("résultat : ",resultat)
+            if (!resultat || !resultat.length) {
+                log.w('::annees - Résultat vide.')
+                return res.send(resultat);
+            }
+            else
+            {
+                log.i('::annees - Done1')
+                return res.send(resultat);
+            }
+        }
+    })
+
+    log.i('::annees - Done')
+});
+
 router.get('/tdb/', async function (req, res) {
     // Modification de la récupération de l'utilisateur courant 
     if (!req.session.user) {
         return res.sendStatus(403)
     }
     const user = req.session.user
+    var annee = req.query.annee
+    var crtb1 = ""
+    var crtb2 = "" 
+    var crtb3 = ""
+    var crtb = ""
+    log.d("req.query.annee",req.query.annee)
+    if (annee && annee != "toutes") {
+        crtb = " and to_char(intb.int_dateintervention,'YYYY') = '" + annee + "'"
+        crtb1 = " and to_char(intb1.int_dateintervention,'YYYY') = '" + annee + "'"
+        crtb2 = " and to_char(intb2.int_dateintervention,'YYYY') = '" + annee + "'"
+        crtb3 = " and to_char(intb3.int_dateintervention,'YYYY') = '" + annee + "'"
+    }
     var typetdb = req.query.typetdb
     var csv = req.query.csv
     var requete = null
@@ -391,10 +477,10 @@ router.get('/tdb/', async function (req, res) {
     if (typetdb === "dep") {
         log.i('::tdb - Dep ')
         requete = `select reg.reg_libelle as region, dep.dep_libelle as departement, dep.dep_num as codedepartement, 
-        (select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_dep_num = dep.dep_num and intb1.blo_id = 1), 
-        (select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_dep_num = dep.dep_num and intb2.blo_id = 2), 
-        (select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_dep_num = dep.dep_num and intb3.blo_id = 3),
-        (select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_dep_num = dep.dep_num)
+        (select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_dep_num = dep.dep_num and intb1.blo_id = 1 ${crtb1}), 
+        (select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_dep_num = dep.dep_num and intb2.blo_id = 2 ${crtb2}), 
+        (select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_dep_num = dep.dep_num and intb3.blo_id = 3 ${crtb3}),
+        (select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_dep_num = dep.dep_num ${crtb})
         from region reg
         left join departement dep on reg.reg_num = dep.reg_num
         group by 1,2,3
@@ -403,10 +489,10 @@ router.get('/tdb/', async function (req, res) {
     {
         log.i('::tdb - Reg')
         requete = `select reg.reg_libelle as region,reg.reg_num as coderegion,
-		(select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_reg_num = reg.reg_num and intb1.blo_id = 1), 
-		(select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_reg_num = reg.reg_num and intb2.blo_id = 2), 
-		(select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_reg_num = reg.reg_num and intb3.blo_id = 3),
-		(select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_reg_num = reg.reg_num)
+		(select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_reg_num = reg.reg_num and intb1.blo_id = 1 ${crtb1}), 
+		(select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_reg_num = reg.reg_num and intb2.blo_id = 2 ${crtb2}), 
+		(select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_reg_num = reg.reg_num and intb3.blo_id = 3 ${crtb3}),
+		(select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_reg_num = reg.reg_num ${crtb})
         from region reg
         group by 1,2
         order by 1,2`;
@@ -651,7 +737,7 @@ router.put('/:id', async function (req, res) {
 
     let { nbEnfants, nbGarcons, nbFilles, commune, cai, blocId, dateIntervention, 
         commentaire, cp, utilisateurId,siteintervention,
-        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun } = intervention
+        nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,isenfantshandicapes,nbenfantshandicapes,isqpv,qpvcode, ustid ,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun,inttypeans,isciteseducatives } = intervention
         
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -693,7 +779,9 @@ router.put('/:id', async function (req, res) {
         int_fin_ans = $26,
         int_fin_gene_velo = $27,
         int_fin_autre = $28,
-        int_fin_aucun = $29
+        int_fin_aucun = $29,
+        int_type_ans = $30,
+        int_isciteseducatives = $31
         WHERE int_id = ${id}
         RETURNING *
         ;`    
@@ -727,7 +815,9 @@ router.put('/:id', async function (req, res) {
         Boolean(intfinans), 
         Boolean(intfingenevelo),
         Boolean(intfinautre),
-        Boolean(intfinaucun)], (err, result) => {
+        Boolean(intfinaucun),
+        inttypeans,
+        isciteseducatives], (err, result) => {
         if (err) {
             log.w('::update - erreur lors de la récupération', { requete, erreur: err.stack})
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');
@@ -751,7 +841,7 @@ router.post('/', function (req, res) {
     let { nbEnfants,  nbGarcons, nbFilles, commune, cai, blocId, dateIntervention,
          commentaire, cp, utilisateurId, siteintervention,
          nbmoinssix, nbsixhuit, nbneufdix, nbplusdix,
-         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun } = intervention
+         isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode,ustid,strcorealisatrice,strcorealisatriceautre,eveid,intfinans, intfingenevelo,intfinautre,intfinaucun, inttypeans,isciteseducatives } = intervention
     
     if (nbGarcons == '') { nbGarcons = null }
     if (nbFilles == '') { nbFilles = null }
@@ -778,15 +868,17 @@ router.post('/', function (req, res) {
                         int_fin_ans, 
                         int_fin_gene_velo,
                         int_fin_autre,
-                        int_fin_aucun
+                        int_fin_aucun,
+                        int_type_ans,
+                        int_isciteseducatives
                         ) 
-                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32 ) RETURNING *`;
+                    values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26,$27,$28,$29,$30,$31,$32,$33,$34 ) RETURNING *`;
     
     log.d('::post - requete',{ requete });
     pgPool.query(requete, [cai,blocId,utilisateurId,commune.cpi_codeinsee,cp,commune.com_libellemaj,
     nbEnfants, nbGarcons, nbFilles,dateIntervention,new Date().toISOString(),new Date().toISOString(),commentaire, 
     commune.dep_num, commune.reg_num,siteintervention,nbmoinssix, nbsixhuit, nbneufdix, nbplusdix, 
-    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,strcorealisatriceautre,eveid,Boolean(intfinans), Boolean(intfingenevelo),Boolean(intfinautre),Boolean(intfinaucun)],(err, result) => {
+    isenfantshandicapes, nbenfantshandicapes, isqpv, qpvcode, ustid, strcorealisatrice,strcorealisatriceautre,eveid,Boolean(intfinans), Boolean(intfingenevelo),Boolean(intfinautre),Boolean(intfinaucun),inttypeans, isciteseducatives],(err, result) => {
         if (err) {
             log.w('::post - Erreur lors de la requête.',err.stack);
             return res.status(400).json('erreur lors de la sauvegarde de l\'intervention');

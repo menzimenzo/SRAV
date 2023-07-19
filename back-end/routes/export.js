@@ -39,7 +39,10 @@ const formatIntervention = intervention => {
         dateMaj: intervention.int_datemaj,
         commentaire: intervention.int_commentaire,
         siteintervention: intervention.int_siteintervention,
-        departement:intervention.int_dep_num
+        departement:intervention.int_dep_num,
+        departement_libelle:intervention.dep_libelle,
+        region:intervention.reg_num,
+        region_libelle:intervention.reg_libelle,
     }
 
     if(intervention.uti_nom){

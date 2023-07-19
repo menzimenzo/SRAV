@@ -93,7 +93,19 @@ router.get('/csv', async function (req, res) {
         uti_autorisepublicarte as autorisepublicarte,
         replace(replace(uti_form_gene_velo::text,'true','Oui'),'false','Non') as formgenevelo,
         TO_CHAR(uti_date_creation, 'DD/MM/YYYY') as datecreationcompte,
-        TO_CHAR(uti_date_connexion, 'DD/MM/YYYY') as datederniereconnexion
+        TO_CHAR(uti_date_connexion, 'DD/MM/YYYY') as datederniereconnexion,
+        (select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 
+                    from intervention intb1 
+                    join uti_str ustb1 on ustb1.uti_id = uti.uti_id and str.str_id = ustb1.str_id
+                    where ustb1.ust_id = intb1.ust_id and intb1.blo_id = 1 ),
+        (select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 
+                    from intervention intb2
+                    join uti_str ustb2 on ustb2.uti_id = uti.uti_id and str.str_id = ustb2.str_id
+                    where ustb2.ust_id = intb2.ust_id and intb2.blo_id = 2 ),
+        (select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 
+                    from intervention intb3 
+                    join uti_str ustb3 on ustb3.uti_id = uti.uti_id and str.str_id = ustb3.str_id
+                    where ustb3.ust_id = intb3.ust_id and intb3.blo_id = 3 )
         from utilisateur  uti
         join uti_str ust on ust.uti_id = uti.uti_id
         join structure str on str.str_id= ust.str_id 
@@ -116,7 +128,19 @@ router.get('/csv', async function (req, res) {
         uti_telephone as telephone,
         uti_autorisepublicarte as autorisepublicarte,
         uti_form_gene_velo as formgenevelo,
-        dco.tco_id str_typeCollectivite
+        dco.tco_id str_typeCollectivite,
+        (select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 
+                    from intervention intb1 
+                    join uti_str ustb1 on ustb1.uti_id = uti.uti_id and ustpar.str_id = ustb1.str_id
+                    where ustb1.ust_id = intb1.ust_id and intb1.blo_id = 1 ),
+        (select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 
+                    from intervention intb2
+                    join uti_str ustb2 on ustb2.uti_id = uti.uti_id and ustpar.str_id = ustb2.str_id
+                    where ustb2.ust_id = intb2.ust_id and intb2.blo_id = 2 ),
+        (select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 
+                    from intervention intb3 
+                    join uti_str ustb3 on ustb3.uti_id = uti.uti_id and ustpar.str_id = ustb3.str_id
+                    where ustb3.ust_id = intb3.ust_id and intb3.blo_id = 3 )
         from utilisateur  uti
         join uti_str ust on ust.uti_id = uti.uti_id
         join uti_str ustpar on ustpar.str_id = ust.str_id and ustpar.uti_id = ${utilisateurCourant.uti_id}
