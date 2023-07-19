@@ -153,14 +153,34 @@
         </b-card>
      
         <b-collapse id="accordiontdb" accordion="my-accordion" role="tabpanel">
-          <b-card-body v-if="!loading">
+            <b-card-body v-if="!loading">
+              <b-card-header header-tag="header" style="background:#fbe5e5">
+                <b-row></b-row>&nbsp;
+                <b-row>
+                  <b-col style="text-align:center">
+                    Filtrer sur l'année :
+                    <span
+                      class="liste-deroulante"
+                    >
+                      <b-form-select v-model="filtreannee" v-on:change="refreshTdb(filtreannee)">
+                        <option :value="'toutes'">Toutes</option>
+                        <option
+                          v-for="annees in listeAnnees"
+                          :key="annees.annee"
+                          :value="annees.annees"
+                        >{{ annees.annees}}</option>
+                      </b-form-select>
+                    </span>
+                  </b-col>
+                </b-row>
+              </b-card-header>            
               <h5>
                 <i class="material-icons ml-2 mr-1">attribution</i>Tableau de bord du nombre d'enfants par bloc par département<br>
               </h5>
               <b-btn @click="AfficheTdbDep=!AfficheTdbDep" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">view_list</i> Afficher/Masquer tableau
               </b-btn>
-              <b-btn @click="tableauDeBordCSV('dep',true)" class="mb-2" variant="primary">
+              <b-btn @click="tableauDeBordCSV('dep',filtreannee,true)" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
               </b-btn>
 
@@ -196,7 +216,7 @@
               <b-btn @click="AfficheTdbReg=!AfficheTdbReg" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">view_list</i> Afficher/Masquer tableau
               </b-btn>
-              <b-btn @click="tableauDeBordCSV('reg',true)" class="mb-2" variant="primary">
+              <b-btn @click="tableauDeBordCSV('reg',filtreannee,true)" class="mb-2" variant="primary">
                 <i class="material-icons" style="font-size: 18px; top: 4px;">import_export</i> Export CSV
               </b-btn>
 
@@ -681,6 +701,8 @@ export default {
       tdbreg: null,
       AfficheTdbDep: false,
       AfficheTdbReg: false,
+      listeAnnees: [],
+      filtreannee: "toutes",
       optionsHisto: null,
       optionsDoughnut: null,
       loading: true,
@@ -910,9 +932,9 @@ export default {
           return this.$toast.error("Une erreur est survenue lors de la récupération des indicateurs des événements")
       })
     },
-    tableauDeBordCSV(typetdb,csv){
+    tableauDeBordCSV(typetdb,annee,csv){
     this.$axios({
-        url: process.env.API_URL + "/interventions/tdb?typetdb="+ typetdb + "&csv=" + csv,
+        url: process.env.API_URL + "/interventions/tdb?typetdb="+ typetdb + "&csv=" + csv + "&annee=" + annee,
         method: "GET",
         responseType: "blob"
       })
@@ -936,8 +958,12 @@ export default {
           this.$toasted.error("Erreur lors du téléchargement: " + err.message);
         });
     },
-    tableauDeBord(typetdb,csv){
-      const url = process.env.API_URL + "/interventions/tdb?typetdb="+ typetdb
+    refreshTdb(annee){
+      this.tableauDeBord("dep",annee)
+      this.tableauDeBord("reg",annee)
+    },
+    tableauDeBord(typetdb,annee,csv){
+      const url = process.env.API_URL + "/interventions/tdb?typetdb="+ typetdb + "&annee=" + annee
       return this.$axios.$get(url)
       .then(({tdb}) => {
         if (typetdb == "dep")  
@@ -1441,8 +1467,22 @@ export default {
       console.log(err)
     })
 
-    this.tableauDeBord("dep")
-    this.tableauDeBord("reg")
+    
+    // Liste des années d'intervention
+    const urlannees = process.env.API_URL + "/interventions/annees/";
+    console.info(urlannees);
+    this.$axios.$get(urlannees)
+    .then(resultat => {
+      if (resultat) 
+      {
+        this.listeAnnees= resultat;
+      }
+    }).catch(err => {
+      console.log(err)
+    })
+
+    // Mise à jour du tableau de bord
+    this.refreshTdb("toutes")
 
     // Calcul des stats définies dans le mixins stat.js
     this.statCal(this.interventions, this.structures)

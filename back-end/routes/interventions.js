@@ -408,12 +408,63 @@ router.get('/nbattestations', async function (req, res) {
     log.i('::nbattestations - Done')
 });
 
+
+// ################# Nombre d'attestation par structure #################
+// Pour str_id = 0 on remonte toutes les données 
+//
+router.get('/annees', async function (req, res) {
+    log.i('::annees - In')
+    const user = req.session.user
+
+    const requete = `SELECT to_char(int_dateintervention,'YYYY') annees
+                from intervention 
+                group by annees
+                order by annees`;
+
+    log.d('::annees - récuperation via la requête.',{ requete })
+
+    pgPool.query(requete, (err, result) => {
+        if (err) {
+            log.w('::annees - Erreur lors de la requête.', { requete, erreur: err.stack});
+            //logTrace('aaq-csvods',1,startTime);
+            return res.status(400).json('erreur lors de la récupération des années d\'intervention');
+        }
+        else {
+            const resultat = result.rows;
+            log.d("résultat : ",resultat)
+            if (!resultat || !resultat.length) {
+                log.w('::annees - Résultat vide.')
+                return res.send(resultat);
+            }
+            else
+            {
+                log.i('::annees - Done1')
+                return res.send(resultat);
+            }
+        }
+    })
+
+    log.i('::annees - Done')
+});
+
 router.get('/tdb/', async function (req, res) {
     // Modification de la récupération de l'utilisateur courant 
     if (!req.session.user) {
         return res.sendStatus(403)
     }
     const user = req.session.user
+    var annee = req.query.annee
+    var crtb1 = ""
+    var crtb2 = "" 
+    var crtb3 = ""
+    var crtb = ""
+    log.d("req.query.annee",req.query.annee)
+    if (annee && annee != "toutes") {
+        crtb = " and to_char(intb.int_dateintervention,'YYYY') = '" + annee + "'"
+        crtb1 = " and to_char(intb1.int_dateintervention,'YYYY') = '" + annee + "'"
+        crtb2 = " and to_char(intb2.int_dateintervention,'YYYY') = '" + annee + "'"
+        crtb3 = " and to_char(intb3.int_dateintervention,'YYYY') = '" + annee + "'"
+    }
     var typetdb = req.query.typetdb
     var csv = req.query.csv
     var requete = null
@@ -426,10 +477,10 @@ router.get('/tdb/', async function (req, res) {
     if (typetdb === "dep") {
         log.i('::tdb - Dep ')
         requete = `select reg.reg_libelle as region, dep.dep_libelle as departement, dep.dep_num as codedepartement, 
-        (select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_dep_num = dep.dep_num and intb1.blo_id = 1), 
-        (select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_dep_num = dep.dep_num and intb2.blo_id = 2), 
-        (select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_dep_num = dep.dep_num and intb3.blo_id = 3),
-        (select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_dep_num = dep.dep_num)
+        (select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_dep_num = dep.dep_num and intb1.blo_id = 1 ${crtb1}), 
+        (select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_dep_num = dep.dep_num and intb2.blo_id = 2 ${crtb2}), 
+        (select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_dep_num = dep.dep_num and intb3.blo_id = 3 ${crtb3}),
+        (select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_dep_num = dep.dep_num ${crtb})
         from region reg
         left join departement dep on reg.reg_num = dep.reg_num
         group by 1,2,3
@@ -438,10 +489,10 @@ router.get('/tdb/', async function (req, res) {
     {
         log.i('::tdb - Reg')
         requete = `select reg.reg_libelle as region,reg.reg_num as coderegion,
-		(select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_reg_num = reg.reg_num and intb1.blo_id = 1), 
-		(select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_reg_num = reg.reg_num and intb2.blo_id = 2), 
-		(select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_reg_num = reg.reg_num and intb3.blo_id = 3),
-		(select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_reg_num = reg.reg_num)
+		(select COALESCE(sum(intb1.int_nombreenfant),0) as nbenfantsbloc1 from intervention intb1 where intb1.int_reg_num = reg.reg_num and intb1.blo_id = 1 ${crtb1}), 
+		(select COALESCE(sum(intb2.int_nombreenfant),0) as nbenfantsbloc2 from intervention intb2 where intb2.int_reg_num = reg.reg_num and intb2.blo_id = 2 ${crtb2}), 
+		(select COALESCE(sum(intb3.int_nombreenfant),0) as nbenfantsbloc3 from intervention intb3 where intb3.int_reg_num = reg.reg_num and intb3.blo_id = 3 ${crtb3}),
+		(select COALESCE(sum(intb.int_nombreenfant),0) as nbenfantstotal from intervention intb where intb.int_reg_num = reg.reg_num ${crtb})
         from region reg
         group by 1,2
         order by 1,2`;
